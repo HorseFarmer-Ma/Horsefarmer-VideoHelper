@@ -1,0 +1,96 @@
+<resources>
+    <!--应用名-->
+    <string name="app_name">ST</string>
+
+    <!--侧边栏项-->
+    <string name="about_phone">关于手机</string>
+    <string name="performs_test">性能测试</string>
+    <string name="common_tool">常用工具</string>
+    <string name="monkey">Monkey</string>
+    <string name="MTK_logcat">MTK一键抓log</string>
+    <string name="print_trace">导出Trace|DrodBox</string>
+    <string name="check_update">检查更新</string>
+    <string name="setting">设置</string>
+    <string name="WIFI_SSID">autoBuild</string>
+    <string name="WIFI_PSW">BTjY57*g$e</string>
+
+    <!--Menu菜单名-->
+    <string name="action_clear_video">视频</string>
+    <string name="action_clear_music">音乐</string>
+    <string name="action_clear_ebook">读书</string>
+    <string name="action_clear_gallery">图库</string>
+    <string name="action_clear_reader">资讯</string>
+    <string name="action_clear_compaign">活动中心</string>
+    <string name="action_clear_cloud">云服务</string>
+
+    <!--Monkey Fragment-->
+    <string name="action_input_packet">输入欲执行应用包名</string>
+    <string name="action_input_blacklist">请输入自定义黑名单</string>
+    <string name="action_open_mtkLog">打开MTKLOG</string>
+    <string name="action_clear_mtkLog">清除MTKLOG</string>
+    <string name="action_history">执行历史</string>
+    <string name="action_timetask">定时任务</string>
+    <string name="action_run_monkey">跑monkey</string>
+    <string name="action_first_step">第一步</string>
+    <string name="action_second_step">选择应用</string>
+    <string name="action_my_monkey">自定义执行monkey</string>
+    <string name="action_copy_monkey">复制指令</string>
+    <string name="action_blacklist_defined">自定义</string>
+    <string name="action_blacklist">默认</string>
+    <string name="action_save_blacklist">保存黑名单</string>
+
+    <!--ScreenRecord-->
+    <string name="action_screen_record">开始录制屏幕</string>
+    <string name="action_screen_record_time">录制时间(s):</string>
+
+    <!--使用帮助-->
+    <string name="title_activity_help">使用帮助</string>
+
+    <!--软件更新-->
+    <string name="updateXml">http://172.17.53.51/static/upload/user-resources/SuperTest/</string>
+    <string name="serverXml">http://172.17.53.51/static/upload/user-resources/SuperTest/update.xml</string>
+    <string name="title_activity_performs">PerformsActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">实现中。。。</string>
+
+    <!--性能测试列表-->
+    <string name="performs_description">描述</string>
+    <string name="performs_apptype">业务</string>
+
+
+    <string name="usr">autoBuild</string>
+
+    <string-array name="pwd">
+        <item>25353P?#$3</item>
+        <item>Inweb@meizu.com</item>
+    </string-array>
+
+    <!--设置菜单-->
+    <string name="setting_category_performs">性能测试设置</string>
+    <string name="setting_category_wifi">WiFi设置</string>
+    <string name="setting_lock_wifi">锁定WiFi</string>
+    <string name="setting_wakeup">保持屏幕唤醒</string>
+    <string name="setting_category_voice">静音设置</string>
+    <string name="setting_no_voice">手机静音</string>
+    <string name="setting_category_monkey">Monkey设置</string>
+
+    <!--WIFI列表-->
+    <string-array name="ssid">
+        <item>MZ-MEIZU-5G</item>
+        <item>MZ-MEIZU-2.4G</item>
+        <item>MZ-Hkline-5G</item>
+        <item>MZ-Inweb-Test</item>
+        <item>MZ-mgt</item>
+        <item>自定义</item>
+    </string-array>
+
+    <string-array name="list_preference">
+        <item>Red</item>
+        <item>Blue</item>
+        <item>Green</item>
+    </string-array>
+
+    <string name="performs_test_type">测试类型：</string>
+
+</resources>

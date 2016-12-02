@@ -1,0 +1,7 @@
+# Script to start "monkey" on the device, which has a very rudimentary
+# shell.
+#
+base=/data/data/com.meizu.testdevVideo/files/uitest/a5
+export CLASSPATH=$base/framework/monkey.jar
+trap "" HUP
+exec app_process $base/bin com.android.commands.monkey.Monkey $*

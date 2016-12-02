@@ -1,0 +1,27 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    tools:context=".activity.MainActivity" >
+
+    <ImageButton
+        android:id="@+id/start"
+        android:layout_width="25dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/ic_performs_running"
+        android:layout_marginRight="8dp" />
+
+    <TextView
+        android:id="@+id/txt_test_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="5dp"
+        android:paddingTop="10dp"
+        android:layout_below="@+id/start"
+        android:textColor="#BB0000"
+        android:text="执行测试中"/>
+
+</RelativeLayout>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.CommonToolsActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_gravity="center_vertical"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="20dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:textColor="#000000"
+            android:text="@string/action_screen_record_time"/>
+        <EditText
+            android:id="@+id/screen_record_times"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textSize="20dp"
+            android:hint="最多录制180s"
+            android:textColor="#000000"
+            android:gravity="center" />
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/button_screenRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/my_button_purple"
+        android:textColor="#FFFFFF"
+        android:text="@string/action_screen_record"/>
+
+    <Button
+        android:id="@+id/button_zip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/my_button_purple"
+        android:textColor="#FFFFFF"
+        android:text="压缩测试" />
+
+    <Button
+        android:id="@+id/button_unzip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/my_button_purple"
+        android:textColor="#FFFFFF"
+        android:text="解压测试" />
+
+
+</LinearLayout>

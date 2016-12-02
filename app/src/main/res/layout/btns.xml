@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<com.meizu.widget.floatingbutton.FloatingActionButtonPlus xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+android:id="@+id/FabPlus"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+app:layout_behavior="com.meizu.widget.floatingbutton.FabBehavior"
+app:switchFabColor="#DB4537"
+app:mBackgroundColor="#87000000"
+app:switchFabIcon="@mipmap/ic_add_white_48dp">
+
+<com.meizu.widget.floatingbutton.FabTagLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:tagText="下载案例">
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/ic_get_app_white_48dp"
+        app:backgroundTint="#468cb7"
+        app:fabSize="mini" />
+</com.meizu.widget.floatingbutton.FabTagLayout>
+
+
+<com.meizu.widget.floatingbutton.FabTagLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:tagText="使用说明">
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_notifications_white_24dp"
+        app:backgroundTint="#4284E4"
+        app:fabSize="mini" />
+</com.meizu.widget.floatingbutton.FabTagLayout>
+
+
+</com.meizu.widget.floatingbutton.FloatingActionButtonPlus>

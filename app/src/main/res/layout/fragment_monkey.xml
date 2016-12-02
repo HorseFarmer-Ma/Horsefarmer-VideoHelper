@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="22dp"
+        android:scrollbars="vertical"
+        android:fadingEdge="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:focusable="true"
+
+            android:focusableInTouchMode="true" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="20dp">
+
+                <Button
+                    android:id="@+id/button_single_choose"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#FFFFFF"
+                    android:layout_weight="1"
+                    android:text="应用Monkey"/>
+
+                <Button
+                    android:id="@+id/button_system_choose"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#FFFFFF"
+                    android:layout_weight="1"
+                    android:text="系统monkey"/>
+
+                <Button
+                    android:id="@+id/button_defined_choose"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#FFFFFF"
+                    android:layout_weight="1"
+                    android:text="DIY monkey"/>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/layout_single_monkey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:orientation="vertical"
+                android:background="@drawable/boder">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
+                    android:orientation="horizontal"
+                    android:layout_weight="3">
+
+                    <Spinner
+                        android:id="@+id/spinner_packet_choose"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_weight="2.5">
+                    </Spinner>
+
+                    <EditText
+                        android:id="@+id/edit_monkey_defined"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:hint="@string/action_input_packet"
+                        android:textSize="15dp"
+                        android:layout_weight="0.5"/>
+
+                </LinearLayout>
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/single_monkey_text"
+                    android:gravity="left"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="15dp"
+                    android:textColor="#000000"
+                    android:textSize="15dp"
+                    android:ellipsize="end" />
+
+                <Button
+                    android:id="@+id/button_copy_single_monkey"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center"
+                    android:layout_marginLeft="100dp"
+                    android:layout_marginRight="100dp"
+                    android:layout_marginBottom="15dp"
+                    android:background="@drawable/my_button_purple"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15dp"
+                    android:text="@string/action_copy_monkey" />
+
+                <Button
+                    android:id="@+id/button_single_monkey"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginRight="50dp"
+                    android:layout_marginBottom="20dp"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:background="@drawable/my_button_purple"
+                    android:textColor="#FFFFFF"
+                    android:gravity="center"
+                    android:textSize="15dp"
+                    android:text="@string/action_run_monkey" />
+
+            </LinearLayout>
+
+
+
+            <LinearLayout
+                android:id="@+id/layout_system_monkey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:orientation="vertical"
+                android:background="@drawable/boder">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="15dp"
+                    android:layout_weight="3"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Blacklist："
+                        android:layout_marginLeft="20dp"
+                        android:textColor="#AA0000"
+                        android:textSize="15dp"/>
+
+                    <Button
+                        android:id="@+id/button_blacklist"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp"
+                        android:background="@drawable/my_button_purple"
+                        android:text="@string/action_blacklist"
+                        android:layout_weight="1"
+                        android:layout_marginLeft="18dp"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15dp" />
+
+
+                    <Button
+                        android:id="@+id/button_blacklist_defined"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp"
+                        android:background="@drawable/my_button_white"
+                        android:layout_weight="1"
+                        android:textColor="#000000"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:text="@string/action_blacklist_defined"
+                        android:textSize="15dp"/>
+                </LinearLayout>
+
+
+                <EditText
+                    android:id="@+id/edit_blacklist_defined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:hint="@string/action_input_blacklist"
+                    android:textSize="15dp" />
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/system_monkey_text"
+                    android:gravity="left"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="15dp"
+                    android:textColor="#000000"
+                    android:textSize="15dp"
+                    android:ellipsize="end" />
+
+                <Button
+                    android:id="@+id/button_copy_system_monkey"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center"
+                    android:layout_marginLeft="100dp"
+                    android:layout_marginRight="100dp"
+                    android:layout_marginBottom="15dp"
+                    android:background="@drawable/my_button_purple"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15dp"
+                    android:text="@string/action_copy_monkey" />
+
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginRight="50dp"
+                    android:layout_marginBottom="15dp"
+                    android:layout_weight="2">
+
+                    <Button
+                        android:id="@+id/button_save_blacklist"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="@string/action_save_blacklist"
+                        android:layout_marginRight="15dp"
+                        android:gravity="center"
+                        android:background="@drawable/my_button_purple"
+                        android:textColor="#FFFFFF"
+                        android:layout_weight="1"
+                        android:textSize="15dp"/>
+
+                    <Button
+                        android:id="@+id/button_system_monkey"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:gravity="center"
+                        android:background="@drawable/my_button_purple"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15dp"
+                        android:layout_weight="1"
+                        android:text="@string/action_run_monkey" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/layout_defined_monkey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:orientation="vertical"
+                android:background="@drawable/boder">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="23dp"
+                        android:layout_marginBottom="13dp"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#AA0000"
+                            android:text="指令：" />
+                        <EditText
+                            android:id="@+id/defined_monkey_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13dp"
+                            android:background="@null"
+                            android:textColor="#777777"
+                            android:layout_weight="1"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#000000"
+                            android:layout_gravity="center"
+                            android:text="测试包名：" />
+                        <EditText
+                            android:id="@+id/edit_package_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13dp"
+                            android:hint="多个包名用空格隔开"
+                            android:layout_weight="1" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#000000"
+                            android:text="Seed值："/>
+                        <EditText
+                            android:id="@+id/edit_seed_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13dp"
+                            android:hint="种子数值"
+                            android:layout_weight="1" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#000000"
+                            android:text="点击时延："/>
+                        <EditText
+                            android:id="@+id/edit_click_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13dp"
+                            android:hint="Monkey点击事件间隔"
+                            android:layout_weight="1" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#000000"
+                            android:text="测试次数："/>
+                        <EditText
+                            android:id="@+id/edit_click_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13dp"
+                            android:hint="Monkey点击事件次数"
+                            android:layout_weight="1" />
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/button_defined_monkey"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginLeft="50dp"
+                        android:layout_marginRight="50dp"
+                        android:layout_marginBottom="20dp"
+                        android:paddingLeft="20dp"
+                        android:paddingRight="20dp"
+                        android:background="@drawable/my_button_purple"
+                        android:textColor="#FFFFFF"
+                        android:gravity="center"
+                        android:textSize="15dp"
+                        android:text="@string/action_run_monkey" />
+
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:background="@drawable/boder">
+
+                <Button
+                    android:id="@+id/bt_timetask"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp"
+                    android:layout_marginRight="20dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:background="@drawable/my_button_purple"
+                    android:textColor="#FFFFFF"
+                    android:gravity="center"
+                    android:textSize="15dp"
+                    android:text="@string/action_timetask"/>
+
+                <Button
+                    android:id="@+id/bt_history"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp"
+                    android:background="@drawable/my_button_purple"
+                    android:textColor="#FFFFFF"
+                    android:gravity="center"
+                    android:textSize="15dp"
+                    android:text="@string/action_history"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

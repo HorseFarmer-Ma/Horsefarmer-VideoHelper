@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.meizu.widget.floatingbutton.FloatingActionButtonPlus xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/FabPlus"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="com.meizu.floatingactionbuttonplus.FabBehavior"
+    app:switchFabColor="#DB4537"
+    app:mBackgroundColor="#87000000"
+    app:switchFabIcon="@mipmap/ic_add_white_48dp">
+
+    <com.meizu.widget.floatingbutton.FabTagLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:tagText="复制内容">
+
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_copy"
+            app:backgroundTint="#268FF7"
+            app:fabSize="mini" />
+    </com.meizu.widget.floatingbutton.FabTagLayout>
+
+    <com.meizu.widget.floatingbutton.FabTagLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:tagText="保存内容">
+
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_save"
+            app:backgroundTint="#F89E19"
+            app:fabSize="mini" />
+    </com.meizu.widget.floatingbutton.FabTagLayout>
+
+
+</com.meizu.widget.floatingbutton.FloatingActionButtonPlus>

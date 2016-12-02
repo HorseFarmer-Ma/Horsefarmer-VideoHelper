@@ -1,0 +1,21 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.meizu.testdevVideo.fragment.HistoryFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <com.meizu.widget.listview.CornerListView
+        android:id="@+id/lv_test"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="#00000000"
+        android:scrollbarStyle="outsideOverlay"
+        android:paddingRight="20dp"
+        android:paddingLeft="20dp"
+        android:dividerHeight="18dp">
+    </com.meizu.widget.listview.CornerListView>
+
+</FrameLayout>

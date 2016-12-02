@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:background="#FFFFFF"
+    android:orientation="horizontal"
+    android:gravity="center">
+
+    <!-- 这里的linearLayout加android:background=""这个属性要谨慎，如果加了后，popwindow是不能半透明了的 -->
+
+    <Button
+        android:id="@+id/cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/my_button_purple"
+        android:textColor="#FFFFFF"
+        android:textSize="15dp"
+        android:text="取消" />
+
+    <Button
+        android:id="@+id/delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/my_button_purple"
+        android:textColor="#FFFFFF"
+        android:textSize="15dp"
+        android:text="删除" />
+
+    <Button
+        android:id="@+id/choose_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/my_button_purple"
+        android:textColor="#FFFFFF"
+        android:textSize="15dp"
+        android:text="全选" />
+
+
+</LinearLayout>

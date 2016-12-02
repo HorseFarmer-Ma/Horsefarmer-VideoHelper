@@ -1,0 +1,62 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="DefineTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/title_background</item>
+        <item name="colorPrimaryDark">@color/title_background</item>
+        <item name="android:textColorPrimary">@android:color/black</item>
+        <item name="colorAccent">@color/red</item>
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+
+    <style name="DefineTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <!--  这个是加入的代码 -->
+    <style name="mypopwindow_anim_style">
+        <item name="android:windowEnterAnimation">@anim/popshow_anim</item>
+        <!-- 指定显示的动画xml -->
+
+        <item name="android:windowExitAnimation">@anim/pophidden_anim</item>
+        <!-- 指定消失的动画xml -->
+    </style>
+
+    <!--重写，去除状态栏和标题栏阴影-->
+    <style name="Widget.Design.AppBarLayout" parent="android:Widget">
+        <item name="elevation">0dp</item>
+        <item name="android:background">?attr/colorPrimary</item>
+    </style>
+
+    <style name="Theme.Application" parent="@style/AppTheme">
+        <!--<item name="colorPrimary">#087C67</item>-->
+        <!--<item name="colorPrimaryDark">#087C67</item>-->
+    </style>
+
+    <style name="Theme.Settings" parent="@style/Theme.Application" />
+
+    <style name="Widget.Toolbar" parent="@style/Widget.AppCompat.Toolbar">
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="android:navigationIcon">@android:color/white</item>
+        <item name="navigationIcon">?attr/homeAsUpIndicator</item>
+    </style>
+
+</resources>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory
+        android:title="@string/setting_category_performs"
+        android:selectable="false">
+
+        <SwitchPreference
+            android:key="preference_wakeup"
+            android:defaultValue="false"
+            android:title="@string/setting_wakeup"
+            android:summary="作为性能测试的机器时，需要开启"/>
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:title="@string/setting_category_wifi"
+        android:selectable="false">
+
+        <SwitchPreference
+            android:key="preference_lock_wifi"
+            android:defaultValue="true"
+            android:title="@string/setting_lock_wifi"
+            android:summary="选择锁定的WiFi或自定义"/>
+
+        <ListPreference
+            android:key="preference_lock_wifi_type"
+            android:defaultValue="MZ-MEIZU-5G"
+            android:title="锁定目标"
+            android:entries="@array/ssid"
+            android:entryValues="@array/ssid"
+            android:dialogTitle="请选择锁定类型" />
+
+        <EditTextPreference
+            android:key="preference_defined_wifi_ssid"
+            android:title="ssid"
+            android:defaultValue="MZ-Inweb-Test"/>
+
+        <EditTextPreference
+            android:key="preference_defined_wifi_psw"
+            android:title="password"
+            android:defaultValue="Inweb@meizu.com"/>
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:title="@string/setting_category_voice"
+        android:selectable="false">
+
+        <SwitchPreference
+            android:key="preference_mute"
+            android:defaultValue="true"
+            android:title="@string/setting_no_voice" />
+
+        <CheckBoxPreference
+            android:key="preference_mute_run_task"
+            android:title="仅在执行任务时静音"
+            android:defaultValue="true"
+            android:summary="勾选则仅在执行任务时静音">
+        </CheckBoxPreference>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/setting_category_monkey"
+        android:selectable="false">
+
+        <SwitchPreference
+            android:key="preference_monkey_float_btn"
+            android:title="启用悬浮按钮"
+            android:defaultValue="true"
+            android:summary="跑前短按开始，跑后长按停止">
+        </SwitchPreference>
+
+        <CheckBoxPreference
+            android:key="preference_clear_log"
+            android:title="跑前清除日志"
+            android:defaultValue="true"
+            android:summary="自动清除本地MTK/LogReport抓取的日志">
+        </CheckBoxPreference>
+
+        <CheckBoxPreference
+            android:key="preference_monkey_mtk_set"
+            android:title="自动开启/停止抓Log工具"
+            android:defaultValue="true"
+            android:summary="跑前开启|跑后停止MTK/LogReport">
+        </CheckBoxPreference>
+
+        <CheckBoxPreference
+            android:key="preference_catch_log_type"
+            android:title="只抓取Main Log"
+            android:defaultValue="true">
+        </CheckBoxPreference>
+
+        <EditTextPreference
+            android:key="preference_single_log_size"
+            android:title="日志最大值(MB)"
+            android:defaultValue="4096">
+        </EditTextPreference>
+
+        <EditTextPreference
+            android:key="preference_all_log_size"
+            android:title="总日志容量最大值(MB)"
+            android:defaultValue="10000">
+        </EditTextPreference>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

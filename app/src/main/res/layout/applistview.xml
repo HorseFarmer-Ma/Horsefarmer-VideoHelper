@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="50dip">
+
+    <ImageView
+        android:id="@+id/img"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="10dp" >
+    </ImageView>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_height="50dp">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="appName">
+        </TextView>
+
+        <TextView
+            android:id="@+id/version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@+id/title"
+            android:text="版本号">
+        </TextView>
+
+        <TextView
+            android:id="@+id/versionName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@+id/version"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="versionName">
+        </TextView>
+
+        <TextView
+            android:id="@+id/packetName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/title"
+            android:text="包名: ">
+        </TextView>
+
+        <TextView
+            android:id="@+id/packet"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/packetName"
+            android:layout_alignBottom="@+id/packetName"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@+id/packetName"
+            android:text="app:" />
+
+    </RelativeLayout>
+
+</LinearLayout>  

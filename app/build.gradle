@@ -1,0 +1,61 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+
+    defaultConfig {
+        applicationId "com.meizu.testdevVideo"
+        minSdkVersion 18
+        targetSdkVersion 23
+        versionCode 1285
+        versionName "1.2.85"
+
+        ndk {
+            //选择要添加的对应cpu类型的.so库。
+            abiFilters 'armeabi', 'armeabi-v7a', 'armeabi-v8a', 'x86', 'x86_64', 'mips', 'mips64', 'arm64-v8a'
+        }
+
+        manifestPlaceholders = [
+                JPUSH_PKGNAME: applicationId,
+                JPUSH_APPKEY : "64501883ed1ed7c86695be2f", //JPush上注册的包名对应的appkey.
+                JPUSH_CHANNEL: "developer-default", //暂时填写默认值即可.
+        ]
+    }
+
+//    JPush推送声明.so文件路径
+//    sourceSets {
+//        main {
+//            jniLibs.srcDirs = ['libs']
+//        }
+//    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+//    重命名生成的APK名字
+    android.applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def file = output.outputFile
+            output.outputFile = new File(file.parent, file.name.replace("app-debug", "SuperTest_" + defaultConfig.versionName))
+        }
+    }
+}
+
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    // 此处以SDK 2.1.9版本为例
+    compile files('libs/afinal_0.5.1_bin.jar')
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:design:23.4.0'
+    compile 'com.android.support:support-v4:23.4.0'
+    compile 'com.android.support:cardview-v7:23.4.0'
+    compile 'cn.jiguang:jpush:2.1.9'
+    compile files('libs/perflib.jar')
+}
