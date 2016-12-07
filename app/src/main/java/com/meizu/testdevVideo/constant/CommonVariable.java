@@ -58,4 +58,6 @@ public class CommonVariable {
 
     public static String performsCommand = "/system/bin/sh /data/data/com.meizu.testdevVideo/files/uitest/a5/uiautomator runtest jarPath -c className";
     public static boolean isPerformsStart = false;
+
+    public static String mtkLogBroadcast = "am broadcast -a com.mediatek.mtklogger.ADB_CMD -e cmd_name %s --ei cmd_target %d";
 }

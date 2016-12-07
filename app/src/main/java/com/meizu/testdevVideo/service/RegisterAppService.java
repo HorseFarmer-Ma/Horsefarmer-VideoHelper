@@ -1,19 +1,22 @@
 package com.meizu.testdevVideo.service;
 
-import android.app.Service;
+import android.app.IntentService;
 import android.content.Intent;
-import android.os.IBinder;
+
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.meizu.testdevVideo.interports.iPerformsKey;
+import com.meizu.testdevVideo.interports.iPublicConstants;
+import com.meizu.testdevVideo.library.PostCallBack;
+import com.meizu.testdevVideo.library.PostUploadHelper;
 import com.meizu.testdevVideo.util.PublicMethod;
-import com.meizu.testdevVideo.util.register.RegisterPost;
-import com.meizu.testdevVideo.util.register.RegisterResultCallBack;
 import com.meizu.testdevVideo.util.sharepreference.PerformsData;
 
-import net.tsz.afinal.http.AjaxParams;
+import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import cn.jpush.android.api.JPushInterface;
 
@@ -21,78 +24,73 @@ import cn.jpush.android.api.JPushInterface;
 /**
  * 注册APK
  */
-public class RegisterAppService extends Service {
+public class RegisterAppService extends IntentService {
 
     private final String TAG = RegisterAppService.class.getSimpleName();
     private final String ALIAS_NAME = "alias";
     private final String TAG_NAME = "tag";
     private final String RESGISTER_ID = "resgisterId";
-    private AjaxParams params = null;
     private String registerId;
-    private int registerTryNumber;   // 尝试注册次数
+    private Map<String, String> params = null;
 
+    /**
+     * Creates an IntentService.  Invoked by your subclass's constructor.
+     */
     public RegisterAppService() {
+        super("register");
     }
 
 
     @Override
     public void onCreate() {
         super.onCreate();
-        register();     // 首次进来注册
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        registerTryNumber = 0;   // 尝试次数初始化
-        RegisterPost.getInstance().setRegisterResultCallBack(new RegisterResultCallBack() {
-            @Override
-            public void isSendSuccess(boolean isSuccess, boolean isCompleteFlag) {
-                Log.e(TAG, "注册结果" + isSuccess);
-                if(isSuccess){
-                    PerformsData.getInstance(RegisterAppService.this).writeBooleanData(iPerformsKey.isRegister, true);
-                    Log.e(TAG, "注册成功，不再尝试注册");
-                }else{
-                    try {
-                        Thread.sleep(10 * 1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    register();     // 注册不成功，再次尝试注册
-                }
-            }
-        });
-
-        return super.onStartCommand(intent, flags, startId);
+    protected void onHandleIntent(Intent intent) {
+        register();
     }
 
+    /**
+     * 注册函数
+     */
     private void register(){
-        Log.e(TAG, "欲设置的Tag为" + PerformsData.getInstance(this).readStringData(iPerformsKey.deviceType));
-        Log.e(TAG, "欲设置的别名为" + PerformsData.getInstance(this).readStringData(iPerformsKey.imei));
-        if(!PerformsData.getInstance(this).readBooleanData(iPerformsKey.isRegister)){
-            if(PublicMethod.isConnected(this)){
-                if(!TextUtils.isEmpty(registerId = JPushInterface.getRegistrationID(getApplicationContext()))){
+        Log.e(TAG, "欲设置的Tag为" + PerformsData.getInstance(RegisterAppService.this).readStringData(iPerformsKey.deviceType));
+        Log.e(TAG, "欲设置的别名为" + PerformsData.getInstance(RegisterAppService.this).readStringData(iPerformsKey.imei));
+        if(!PerformsData.getInstance(RegisterAppService.this).readBooleanData(iPerformsKey.isRegister)) {
+            if (PublicMethod.isConnected(RegisterAppService.this)) {
+                if (!TextUtils.isEmpty(registerId = JPushInterface.getRegistrationID(getApplicationContext()))) {
                     Log.e(TAG, "尝试注册");
                     Log.e(TAG, "欲设置的RegistrationID为" + JPushInterface.getRegistrationID(getApplicationContext()));
-                    if(registerTryNumber > 15){
-                        stopSelf();   // 尝试注册次数大于15次，停止服务
-                    }else {
-                        registerTryNumber ++;
-                    }
                     if(params == null){
-                        params = new AjaxParams();
-                        params.put(ALIAS_NAME, PerformsData.getInstance(this).readStringData(iPerformsKey.imei));
-                        params.put(TAG_NAME, PerformsData.getInstance(this).readStringData(iPerformsKey.deviceType));
+                        params = new HashMap<String, String>();
+                        params.put(TAG_NAME, PerformsData.getInstance(RegisterAppService.this).readStringData(iPerformsKey.deviceType));
+                        params.put(ALIAS_NAME, PerformsData.getInstance(RegisterAppService.this).readStringData(iPerformsKey.imei));
                         params.put(RESGISTER_ID, registerId);
                     }
-
-                    RegisterPost.getInstance().registerPost(this, params);
+                    try {
+                        PostUploadHelper.getInstance().submitPostData(iPublicConstants.PERFORMS_POST_ID_TAG_ALIAS_URL, params, new PostCallBack() {
+                            @Override
+                            public void resultCallBack(boolean isSuccess, int resultCode, String result) {
+                                Log.e("POST结果", "isSuccess：" + isSuccess);
+                                Log.e("POST结果", "resultCode：" + resultCode);
+                                Log.e("POST结果", "result：" + result);
+                                if(result.equals("200")){
+                                    PerformsData.getInstance(RegisterAppService.this).writeBooleanData(iPerformsKey.isRegister, true);
+                                }
+                                stopSelf();
+                            }
+                        });
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
 
                     try {
                         Thread.sleep(7 * 1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                }else{
+                } else {
                     try {
                         Thread.sleep(10 * 1000);
                     } catch (InterruptedException e) {
@@ -106,29 +104,20 @@ public class RegisterAppService extends Service {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            }else{
-                PublicMethod.lockWifi(PreferenceManager.getDefaultSharedPreferences(this), this);
+            } else {
+                PublicMethod.lockWifi(PreferenceManager.getDefaultSharedPreferences(RegisterAppService.this), RegisterAppService.this);
                 try {
                     Thread.sleep(10 * 1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                register();
             }
         }
     }
 
-
-
-
     @Override
     public void onDestroy() {
         super.onDestroy();
-    }
-
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
+        Log.e(TAG, "注册完成，退出注册服务");
     }
 }

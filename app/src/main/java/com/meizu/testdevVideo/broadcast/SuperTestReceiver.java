@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.meizu.testdevVideo.interports.iPublic;
+import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.service.SuperTestService;
 import com.meizu.testdevVideo.util.PublicMethod;
 
@@ -20,7 +20,7 @@ public class SuperTestReceiver extends BroadcastReceiver {
         if(!PublicMethod.isServiceWorked(context, "com.meizu.testdevVideo.service.SuperTestService")){
             PublicMethod.saveStringToFileWithoutDeleteSrcFile(PublicMethod.getSystemTime()
                     + "服务被销毁了，触发监听器，启动服务\n",
-                    "MonkeyService_Log", iPublic.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                    "MonkeyService_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
             Intent service=new Intent(context, SuperTestService.class);
             //启动服务
             context.startService(service);

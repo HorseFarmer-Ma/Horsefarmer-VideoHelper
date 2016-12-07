@@ -5,7 +5,6 @@ import android.app.Activity;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,7 +16,6 @@ import android.os.Handler;
 import android.os.Message;
 
 import android.os.SystemClock;
-import android.provider.Settings;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -35,18 +33,15 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.meizu.testdevVideo.R;
-import com.meizu.testdevVideo.interports.iPerformsKey;
 import com.meizu.testdevVideo.library.SharedPreferencesHelper;
 import com.meizu.testdevVideo.fragment.AboutPhoneFragment;
 import com.meizu.testdevVideo.fragment.MonkeyFragment;
 import com.meizu.testdevVideo.fragment.PerformsTestFragment;
 import com.meizu.testdevVideo.fragment.ToolFragment;
-import com.meizu.testdevVideo.interports.iPublic;
+import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.library.SqlAlterHelper;
-import com.meizu.testdevVideo.service.RegisterAppService;
 import com.meizu.testdevVideo.util.PublicMethod;
 import com.meizu.testdevVideo.util.log.SaveLog;
-import com.meizu.testdevVideo.util.sharepreference.PerformsData;
 import com.meizu.testdevVideo.util.shell.ShellUtil;
 import com.meizu.testdevVideo.util.shell.ShellUtils;
 import com.meizu.testdevVideo.util.update.SoftwareUpdate;
@@ -171,20 +166,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Thread data_thread  = new Thread(new Runnable() {
         @Override
         public void run() {
-            if(!new File(iPublic.MEMORY_BACK_UP + "blacklist_save.txt").exists()){
-                PublicMethod.copyAssetFile(MainActivity.this, "blacklist.txt", iPublic.MEMORY_BACK_UP);
+            if(!new File(iPublicConstants.MEMORY_BACK_UP + "blacklist_save.txt").exists()){
+                PublicMethod.copyAssetFile(MainActivity.this, "blacklist.txt", iPublicConstants.MEMORY_BACK_UP);
                 try {
                     PublicMethod.copySingleFile("blacklist.txt", "blacklist_save.txt",
-                            iPublic.MEMORY_BACK_UP , iPublic.MEMORY_BACK_UP);
+                            iPublicConstants.MEMORY_BACK_UP , iPublicConstants.MEMORY_BACK_UP);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
 
             // 删除更新包
-            File mApk = new File(iPublic.LOCAL_MEMORY + "/SuperTest/UpdateApk/");
+            File mApk = new File(iPublicConstants.LOCAL_MEMORY + "/SuperTest/UpdateApk/");
             if(mApk.exists()){
-                PublicMethod.deleteDirectory(iPublic.LOCAL_MEMORY + "/SuperTest/UpdateApk");
+                PublicMethod.deleteDirectory(iPublicConstants.LOCAL_MEMORY + "/SuperTest/UpdateApk");
             }
 
             File uitest = new File(getFilesDir() + "/uitest/a5/uiautomator");
@@ -277,19 +272,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         String packet_choose = "";
         if (id == R.id.action_clear_video) {
-            packet_choose = iPublic.PACKET_VIDEO;
+            packet_choose = iPublicConstants.PACKET_VIDEO;
         }else if (id == R.id.action_clear_music) {
-                packet_choose = iPublic.PACKET_MUSIC;
+                packet_choose = iPublicConstants.PACKET_MUSIC;
         }else if (id == R.id.action_clear_ebook) {
-            packet_choose = iPublic.PACKET_EBOOK;
+            packet_choose = iPublicConstants.PACKET_EBOOK;
         }else if (id == R.id.action_clear_gallery) {
-            packet_choose = iPublic.PACKET_GALLERY;
+            packet_choose = iPublicConstants.PACKET_GALLERY;
         }else if (id == R.id.action_clear_reader) {
-            packet_choose = iPublic.PACKET_READER;
+            packet_choose = iPublicConstants.PACKET_READER;
         }else if(id == R.id.action_clear_compaign){
-            packet_choose = iPublic.PACKET_COMPAIGN;
+            packet_choose = iPublicConstants.PACKET_COMPAIGN;
         }else if (id == R.id.action_clear_cloud) {
-            packet_choose = iPublic.PACKET_CLOUD;
+            packet_choose = iPublicConstants.PACKET_CLOUD;
         }
 
         // menu菜单功能选择
@@ -390,7 +385,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if(0 == which){
                         if(new File("/data/anr").exists()){
                             ToastHelper.addToast("正在导出Trace文件，请稍后...", MainActivity.this);
-                            PublicMethod.copyFolder("/data/anr", iPublic.LOCAL_MEMORY + "SuperTest/Trace/" +
+                            PublicMethod.copyFolder("/data/anr", iPublicConstants.LOCAL_MEMORY + "SuperTest/Trace/" +
                                     new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()));   // 导出Trace文件
                             ToastHelper.addToast("Trace文件导出完毕，保存至/sdcard/SuperTest/Trace/",
                                     MainActivity.this);
@@ -400,7 +395,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }else{
                         if(new File("/data/system/Dropbox").exists()){
                             ToastHelper.addToast("正在导出Dropbox文件，请稍后...", MainActivity.this);
-                            PublicMethod.copyFolder("/data/system/dropbox", iPublic.LOCAL_MEMORY + "SuperTest/Dropbox/" +
+                            PublicMethod.copyFolder("/data/system/dropbox", iPublicConstants.LOCAL_MEMORY + "SuperTest/Dropbox/" +
                                     new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()));   // 导出Trace文件
                             ToastHelper.addToast("Dropbox文件导出完毕，保存至/sdcard/SuperTest/Dropbox/",
                                     MainActivity.this);

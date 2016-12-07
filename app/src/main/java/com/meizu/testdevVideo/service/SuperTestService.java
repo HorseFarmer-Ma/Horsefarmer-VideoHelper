@@ -35,7 +35,7 @@ import com.meizu.testdevVideo.interports.PerformsMonkeyCallBack;
 import com.meizu.testdevVideo.interports.iPerformsKey;
 import com.meizu.testdevVideo.library.ServiceHelper;
 import com.meizu.testdevVideo.broadcast.WifiReceiver;
-import com.meizu.testdevVideo.interports.iPublic;
+import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.library.ToastHelper;
 import com.meizu.testdevVideo.util.PublicMethod;
 import com.meizu.testdevVideo.util.PublicMethodConstant;
@@ -194,7 +194,7 @@ public class SuperTestService extends Service {
     private void timerInit(){
         mTimer = new Timer();
         mTimer.schedule(mMonkeyTimeTask, 10 * Constants.TIME.MINUTE, 10 * Constants.TIME.MINUTE);
-        mTimer.schedule(mRegisterTask, 15 * Constants.TIME.SECOND);
+        mTimer.schedule(mRegisterTask, 10 * Constants.TIME.SECOND);
     }
 
     /**
@@ -327,11 +327,21 @@ public class SuperTestService extends Service {
                 public void run() {
                     if(settingSharedPreferences.getBoolean(SettingPreferenceKey.MONKEY_MTK_SET, true)){
                         try {
-                            if(settingSharedPreferences.getBoolean(SettingPreferenceKey.CATCH_LOG_TYPE, true)){
-                                Runtime.getRuntime().exec(CommonVariable.stopCatLogBroadcast.replace("%d", "1"));
+                            if(CommonVariable.snLabel.contains("71") || CommonVariable.snLabel.contains("76") || CommonVariable.snLabel.contains("86")
+                                    || CommonVariable.snLabel.contains("96")){
+                                if(settingSharedPreferences.getBoolean(SettingPreferenceKey.CATCH_LOG_TYPE, true)){
+                                    Runtime.getRuntime().exec(CommonVariable.stopCatLogBroadcast.replace("%d", "1"));
+                                }else{
+                                    Runtime.getRuntime().exec(CommonVariable.stopCatLogBroadcast.replace("%d", "7"));
+                                }
                             }else{
-                                Runtime.getRuntime().exec(CommonVariable.stopCatLogBroadcast.replace("%d", "7"));
+                                if(settingSharedPreferences.getBoolean(SettingPreferenceKey.CATCH_LOG_TYPE, true)){
+                                    Runtime.getRuntime().exec(CommonVariable.mtkLogBroadcast.replace("%s", "stop").replace("%d", "1"));
+                                }else{
+                                    Runtime.getRuntime().exec(CommonVariable.mtkLogBroadcast.replace("%s", "stop").replace("%d", "7"));
+                                }
                             }
+
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -398,7 +408,7 @@ public class SuperTestService extends Service {
      */
     private void saveLog(String log){
         PublicMethod.saveStringToFileWithoutDeleteSrcFile(PublicMethod.getSystemTime() + log,
-                "SuperTestService_Log", iPublic.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                "SuperTestService_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
     }
 
     @Override

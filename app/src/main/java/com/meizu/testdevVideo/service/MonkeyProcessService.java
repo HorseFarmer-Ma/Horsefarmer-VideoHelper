@@ -7,7 +7,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.meizu.testdevVideo.constant.CommonVariable;
-import com.meizu.testdevVideo.interports.iPublic;
+import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.util.PublicMethod;
 
 import java.io.IOException;
@@ -55,13 +55,13 @@ public class MonkeyProcessService extends Service {
             @Override
             protected Void doInBackground(Void... params) {
                 PublicMethod.saveStringToFileWithoutDeleteSrcFile(PublicMethod.getSystemTime() + "执行性能测试Monkey指令\n",
-                        "Performs_Log", iPublic.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                        "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
                 try {
                     Runtime.getRuntime().exec(CommonVariable.performsMonkeyCommand.replace("%s", packageName));
                 } catch (IOException e){
                     e.printStackTrace();
                     PublicMethod.saveStringToFileWithoutDeleteSrcFile(PublicMethod.getSystemTime() + "哎呀,性能测试Monkey意外出错\n",
-                            "Performs_Log", iPublic.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                            "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
                 }
 
                 return null;

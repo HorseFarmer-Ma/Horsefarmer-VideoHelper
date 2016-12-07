@@ -33,7 +33,7 @@ import com.meizu.testdevVideo.R;
 import com.meizu.testdevVideo.activity.HistoryAndTimeTaskActivity;
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
 import com.meizu.testdevVideo.constant.CommonVariable;
-import com.meizu.testdevVideo.interports.iPublic;
+import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.library.SqlAlterHelper;
 
 import com.meizu.testdevVideo.util.sharepreference.MonkeyTableData;
@@ -55,7 +55,7 @@ public class MonkeyFragment extends Fragment {
 
     private Button button_single_monkey, button_system_monkey, button_defined_monkey, button_copy_single_monkey,
             button_copy_system_monkey, button_blacklist, button_blacklist_defined, button_save_blacklist, button_single_choose,
-            button_system_choose, button_defined_choose, bt_timetask, bt_history;
+            button_system_choose, button_defined_choose, bt_timetask, bt_history, btn_open_mtkLog;
 
     private Spinner packet_spinner;
     private TextView single_monkey_text, system_monkey_text;
@@ -100,6 +100,7 @@ public class MonkeyFragment extends Fragment {
         button_single_choose = (Button) view.findViewById(R.id.button_single_choose);
         button_system_choose = (Button) view.findViewById(R.id.button_system_choose);
         button_defined_choose = (Button) view.findViewById(R.id.button_defined_choose);
+        btn_open_mtkLog = (Button) view.findViewById(R.id.btn_open_mtkLog);
         bt_history = (Button) view.findViewById(R.id.bt_history);
         bt_timetask = (Button) view.findViewById(R.id.bt_timetask);
 
@@ -149,11 +150,12 @@ public class MonkeyFragment extends Fragment {
         button_defined_choose.setOnClickListener(clickListener);
         bt_history.setOnClickListener(clickListener);
         bt_timetask.setOnClickListener(clickListener);
+        btn_open_mtkLog.setOnClickListener(clickListener);
 
 
         // 读取保存的黑名单进编辑框
         edit_blacklist_defined.setText(PublicMethod.
-                readFile(iPublic.MEMORY_BACK_UP + "blacklist_save.txt"));
+                readFile(iPublicConstants.MEMORY_BACK_UP + "blacklist_save.txt"));
 
         // 单个
         single_monkey_text.setOnClickListener(new View.OnClickListener() {
@@ -435,15 +437,15 @@ public class MonkeyFragment extends Fragment {
                 button_copy_single_monkey.setVisibility(View.GONE);
                 CommonVariable.packet_choose = "";
             }else if(choose.equals("视频")){
-                CommonVariable.packet_choose = iPublic.PACKET_VIDEO;
+                CommonVariable.packet_choose = iPublicConstants.PACKET_VIDEO;
             }else if(choose.equals("音乐")){
-                CommonVariable.packet_choose = iPublic.PACKET_MUSIC;
+                CommonVariable.packet_choose = iPublicConstants.PACKET_MUSIC;
             }else if(choose.equals("读书")){
-                CommonVariable.packet_choose = iPublic.PACKET_EBOOK;
+                CommonVariable.packet_choose = iPublicConstants.PACKET_EBOOK;
             }else if(choose.equals("图库")){
-                CommonVariable.packet_choose = iPublic.PACKET_GALLERY;
+                CommonVariable.packet_choose = iPublicConstants.PACKET_GALLERY;
             }else if(choose.equals("资讯")){
-                CommonVariable.packet_choose = iPublic.PACKET_READER;
+                CommonVariable.packet_choose = iPublicConstants.PACKET_READER;
             }else if(choose.equals("自定义")){
                 CommonVariable.packet_choose = " ";
                 edit_monkey_defined.setVisibility(View.VISIBLE);
@@ -528,7 +530,7 @@ public class MonkeyFragment extends Fragment {
                     break;
                 case R.id.button_save_blacklist:
                     PublicMethod.saveStringToFile(edit_blacklist_defined.getText().toString(),
-                            "blacklist_save.txt", iPublic.MEMORY_BACK_UP);      // 保存黑名单
+                            "blacklist_save.txt", iPublicConstants.MEMORY_BACK_UP);      // 保存黑名单
                     ToastHelper.addToast("已保存黑名单", getActivity().getApplicationContext());
                     break;
                 case R.id.button_single_choose:
@@ -545,6 +547,13 @@ public class MonkeyFragment extends Fragment {
                     break;
                 case R.id.bt_timetask:
                     jumpHistoryAndTimeTask("定时任务");
+                    break;
+                case R.id.btn_open_mtkLog:
+                    try {
+                        Runtime.getRuntime().exec("am start -n com.mediatek.mtklogger/com.mediatek.mtklogger.MainActivity");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 default:
                     break;
@@ -634,7 +643,12 @@ public class MonkeyFragment extends Fragment {
 
                 // 清除日志
                 if(sharedPreferences.getBoolean(SettingPreferenceKey.CLEAR_LOG, true)){
-                    PublicMethod.deleteDirectory(iPublic.LOCAL_MEMORY + "/Android/log");
+                    if(CommonVariable.snLabel.contains("71") || CommonVariable.snLabel.contains("76") || CommonVariable.snLabel.contains("86")
+                            || CommonVariable.snLabel.contains("96")){
+                        PublicMethod.deleteDirectory(iPublicConstants.LOCAL_MEMORY + "/Android/log");
+                    }else{
+                        PublicMethod.deleteDirectory(iPublicConstants.LOCAL_MEMORY + "/mtklog");
+                    }
                 }
 
                 // 以下对MTK工具有效
@@ -647,14 +661,22 @@ public class MonkeyFragment extends Fragment {
                 // 是否开启自动开启/停止抓log
                 if(sharedPreferences.getBoolean(SettingPreferenceKey.MONKEY_MTK_SET, true)){
                     // 启动抓log工具
-                    Runtime.getRuntime().exec("am start -n com.meizu.logreport/com.meizu.logreport.activity.MainActivity");
-
-                    Thread.sleep(5 * 1000);
-                    // 只抓Main Log或其他
-                    if(sharedPreferences.getBoolean(SettingPreferenceKey.CATCH_LOG_TYPE, true)){
-                        Runtime.getRuntime().exec(CommonVariable.startCatLogBroadcast.replace("%d", "1"));
+                    if(CommonVariable.snLabel.contains("71") || CommonVariable.snLabel.contains("76") || CommonVariable.snLabel.contains("86")
+                            || CommonVariable.snLabel.contains("96")){
+                        Runtime.getRuntime().exec("am start -n com.meizu.logreport/com.meizu.logreport.activity.MainActivity");
+                        Thread.sleep(5 * 1000);
+                        // 只抓Main Log或其他
+                        if(sharedPreferences.getBoolean(SettingPreferenceKey.CATCH_LOG_TYPE, true)){
+                            Runtime.getRuntime().exec(CommonVariable.startCatLogBroadcast.replace("%d", "1"));
+                        }else{
+                            Runtime.getRuntime().exec(CommonVariable.startCatLogBroadcast.replace("%d", "7"));
+                        }
                     }else{
-                        Runtime.getRuntime().exec(CommonVariable.startCatLogBroadcast.replace("%d", "7"));
+                        if(sharedPreferences.getBoolean(SettingPreferenceKey.CATCH_LOG_TYPE, true)){
+                            Runtime.getRuntime().exec(CommonVariable.mtkLogBroadcast.replace("%s", "start").replace("%d", "1"));
+                        }else{
+                            Runtime.getRuntime().exec(CommonVariable.mtkLogBroadcast.replace("%s", "start").replace("%d", "7"));
+                        }
                     }
                 }
 
@@ -673,10 +695,10 @@ public class MonkeyFragment extends Fragment {
     private void writeBlacklist(boolean choose){
 
         if(choose){
-            PublicMethod.copyAssetFile(getActivity(), "blacklist.txt", iPublic.LOCAL_MEMORY);
+            PublicMethod.copyAssetFile(getActivity(), "blacklist.txt", iPublicConstants.LOCAL_MEMORY);
         }else{
             PublicMethod.saveStringToFile(edit_blacklist_defined.getText().toString(),
-                    "blacklist.txt", iPublic.LOCAL_MEMORY);      // 复制文件到根目录
+                    "blacklist.txt", iPublicConstants.LOCAL_MEMORY);      // 复制文件到根目录
         }
     }
 

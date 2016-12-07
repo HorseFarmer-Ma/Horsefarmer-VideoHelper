@@ -3,16 +3,9 @@ package com.meizu.testdevVideo.service;
 import android.app.IntentService;
 import android.content.Intent;
 
-import com.meizu.testdevVideo.interports.iPublic;
+import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.util.PublicMethod;
 
-
-/**
- * An {@link IntentService} subclass for handling asynchronous task requests in
- * a service on a separate handler thread.
- * <p/>
- * TODO: Customize class - update intent actions and extra parameters.
- */
 public class TrySendResultAgainService extends IntentService {
 
     public static final String ACTION_TRY_SEND_RESULT = "action.try.send.result";
@@ -36,7 +29,7 @@ public class TrySendResultAgainService extends IntentService {
 
     private void saveLog(String log){
         PublicMethod.saveStringToFileWithoutDeleteSrcFile("\n" + PublicMethod.getSystemTime() + log,
-                "Performs_Log", iPublic.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
     }
 
 

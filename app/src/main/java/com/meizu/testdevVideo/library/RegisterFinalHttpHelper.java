@@ -8,7 +8,7 @@ import net.tsz.afinal.FinalHttp;
 public class RegisterFinalHttpHelper {
     public static FinalHttp mRegisterInstance;
 
-    public static FinalHttp getInstance(){
+    public synchronized static FinalHttp getInstance(){
         if(mRegisterInstance == null){
             mRegisterInstance = new FinalHttp();
             mRegisterInstance.configTimeout(4 * 1000);

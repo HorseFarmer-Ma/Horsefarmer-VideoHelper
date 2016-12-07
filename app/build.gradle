@@ -8,8 +8,8 @@ android {
         applicationId "com.meizu.testdevVideo"
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 1285
-        versionName "1.2.85"
+        versionCode 1286
+        versionName "1.2.86"
 
         ndk {
             //选择要添加的对应cpu类型的.so库。

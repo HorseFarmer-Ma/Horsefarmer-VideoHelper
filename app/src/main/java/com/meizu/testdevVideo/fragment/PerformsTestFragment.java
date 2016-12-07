@@ -15,7 +15,7 @@ import android.widget.SimpleAdapter;
 import com.meizu.testdevVideo.activity.PerformsActivity;
 import com.meizu.testdevVideo.R;
 import com.meizu.testdevVideo.adapter.data.gridview.MyContent;
-import com.meizu.testdevVideo.interports.iPublic;
+import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.library.ToastHelper;
 import com.meizu.testdevVideo.service.MonkeyProcessService;
 import com.meizu.testdevVideo.service.PerformsTestService;
@@ -99,11 +99,11 @@ public class PerformsTestFragment extends Fragment implements AdapterView.OnItem
         @Override
         public void run() {
             // 文件夹不存在，则新建文件夹
-            File mProjectPath = new File(iPublic.PERFORMS_TESTCASE_PATH);
-            File mResultPath1 = new File(iPublic.PERFORMS_FPS_RESULT);
-            File mResultPath2 = new File(iPublic.PERFORMS_MEMORY_RESULT);
-            File mResultPath3 = new File(iPublic.PERFORMS_PURE_BACKGROUND_RESULT);
-            File mResultPath4 = new File(iPublic.PERFORMS_TIME_RESULT);
+            File mProjectPath = new File(iPublicConstants.PERFORMS_TESTCASE_PATH);
+            File mResultPath1 = new File(iPublicConstants.PERFORMS_FPS_RESULT);
+            File mResultPath2 = new File(iPublicConstants.PERFORMS_MEMORY_RESULT);
+            File mResultPath3 = new File(iPublicConstants.PERFORMS_PURE_BACKGROUND_RESULT);
+            File mResultPath4 = new File(iPublicConstants.PERFORMS_TIME_RESULT);
 
             if(!mProjectPath.exists()){
                 mProjectPath.mkdirs();

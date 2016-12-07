@@ -4,14 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.meizu.testdevVideo.constant.CommonVariable;
 import com.meizu.testdevVideo.interports.PerformsCaseCompleteCallBack;
 import com.meizu.testdevVideo.interports.iPerformsKey;
-import com.meizu.testdevVideo.interports.iPublic;
+import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.library.ToastHelper;
 import com.meizu.testdevVideo.service.PerformsTestService;
 import com.meizu.testdevVideo.util.PublicMethod;
@@ -70,7 +68,7 @@ public class PerformsReceiver extends BroadcastReceiver {
             PerformsData.getInstance(context).writeStringData(iPerformsKey.result, mBundle.getString("result"));
 
             PublicMethod.saveStringToFileWithoutDeleteSrcFile("\n\n" + PublicMethod.getSystemTime() + "收到结束测试的广播",
-                    "Performs_Log", iPublic.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                    "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
             if(this.mPerformsCaseCompleteCallBack != null){
                 this.mPerformsCaseCompleteCallBack.onCaseComplete();
             }

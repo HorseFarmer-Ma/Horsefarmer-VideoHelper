@@ -10,8 +10,7 @@ import android.support.v7.app.NotificationCompat;
 
 import com.meizu.testdevVideo.R;
 import com.meizu.testdevVideo.constant.CommonVariable;
-import com.meizu.testdevVideo.interports.iPublic;
-import com.meizu.testdevVideo.util.shell.ShellUtil;
+import com.meizu.testdevVideo.interports.iPublicConstants;
 
 import java.io.IOException;
 
@@ -44,7 +43,7 @@ public class UiautomatorService extends Service {
                 // 执行案例，包名默认“com.meizu.test”，类名默认“Sanity”
                 try {
                     Runtime.getRuntime().exec(CommonVariable.performsCommand
-                            .replace("jarPath", iPublic.LOCAL_MEMORY
+                            .replace("jarPath", iPublicConstants.LOCAL_MEMORY
                                     + "SuperTest/JarDownload/" + fileName + ".jar")
                             .replace("className", "com.meizu.test.Sanity"));
                 } catch (IOException e) {

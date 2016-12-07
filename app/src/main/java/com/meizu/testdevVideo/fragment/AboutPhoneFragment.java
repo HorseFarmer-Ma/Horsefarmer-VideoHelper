@@ -19,7 +19,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -28,9 +27,8 @@ import com.meizu.testdevVideo.util.sharepreference.PerformsData;
 import com.meizu.widget.floatingbutton.FabTagLayout;
 import com.meizu.widget.floatingbutton.FloatingActionButtonPlus;
 import com.meizu.testdevVideo.R;
-import com.meizu.testdevVideo.activity.MainActivity;
 import com.meizu.testdevVideo.constant.CommonVariable;
-import com.meizu.testdevVideo.interports.iPublic;
+import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.util.PublicMethod;
 import com.meizu.testdevVideo.util.shell.ShellUtil;
 import com.meizu.testdevVideo.library.ToastHelper;
@@ -70,14 +68,14 @@ public class AboutPhoneFragment extends Fragment {
     // 更新APK包信息任务
     private Runnable myRunnable= new Runnable() {
         public void run() {
-            handler.postDelayed(this, 1000);
+            handler.postDelayed(this, 10 * 1000);
             if(isDataChange()){
-                CommonVariable.about_phone_video_version = getVersion(iPublic.PACKET_VIDEO);
-                CommonVariable.about_phone_music_version = getVersion(iPublic.PACKET_MUSIC);
-                CommonVariable.about_phone_ebook_version = getVersion(iPublic.PACKET_EBOOK);
-                CommonVariable.about_phone_gallery_version = getVersion(iPublic.PACKET_GALLERY);
-                CommonVariable.about_phone_reader_version = getVersion(iPublic.PACKET_READER);
-                CommonVariable.about_phone_vip_version = getVersion(iPublic.PACKET_COMPAIGN);
+                CommonVariable.about_phone_video_version = getVersion(iPublicConstants.PACKET_VIDEO);
+                CommonVariable.about_phone_music_version = getVersion(iPublicConstants.PACKET_MUSIC);
+                CommonVariable.about_phone_ebook_version = getVersion(iPublicConstants.PACKET_EBOOK);
+                CommonVariable.about_phone_gallery_version = getVersion(iPublicConstants.PACKET_GALLERY);
+                CommonVariable.about_phone_reader_version = getVersion(iPublicConstants.PACKET_READER);
+                CommonVariable.about_phone_vip_version = getVersion(iPublicConstants.PACKET_COMPAIGN);
                 Str1.delete(0, Str1.length());
                 testAdd("应用版本号:\n", 1);
                 testAdd("视频：" + CommonVariable.about_phone_video_version +
@@ -112,7 +110,7 @@ public class AboutPhoneFragment extends Fragment {
                             break;
                         case 1:
                             PublicMethod.saveStringToFile(Str1.toString() + Str2.toString() + Str3.toString() + Str4.toString() + Str5.toString(),
-                                    "about_phone.txt", iPublic.LOCAL_MEMORY);
+                                    "about_phone.txt", iPublicConstants.LOCAL_MEMORY);
                             ToastHelper.addToast("已保存至内存根目录", getActivity());
                             break;
                         default:
@@ -196,12 +194,12 @@ public class AboutPhoneFragment extends Fragment {
 
     // 判断信息是否更改
     private boolean isDataChange(){
-        if(!CommonVariable.about_phone_video_version.equals(getVersion(iPublic.PACKET_VIDEO)) |
-                !CommonVariable.about_phone_music_version.equals(getVersion(iPublic.PACKET_MUSIC)) |
-                !CommonVariable.about_phone_ebook_version.equals(getVersion(iPublic.PACKET_EBOOK)) |
-                !CommonVariable.about_phone_gallery_version.equals(getVersion(iPublic.PACKET_GALLERY)) |
-                !CommonVariable.about_phone_reader_version.equals(getVersion(iPublic.PACKET_READER)) |
-                !CommonVariable.about_phone_vip_version.equals(getVersion(iPublic.PACKET_COMPAIGN))) {
+        if(!CommonVariable.about_phone_video_version.equals(getVersion(iPublicConstants.PACKET_VIDEO)) |
+                !CommonVariable.about_phone_music_version.equals(getVersion(iPublicConstants.PACKET_MUSIC)) |
+                !CommonVariable.about_phone_ebook_version.equals(getVersion(iPublicConstants.PACKET_EBOOK)) |
+                !CommonVariable.about_phone_gallery_version.equals(getVersion(iPublicConstants.PACKET_GALLERY)) |
+                !CommonVariable.about_phone_reader_version.equals(getVersion(iPublicConstants.PACKET_READER)) |
+                !CommonVariable.about_phone_vip_version.equals(getVersion(iPublicConstants.PACKET_COMPAIGN))) {
             return true;
         }
         return false;
@@ -211,12 +209,12 @@ public class AboutPhoneFragment extends Fragment {
      * 获取手机信息
      */
     private void getMyPhoneMes(){
-        CommonVariable.about_phone_video_version = getVersion(iPublic.PACKET_VIDEO);
-        CommonVariable.about_phone_music_version = getVersion(iPublic.PACKET_MUSIC);
-        CommonVariable.about_phone_ebook_version = getVersion(iPublic.PACKET_EBOOK);
-        CommonVariable.about_phone_gallery_version = getVersion(iPublic.PACKET_GALLERY);
-        CommonVariable.about_phone_reader_version = getVersion(iPublic.PACKET_READER);
-        CommonVariable.about_phone_vip_version = getVersion(iPublic.PACKET_COMPAIGN);
+        CommonVariable.about_phone_video_version = getVersion(iPublicConstants.PACKET_VIDEO);
+        CommonVariable.about_phone_music_version = getVersion(iPublicConstants.PACKET_MUSIC);
+        CommonVariable.about_phone_ebook_version = getVersion(iPublicConstants.PACKET_EBOOK);
+        CommonVariable.about_phone_gallery_version = getVersion(iPublicConstants.PACKET_GALLERY);
+        CommonVariable.about_phone_reader_version = getVersion(iPublicConstants.PACKET_READER);
+        CommonVariable.about_phone_vip_version = getVersion(iPublicConstants.PACKET_COMPAIGN);
         sn = ShellUtil.getProperty("ro.serialno");   // 手机SN号
         productAndModel();   // 设备内部外部型号获取
         CommonVariable.about_phone_internal_model = internalModel;

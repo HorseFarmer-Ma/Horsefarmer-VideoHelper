@@ -26,7 +26,7 @@
     <!--Monkey Fragment-->
     <string name="action_input_packet">输入欲执行应用包名</string>
     <string name="action_input_blacklist">请输入自定义黑名单</string>
-    <string name="action_open_mtkLog">打开MTKLOG</string>
+    <string name="action_open_mtkLog">MTKLOG</string>
     <string name="action_clear_mtkLog">清除MTKLOG</string>
     <string name="action_history">执行历史</string>
     <string name="action_timetask">定时任务</string>

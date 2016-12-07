@@ -17,7 +17,7 @@ import com.meizu.testdevVideo.R;
 import com.meizu.testdevVideo.activity.SettingActivity;
 import com.meizu.testdevVideo.adapter.data.gridview.MyContent;
 import com.meizu.testdevVideo.constant.CommonVariable;
-import com.meizu.testdevVideo.interports.iPublic;
+import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.library.ToastHelper;
 import com.meizu.testdevVideo.util.PublicMethod;
 import com.meizu.testdevVideo.util.download.DownloadHelper;
@@ -123,9 +123,9 @@ public class AppUpdateFragment extends Fragment implements AbsListView.OnItemCli
     public void onResume() {
         super.onResume();
         // 删除更新包
-        File mApk = new File(iPublic.LOCAL_MEMORY + "/SuperTest/UpdateApk/");
+        File mApk = new File(iPublicConstants.LOCAL_MEMORY + "/SuperTest/UpdateApk/");
         if(mApk.exists()){
-            PublicMethod.deleteDirectory(iPublic.LOCAL_MEMORY + "/SuperTest/UpdateApk");
+            PublicMethod.deleteDirectory(iPublicConstants.LOCAL_MEMORY + "/SuperTest/UpdateApk");
         }
     }
 

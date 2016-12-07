@@ -22,6 +22,17 @@ public interface iPerformsKey {
     String packageName = "pkg";                         // 包名，由脚本传过来
     String caseName = "caseName";                       // 案例名，由脚本传过来执行了哪条案例
     String result = "result";                           // 案例执行结果，由脚本传过来
+    String taskPushJson = "taskPushJson";         // 服务端任务Json数据
 
-    String ServiceTaskJson = "serviceTaskJson";         // 服务端任务Json数据
+    String taskId = "taskId";
+    String status = "status";
+    String allTaskState = "allTaskState";
+    String starttime = "starttime";
+    String framerate = "framerate";
+    String memory = "memory";
+    String purebackstage = "purebackstage";
+    // 任务状态
+    String taskRunStatus = "1";                 // 正在进行
+    String taskFinishStatus = "2";              // 已完成
+    String taskFailStatus = "4";                // 失败
 }

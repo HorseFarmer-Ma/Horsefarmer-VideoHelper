@@ -76,9 +76,9 @@ public class JpushReceiver extends BroadcastReceiver {
 		StringBuilder sb = new StringBuilder();
 		for (String key : bundle.keySet()) {
 			if (key.equals(JPushInterface.EXTRA_NOTIFICATION_ID)) {
-				sb.append("\nkey:" + key + ", value:" + bundle.getInt(key));
+				sb.append("\nkey:" + key + ", EXTRA_NOTIFICATION_ID value:" + bundle.getInt(key));
 			}else if(key.equals(JPushInterface.EXTRA_CONNECTION_CHANGE)){
-				sb.append("\nkey:" + key + ", value:" + bundle.getBoolean(key));
+				sb.append("\nkey:" + key + ", EXTRA_CONNECTION_CHANGE value:" + bundle.getBoolean(key));
 			} else if (key.equals(JPushInterface.EXTRA_EXTRA)) {
 				if (bundle.getString(JPushInterface.EXTRA_EXTRA).isEmpty()) {
 					Log.i(TAG, "This message has no Extra data");
@@ -91,7 +91,7 @@ public class JpushReceiver extends BroadcastReceiver {
 
 					while (it.hasNext()) {
 						String myKey = it.next().toString();
-						sb.append("\nkey:" + key + ", value: [" +
+						sb.append("\nkey:" + key + ", EXTRA_EXTRA value: [" +
 								myKey + " - " +json.optString(myKey) + "]");
 					}
 				} catch (JSONException e) {
@@ -99,7 +99,7 @@ public class JpushReceiver extends BroadcastReceiver {
 				}
 
 			} else {
-				sb.append("\nkey:" + key + ", value:" + bundle.getString(key));
+				sb.append("\nkey:" + key + ", else value:" + bundle.getString(key));
 			}
 		}
 		return sb.toString();

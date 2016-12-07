@@ -3,7 +3,7 @@ package com.meizu.testdevVideo.util.sendReport;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.meizu.testdevVideo.interports.iPublic;
+import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.library.GetFinalHttpHelper;
 import com.meizu.testdevVideo.library.ToastHelper;
 import com.meizu.testdevVideo.util.PublicMethod;
@@ -33,7 +33,7 @@ public class PerformsReportSend {
             mContext = context;
         }
 
-        GetFinalHttpHelper.getInstance().post(iPublic.PERFORMS_POST_TESTRESULT_URL, params, new AjaxCallBack<String>() {
+        GetFinalHttpHelper.getInstance().post(iPublicConstants.PERFORMS_POST_TESTRESULT_URL, params, new AjaxCallBack<String>() {
 
             @Override
             public void onFailure(Throwable t, int errorNo, String strMsg) {
@@ -77,7 +77,7 @@ public class PerformsReportSend {
      */
     private void saveLogLocal(String log){
         PublicMethod.saveStringToFileWithoutDeleteSrcFile("\n" + PublicMethod.getSystemTime() + log,
-                "Performs_Log", iPublic.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
     }
 
 

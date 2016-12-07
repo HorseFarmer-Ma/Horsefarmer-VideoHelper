@@ -4,9 +4,8 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.meizu.testdevVideo.interports.iPublic;
+import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.library.GetFinalHttpHelper;
-import com.meizu.testdevVideo.library.RegisterFinalHttpHelper;
 
 import net.tsz.afinal.http.AjaxCallBack;
 import net.tsz.afinal.http.AjaxParams;
@@ -38,7 +37,7 @@ public class RegisterPost {
 
         Log.e("RegisterPost", params.toString());
 
-        GetFinalHttpHelper.getInstance().post(iPublic.PERFORMS_POST_ID_TAG_ALIAS_URL, params, new AjaxCallBack<String>() {
+        GetFinalHttpHelper.getInstance().post(iPublicConstants.PERFORMS_POST_ID_TAG_ALIAS_URL, params, new AjaxCallBack<String>() {
             @Override
             public void onFailure(Throwable t, int errorNo, String strMsg) {
                 super.onFailure(t, errorNo, strMsg);

@@ -2,7 +2,6 @@ package com.meizu.testdevVideo.activity;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -12,7 +11,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -21,14 +19,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.meizu.testdevVideo.adapter.data.listview.TestCaseData;
 import com.meizu.testdevVideo.R;
 import com.meizu.testdevVideo.adapter.PerformsAdapter;
 import com.meizu.testdevVideo.constant.CommonVariable;
 import com.meizu.testdevVideo.interports.iPerformsKey;
-import com.meizu.testdevVideo.interports.iPublic;
+import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.library.GetFinalHttpHelper;
 import com.meizu.testdevVideo.library.ToastHelper;
 import com.meizu.testdevVideo.service.PerformsTestService;
@@ -40,7 +37,6 @@ import net.tsz.afinal.http.AjaxCallBack;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,13 +88,13 @@ public class PerformsActivity extends AppCompatActivity {
         });
 
         if(project.equals("内存测试")){
-            url = iPublic.PPERFORMS_PULL_TESTCASE_URL + "memory.do";
+            url = iPublicConstants.PPERFORMS_PULL_TESTCASE_URL + "memory.do";
         }else if(project.equals("帧率测试")){
-            url = iPublic.PPERFORMS_PULL_TESTCASE_URL + "framerate.do";
+            url = iPublicConstants.PPERFORMS_PULL_TESTCASE_URL + "framerate.do";
         }else if(project.equals("纯净后台")){
-            url = iPublic.PPERFORMS_PULL_TESTCASE_URL + "purebackstage.do";
+            url = iPublicConstants.PPERFORMS_PULL_TESTCASE_URL + "purebackstage.do";
         }else if(project.equals("启动时间")){
-            url = iPublic.PPERFORMS_PULL_TESTCASE_URL + "starttime.do";
+            url = iPublicConstants.PPERFORMS_PULL_TESTCASE_URL + "starttime.do";
         }
         getData();
     }
@@ -223,16 +219,17 @@ public class PerformsActivity extends AppCompatActivity {
                 dialog.dismiss();
                 ToastHelper.addToast("初始化: 写入执行数据", getApplicationContext());
                 PublicMethod.saveStringToFileWithoutDeleteSrcFile(PublicMethod.getSystemTime() + "初始化: 写入执行数据\n",
-                        "Performs_Log", iPublic.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                        "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
                 initTestData(mPosition);
                 ToastHelper.addToast("初始化: 清空对应目录下数据", getApplicationContext());
                 PublicMethod.saveStringToFileWithoutDeleteSrcFile(PublicMethod.getSystemTime() + "初始化: 清空对应目录下数据\n",
-                        "Performs_Log", iPublic.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                        "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
                 clearTestData(project);
                 ToastHelper.addToast("初始化: 开始执行", getApplicationContext());
                 PublicMethod.saveStringToFileWithoutDeleteSrcFile(PublicMethod.getSystemTime() + "初始化: 开始执行\n",
-                        "Performs_Log", iPublic.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                        "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
                 mIntent = new Intent(PerformsActivity.this, PerformsTestService.class);
+                mIntent.putExtra("taskType", 0);
                 stopService(mIntent);   // 停止服务
                 startService(mIntent);   // 开始服务
             }
@@ -252,16 +249,16 @@ public class PerformsActivity extends AppCompatActivity {
      */
     private void clearTestData(String testType){
         if(testType.equals("帧率测试")){
-            PublicMethod.deleteDirectory(iPublic.PERFORMS_FPS_RESULT);
+            PublicMethod.deleteDirectory(iPublicConstants.PERFORMS_FPS_RESULT);
         }else if(testType.equals("内存测试")){
-            PublicMethod.deleteDirectory(iPublic.PERFORMS_MEMORY_RESULT);
+            PublicMethod.deleteDirectory(iPublicConstants.PERFORMS_MEMORY_RESULT);
         }else if(testType.equals("启动时间")){
-            PublicMethod.deleteDirectory(iPublic.PERFORMS_TIME_RESULT);
+            PublicMethod.deleteDirectory(iPublicConstants.PERFORMS_TIME_RESULT);
         }else if(testType.equals("纯净后台")){
-            PublicMethod.deleteDirectory(iPublic.PERFORMS_PURE_BACKGROUND_RESULT);
+            PublicMethod.deleteDirectory(iPublicConstants.PERFORMS_PURE_BACKGROUND_RESULT);
         }
-        PublicMethod.deleteDirectory(iPublic.PERFORMS_TESTCASE_PATH);   // 清除jar包
-        PublicMethod.deleteDirectory(iPublic.PERFORMS_LOG);   // 清除打印的Log
+        PublicMethod.deleteDirectory(iPublicConstants.PERFORMS_TESTCASE_PATH);   // 清除jar包
+        PublicMethod.deleteDirectory(iPublicConstants.PERFORMS_LOG);   // 清除打印的Log
     }
 
     /**
@@ -275,31 +272,13 @@ public class PerformsActivity extends AppCompatActivity {
         PerformsData.getInstance(PerformsActivity.this).writeStringData(iPerformsKey.appType,
                 mTestCaseData.get(position).getTestAppType());
         PerformsData.getInstance(PerformsActivity.this).writeStringData(iPerformsKey.appVersion,
-                getAppVersion(mTestCaseData.get(position).getTestAppType()));
+                PublicMethod.getAppVersion(mTestCaseData.get(position).getTestAppType()));
         PerformsData.getInstance(PerformsActivity.this).writeStringData(iPerformsKey.doPackageName,
                 mTestCaseData.get(position).getCaseName());
     }
 
 
-    /**
-     * 根据应用名返回应用版本号
-     */
-    private String getAppVersion(String apptype){
-        if(apptype.contains("视频")){
-            return CommonVariable.about_phone_video_version;
-        }else if(apptype.contains("音乐")){
-            return CommonVariable.about_phone_music_version;
-        }else if(apptype.contains("读书")){
-            return CommonVariable.about_phone_ebook_version;
-        }else if(apptype.contains("图库")){
-            return CommonVariable.about_phone_gallery_version;
-        }else if(apptype.contains("资讯")){
-            return CommonVariable.about_phone_reader_version;
-        }else if(apptype.contains("会员")){
-            return CommonVariable.about_phone_vip_version;
-        }
-        return "null";
-    }
+
 
 //    /**
 //     * 获取文件夹下文件

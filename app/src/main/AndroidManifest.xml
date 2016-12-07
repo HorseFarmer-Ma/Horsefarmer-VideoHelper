@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.meizu.testdevVideo" >
+    package="com.meizu.testdevVideo"
+    android:sharedUserId="android.uid.system">
 
     <!-- android:sharedUserId="android.uid.system" -->
 
@@ -88,7 +89,6 @@
             android:name=".broadcast.JpushReceiver"
             android:enabled="true">
             <intent-filter>
-
                 <!-- Required 用户注册SDK的intent -->
                 <action android:name="cn.jpush.android.intent.REGISTRATION" />
                 <!-- Required 用户接收SDK消息的intent -->
@@ -101,7 +101,6 @@
                 <action android:name="cn.jpush.android.intent.ACTION_RICHPUSH_CALLBACK" />
                 <!-- 接收网络变化 连接/断开 since 1.6.3 -->
                 <action android:name="cn.jpush.android.intent.CONNECTION" />
-
                 <category android:name="com.meizu.testdevVideo" />
             </intent-filter>
         </receiver>
@@ -223,13 +222,6 @@
             android:name=".service.MonkeyProcessService"
             android:exported="false"
             android:process=":monkey" />
-        <service
-            android:name=".service.TestService"
-            android:exported="false" />
-        <service
-            android:name=".service.GetFpsService"
-            android:enabled="true"
-            android:exported="false" />
         <service
             android:name=".service.RegisterAppService"
             android:exported="false"></service>

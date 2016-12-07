@@ -12,9 +12,12 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
+import com.meizu.testdevVideo.interports.iPerformsKey;
+import com.meizu.testdevVideo.service.RegisterAppService;
 import com.meizu.testdevVideo.service.WifiLockService;
 import com.meizu.testdevVideo.util.PublicMethod;
 import com.meizu.testdevVideo.util.sharepreference.BaseData;
+import com.meizu.testdevVideo.util.sharepreference.PerformsData;
 import com.meizu.testdevVideo.util.sharepreference.PrefWidgetOnOff;
 import com.meizu.testdevVideo.util.wifi.WifiFunction;
 
@@ -60,6 +63,11 @@ public class WifiReceiver extends BroadcastReceiver {
                     Log.e(WifiReceiver.class.getSimpleName(), "我正在开启WIFI");
                     break;
                 case WifiManager.WIFI_STATE_ENABLED:     // 已经开启wifi
+                    if(!PerformsData.getInstance(context).readBooleanData(iPerformsKey.isRegister)){
+                        Log.e("WifiReceiver", "启动注册服务");
+                        Intent registerIntent = new Intent(context, RegisterAppService.class);
+                        context.startService(registerIntent);
+                    }
                     Log.e(WifiReceiver.class.getSimpleName(), "WIFI开启成功");
                     break;
             }

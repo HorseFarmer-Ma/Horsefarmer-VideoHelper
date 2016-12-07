@@ -13,17 +13,16 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.Looper;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.meizu.testdevVideo.constant.CommonVariable;
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
 import com.meizu.testdevVideo.interports.iPerformsKey;
-import com.meizu.testdevVideo.interports.iPublic;
-import com.meizu.testdevVideo.library.ToastHelper;
+import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.service.WifiLockService;
 import com.meizu.testdevVideo.util.sharepreference.MonkeyTableData;
 import com.meizu.testdevVideo.util.sharepreference.PerformsData;
@@ -39,7 +38,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -178,7 +176,7 @@ public class PublicMethod {
      * @param apkName
      */
     public static void installApkFromAsset(Context context, String apkName){
-        File file = copyAssetFile(context, apkName, iPublic.LOCAL_MEMORY + "SuperTest/");   // 拷贝APK文件
+        File file = copyAssetFile(context, apkName, iPublicConstants.LOCAL_MEMORY + "SuperTest/");   // 拷贝APK文件
         Intent intent = new Intent( Intent. ACTION_VIEW );
         intent .addFlags (Intent . FLAG_ACTIVITY_NEW_TASK) ;
         intent .addFlags (Intent . FLAG_GRANT_READ_URI_PERMISSION);
@@ -637,7 +635,7 @@ public class PublicMethod {
 
     public static void saveLog(String log, String fileName){
         PublicMethod.saveStringToFileWithoutDeleteSrcFile("\n" + PublicMethod.getSystemTime() + log,
-                "Performs_Log", iPublic.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
     }
 
     /**
@@ -675,5 +673,25 @@ public class PublicMethod {
             // 解锁键盘
             kl.disableKeyguard();
         }
+    }
+
+    /**
+     * 根据应用名返回应用版本号
+     */
+    public static String getAppVersion(String apptype){
+        if(apptype.contains("视频")){
+            return CommonVariable.about_phone_video_version;
+        }else if(apptype.contains("音乐")){
+            return CommonVariable.about_phone_music_version;
+        }else if(apptype.contains("读书")){
+            return CommonVariable.about_phone_ebook_version;
+        }else if(apptype.contains("图库")){
+            return CommonVariable.about_phone_gallery_version;
+        }else if(apptype.contains("资讯")){
+            return CommonVariable.about_phone_reader_version;
+        }else if(apptype.contains("会员")){
+            return CommonVariable.about_phone_vip_version;
+        }
+        return "null";
     }
 }
