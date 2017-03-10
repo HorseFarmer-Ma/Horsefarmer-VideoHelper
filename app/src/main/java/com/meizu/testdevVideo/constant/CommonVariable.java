@@ -36,6 +36,7 @@ public class CommonVariable {
     public static String strReaderId = null;
     public static String strMusicId = null;
     public static String strGalleryId = null ;
+    public static String strVipId = null ;
     public static String strLogReportId = null ;
 
     // ATS平台WIFI公共账号密码

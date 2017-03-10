@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -22,7 +23,10 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.meizu.testdevVideo.activity.AppChooseActivity;
+import com.meizu.testdevVideo.constant.SettingPreferenceKey;
 import com.meizu.testdevVideo.interports.iPerformsKey;
+import com.meizu.testdevVideo.util.sharepreference.BaseData;
 import com.meizu.testdevVideo.util.sharepreference.PerformsData;
 import com.meizu.widget.floatingbutton.FabTagLayout;
 import com.meizu.widget.floatingbutton.FloatingActionButtonPlus;
@@ -70,12 +74,12 @@ public class AboutPhoneFragment extends Fragment {
         public void run() {
             handler.postDelayed(this, 10 * 1000);
             if(isDataChange()){
-                CommonVariable.about_phone_video_version = getVersion(iPublicConstants.PACKET_VIDEO);
-                CommonVariable.about_phone_music_version = getVersion(iPublicConstants.PACKET_MUSIC);
-                CommonVariable.about_phone_ebook_version = getVersion(iPublicConstants.PACKET_EBOOK);
-                CommonVariable.about_phone_gallery_version = getVersion(iPublicConstants.PACKET_GALLERY);
-                CommonVariable.about_phone_reader_version = getVersion(iPublicConstants.PACKET_READER);
-                CommonVariable.about_phone_vip_version = getVersion(iPublicConstants.PACKET_COMPAIGN);
+                CommonVariable.about_phone_video_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_VIDEO);
+                CommonVariable.about_phone_music_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_MUSIC);
+                CommonVariable.about_phone_ebook_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_EBOOK);
+                CommonVariable.about_phone_gallery_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_GALLERY);
+                CommonVariable.about_phone_reader_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_READER);
+                CommonVariable.about_phone_vip_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_COMPAIGN);
                 Str1.delete(0, Str1.length());
                 testAdd("应用版本号:\n", 1);
                 testAdd("视频：" + CommonVariable.about_phone_video_version +
@@ -141,8 +145,29 @@ public class AboutPhoneFragment extends Fragment {
             textView4.setText(Str4.toString());
             textView5.setVisibility(View.VISIBLE);
             textView5.setText(Str5.toString().split("产品名称")[0]);
+//            // 选择所属业务
+//            if(null == BaseData.getInstance(getActivity()).readStringData(SettingPreferenceKey.APP_TYPE)){
+//                Intent appChooseIntent = new Intent(getActivity(), AppChooseActivity.class);
+//                Bundle bundle = new Bundle();
+//                bundle.putString(AppChooseActivity.TITLE, getResources().getString(R.string.choose_app_type));
+//                appChooseIntent.putExtras(bundle);
+//                startActivityForResult(appChooseIntent, 0);
+//            }
         }
     };
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // 取出字符串
+        if (data != null){
+            Bundle bundle = data.getExtras();
+            BaseData.getInstance(getActivity().getApplicationContext()).writeStringData(SettingPreferenceKey.APP_TYPE,
+                    bundle.getString(SettingPreferenceKey.APP_TYPE));
+            BaseData.getInstance(getActivity().getApplicationContext()).writeStringData(SettingPreferenceKey.EMAIL_ADDRESS,
+                    bundle.getString(SettingPreferenceKey.EMAIL_ADDRESS));
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
     /**
      * 添加关于手机信息
@@ -194,12 +219,12 @@ public class AboutPhoneFragment extends Fragment {
 
     // 判断信息是否更改
     private boolean isDataChange(){
-        if(!CommonVariable.about_phone_video_version.equals(getVersion(iPublicConstants.PACKET_VIDEO)) |
-                !CommonVariable.about_phone_music_version.equals(getVersion(iPublicConstants.PACKET_MUSIC)) |
-                !CommonVariable.about_phone_ebook_version.equals(getVersion(iPublicConstants.PACKET_EBOOK)) |
-                !CommonVariable.about_phone_gallery_version.equals(getVersion(iPublicConstants.PACKET_GALLERY)) |
-                !CommonVariable.about_phone_reader_version.equals(getVersion(iPublicConstants.PACKET_READER)) |
-                !CommonVariable.about_phone_vip_version.equals(getVersion(iPublicConstants.PACKET_COMPAIGN))) {
+        if(!CommonVariable.about_phone_video_version.equals(PublicMethod.getVersion(pm, iPublicConstants.PACKET_VIDEO)) |
+                !CommonVariable.about_phone_music_version.equals(PublicMethod.getVersion(pm, iPublicConstants.PACKET_MUSIC)) |
+                !CommonVariable.about_phone_ebook_version.equals(PublicMethod.getVersion(pm, iPublicConstants.PACKET_EBOOK)) |
+                !CommonVariable.about_phone_gallery_version.equals(PublicMethod.getVersion(pm, iPublicConstants.PACKET_GALLERY)) |
+                !CommonVariable.about_phone_reader_version.equals(PublicMethod.getVersion(pm, iPublicConstants.PACKET_READER)) |
+                !CommonVariable.about_phone_vip_version.equals(PublicMethod.getVersion(pm, iPublicConstants.PACKET_COMPAIGN))) {
             return true;
         }
         return false;
@@ -209,18 +234,23 @@ public class AboutPhoneFragment extends Fragment {
      * 获取手机信息
      */
     private void getMyPhoneMes(){
-        CommonVariable.about_phone_video_version = getVersion(iPublicConstants.PACKET_VIDEO);
-        CommonVariable.about_phone_music_version = getVersion(iPublicConstants.PACKET_MUSIC);
-        CommonVariable.about_phone_ebook_version = getVersion(iPublicConstants.PACKET_EBOOK);
-        CommonVariable.about_phone_gallery_version = getVersion(iPublicConstants.PACKET_GALLERY);
-        CommonVariable.about_phone_reader_version = getVersion(iPublicConstants.PACKET_READER);
-        CommonVariable.about_phone_vip_version = getVersion(iPublicConstants.PACKET_COMPAIGN);
+        if(ShellUtil.getProperty("ro.meizu.hardware.soc").equals("")){
+            CommonVariable.about_phone_cpu = ShellUtil.getProperty("ro.hardware");
+        }else{
+            CommonVariable.about_phone_cpu = ShellUtil.getProperty("ro.meizu.hardware.soc");
+        }
+        CommonVariable.about_phone_video_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_VIDEO);
+        CommonVariable.about_phone_music_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_MUSIC);
+        CommonVariable.about_phone_ebook_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_EBOOK);
+        CommonVariable.about_phone_gallery_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_GALLERY);
+        CommonVariable.about_phone_reader_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_READER);
+        CommonVariable.about_phone_vip_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_COMPAIGN);
         sn = ShellUtil.getProperty("ro.serialno");   // 手机SN号
         productAndModel();   // 设备内部外部型号获取
         CommonVariable.about_phone_internal_model = internalModel;
         CommonVariable.about_phone_product_push = ShellUtil.getProperty("ro.meizu.product.model");  // 推送机型查询
         // 三星平台手机
-        if(CommonVariable.snLabel.contains("71") || CommonVariable.snLabel.contains("76") || CommonVariable.snLabel.contains("86")){
+        if(!CommonVariable.about_phone_cpu.contains("mt")){
             CommonVariable.about_phone_isLocked = ShellUtil.exec("cat /proc/bootloader_unlock");
             if(CommonVariable.about_phone_isLocked == null){
                 CommonVariable.about_phone_isLocked = "";
@@ -252,12 +282,7 @@ public class AboutPhoneFragment extends Fragment {
         CommonVariable.about_phone_baseband = ShellUtil.getProperty("gsm.version.baseband");
         CommonVariable.about_phone_kernal = ShellUtil.exec("cat /proc/version");
         CommonVariable.about_phone_earphone = earphoneImpedance();
-//        CommonVariable.about_phone_simCardNumber = simCardNumber();
-        if(ShellUtil.getProperty("ro.meizu.hardware.soc").equals("")){
-            CommonVariable.about_phone_cpu = ShellUtil.getProperty("ro.hardware");
-        }else{
-            CommonVariable.about_phone_cpu = ShellUtil.getProperty("ro.meizu.hardware.soc");
-        }
+
     }
 
     /**
@@ -412,21 +437,6 @@ public class AboutPhoneFragment extends Fragment {
         }
     }
 
-    /**
-     * 获取应用版本号
-     * @param packName
-     * @return
-     */
-    private String getVersion(String packName) {
-        try {
-            PackageInfo info = this.pm.getPackageInfo(packName, 0);
-            String version = info.versionName;
-            return version;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "null";
-        }
-    }
 
     @Override
     public void onResume(){

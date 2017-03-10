@@ -10,4 +10,7 @@
     <color name="grid_background">#99CCCCCC</color>
     <color name="white">#FFFFFFFF</color>
     <color name="red">#FF0000</color>
+    <color name="dark_red">#cc3333</color>
+    <color name="fragment_grid">#BBBBBB</color>
+    <color name="gold">#F3E630</color>
 </resources>

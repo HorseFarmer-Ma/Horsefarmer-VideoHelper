@@ -1,15 +1,18 @@
 package com.meizu.testdevVideo.activity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,14 +21,19 @@ import android.widget.LinearLayout;
 import com.meizu.testdevVideo.R;
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
 import com.meizu.testdevVideo.util.PublicMethod;
+import com.meizu.testdevVideo.util.sharepreference.BaseData;
 
-public class SettingActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
+import java.util.prefs.Preferences;
+
+public class SettingActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener,
+        Preference.OnPreferenceClickListener{
 
     private Toolbar mActionBar;
     private ListPreference preference_lock_wifi_type;
     private EditTextPreference preference_defined_wifi_ssid, preference_defined_wifi_psw, preference_single_log_size, preference_all_log_size;
     private SharedPreferences sharedPreferences;
     private CheckBoxPreference preference_monkey_mtk_set, preference_catch_log_type, preference_mute_run_task;
+    private Preference preference_app_type_choose;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,17 +53,20 @@ public class SettingActivity extends PreferenceActivity implements SharedPrefere
         allLogSizeSetInit();
         monkeyMtkSetInit();
         muteSettingInit();
+        appTypeInit();
     }
 
     private void findView(){
-        preference_lock_wifi_type = (ListPreference)findPreference(SettingPreferenceKey.LOCK_WIFI_TYPE);
-        preference_defined_wifi_ssid = (EditTextPreference)findPreference(SettingPreferenceKey.DEFINED_WIFI_SSID);
-        preference_defined_wifi_psw = (EditTextPreference)findPreference(SettingPreferenceKey.DEFINED_WIFI_PSW);
-        preference_single_log_size = (EditTextPreference)findPreference(SettingPreferenceKey.SINGLE_LOG_SIZE);
-        preference_all_log_size = (EditTextPreference)findPreference(SettingPreferenceKey.ALL_LOG_SIZE);
-        preference_monkey_mtk_set = (CheckBoxPreference)findPreference(SettingPreferenceKey.MONKEY_MTK_SET);
-        preference_catch_log_type = (CheckBoxPreference)findPreference(SettingPreferenceKey.CATCH_LOG_TYPE);
-        preference_mute_run_task = (CheckBoxPreference)findPreference(SettingPreferenceKey.MUTE_RUN_TASK);
+        preference_lock_wifi_type = (ListPreference) findPreference(SettingPreferenceKey.LOCK_WIFI_TYPE);
+        preference_defined_wifi_ssid = (EditTextPreference) findPreference(SettingPreferenceKey.DEFINED_WIFI_SSID);
+        preference_defined_wifi_psw = (EditTextPreference) findPreference(SettingPreferenceKey.DEFINED_WIFI_PSW);
+        preference_single_log_size = (EditTextPreference) findPreference(SettingPreferenceKey.SINGLE_LOG_SIZE);
+        preference_all_log_size = (EditTextPreference) findPreference(SettingPreferenceKey.ALL_LOG_SIZE);
+        preference_monkey_mtk_set = (CheckBoxPreference) findPreference(SettingPreferenceKey.MONKEY_MTK_SET);
+        preference_catch_log_type = (CheckBoxPreference) findPreference(SettingPreferenceKey.CATCH_LOG_TYPE);
+        preference_mute_run_task = (CheckBoxPreference) findPreference(SettingPreferenceKey.MUTE_RUN_TASK);
+        preference_app_type_choose = findPreference(SettingPreferenceKey.APP_TYPE);
+        preference_app_type_choose.setOnPreferenceClickListener(this);
     }
 
 
@@ -115,6 +126,33 @@ public class SettingActivity extends PreferenceActivity implements SharedPrefere
 
     }
 
+    @Override
+    public boolean onPreferenceClick(Preference preference) {
+        if(preference.getKey().equals(SettingPreferenceKey.APP_TYPE)){
+            Log.e("onPreferenceClick----->", "preference_app_type_choose");
+            Intent appChooseIntent = new Intent(this, AppChooseActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("title", getResources().getString(R.string.choose_app_type));
+            appChooseIntent.putExtras(bundle);
+            startActivityForResult(appChooseIntent, 0);
+        }
+        return false;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // 取出字符串
+        if (data != null){
+            Bundle bundle = data.getExtras();
+            BaseData.getInstance(getApplicationContext()).writeStringData(SettingPreferenceKey.APP_TYPE,
+                    bundle.getString(SettingPreferenceKey.APP_TYPE));
+            BaseData.getInstance(getApplicationContext()).writeStringData(SettingPreferenceKey.EMAIL_ADDRESS,
+                    bundle.getString(SettingPreferenceKey.EMAIL_ADDRESS));
+            appTypeInit();
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
     private void wifiLockSetInit(){
         if(sharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, false)){
@@ -172,6 +210,14 @@ public class SettingActivity extends PreferenceActivity implements SharedPrefere
         preference_mute_run_task.setEnabled(sharedPreferences.getBoolean(SettingPreferenceKey.MUTE, true));
     }
 
+    private void appTypeInit(){
+        String appType = BaseData.getInstance(getApplicationContext()).readStringData(SettingPreferenceKey.APP_TYPE);
+        String email = BaseData.getInstance(getApplicationContext()).readStringData(SettingPreferenceKey.EMAIL_ADDRESS);
+        if(null != appType){
+            preference_app_type_choose.setSummary(appType + " ~ " + email);
+        }
+    }
+
 
     @Override
     public void setContentView(int layoutResID) {
@@ -190,4 +236,5 @@ public class SettingActivity extends PreferenceActivity implements SharedPrefere
         LayoutInflater.from(this).inflate(layoutResID, contentWrapper, true);
         getWindow().setContentView(contentView);
     }
+
 }

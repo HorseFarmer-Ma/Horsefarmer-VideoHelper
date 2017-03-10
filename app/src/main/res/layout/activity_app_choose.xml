@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusableInTouchMode="true"
+    android:focusable="true"
+    tools:context="com.meizu.testdevVideo.activity.AppChooseActivity">
+
+    <LinearLayout
+        android:id="@+id/app_update_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="@string/loading"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/app_search"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp" >
+
+            <SearchView
+                android:id="@+id/app_search_view"
+                android:layout_width="292dp"
+                android:layout_height="match_parent"
+                android:layout_marginRight="10dp"
+                android:iconifiedByDefault="false"
+                android:layout_weight="0.12"
+                android:queryHint="@string/app_search_hint"
+                android:ems="10"
+                android:textSize="18sp" >
+
+            </SearchView>
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/app_list"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="5dp" >
+
+        </ListView>
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>

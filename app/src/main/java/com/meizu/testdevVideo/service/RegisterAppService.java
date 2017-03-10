@@ -1,8 +1,11 @@
 package com.meizu.testdevVideo.service;
 
+import android.annotation.SuppressLint;
 import android.app.IntentService;
 import android.content.Intent;
 
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -11,6 +14,7 @@ import com.meizu.testdevVideo.interports.iPerformsKey;
 import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.library.PostCallBack;
 import com.meizu.testdevVideo.library.PostUploadHelper;
+import com.meizu.testdevVideo.library.ToastHelper;
 import com.meizu.testdevVideo.util.PublicMethod;
 import com.meizu.testdevVideo.util.sharepreference.PerformsData;
 
@@ -71,12 +75,18 @@ public class RegisterAppService extends IntentService {
                     try {
                         PostUploadHelper.getInstance().submitPostData(iPublicConstants.PERFORMS_POST_ID_TAG_ALIAS_URL, params, new PostCallBack() {
                             @Override
-                            public void resultCallBack(boolean isSuccess, int resultCode, String result) {
+                            public void resultCallBack(boolean isSuccess, int resultCode, String data) {
                                 Log.e("POST结果", "isSuccess：" + isSuccess);
                                 Log.e("POST结果", "resultCode：" + resultCode);
-                                Log.e("POST结果", "result：" + result);
-                                if(result.equals("200")){
+                                Log.e("POST结果", "result：" + data);
+                                if(null != data && data.equals("200")){
+                                    handler.sendEmptyMessage(100);
                                     PerformsData.getInstance(RegisterAppService.this).writeBooleanData(iPerformsKey.isRegister, true);
+                                }
+                                try {
+                                    Thread.sleep(3000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
                                 }
                                 stopSelf();
                             }
@@ -114,6 +124,20 @@ public class RegisterAppService extends IntentService {
             }
         }
     }
+
+    @SuppressLint("HandlerLeak")
+    Handler handler = new Handler(){
+        public void handleMessage(Message msg){
+            super.handleMessage(msg);
+            switch (msg.what){
+                case 100:
+                    ToastHelper.addToast("注册成功", RegisterAppService.this);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     @Override
     public void onDestroy() {

@@ -1,0 +1,79 @@
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="16dp"
+    tools:context="com.meizu.testdevVideo.fragment.NewAppUpdateFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/layout_update_app"
+        android:background="@drawable/viewpager_shape">
+
+    <!--android:background="@drawable/viewpager_shape"-->
+
+
+        <ProgressBar
+            android:id="@+id/refresh_icon"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"/>
+
+        <TextView
+            android:id="@+id/text_no_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:textColor="#FFFFFFFF"
+            android:ems="1"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:focusable="false"/>
+
+        <com.meizu.widget.listview.RefreshListView
+            android:id="@+id/refreshUpdateAppListView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/line"
+            android:divider="#00000000">
+        </com.meizu.widget.listview.RefreshListView>
+
+        <View
+            android:id="@+id/line"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#FFFFFFFF"
+            android:layout_above="@+id/title_list">
+        </View>
+
+        <TextView
+            android:id="@+id/title_list"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_above="@+id/lastUpdate_view"
+            android:gravity="center"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFFFF"/>
+
+        <TextView
+            android:id="@+id/lastUpdate_view"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="5dp"
+            android:gravity="center"
+            android:textSize="10sp"
+            android:textColor="#FFFFFFFF"/>
+
+    </RelativeLayout>
+</android.support.v7.widget.CardView>
+
+

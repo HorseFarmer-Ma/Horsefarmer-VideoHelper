@@ -26,8 +26,14 @@ public class WindowManagerHelper {
      */
     public void createView(View v, int i, boolean isScreenOn, boolean isTouchable) {
         int mFlags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        mFlags = (isScreenOn? (mFlags | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) : mFlags);
-        mFlags = (isTouchable? mFlags : (mFlags | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE));
+        if(isScreenOn) {
+            mFlags = mFlags | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
+        }
+
+        if(!isTouchable){
+            mFlags = mFlags | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+        }
+
         wmParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.TYPE_SYSTEM_ERROR,
                 mFlags, PixelFormat.TRANSPARENT);
@@ -35,7 +41,7 @@ public class WindowManagerHelper {
         // 设置window type
         wmParams.type = WindowManager.LayoutParams.TYPE_PHONE;
         // 设置浮动窗口不可聚焦（实现操作除浮动窗口外的其他可见窗口的操作）
-        wmParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        wmParams.flags |= WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         // 调整悬浮窗显示的停靠位置为右侧置顶
         wmParams.gravity = Gravity.END | Gravity.TOP;
         wmParams.x = 0;
@@ -56,14 +62,21 @@ public class WindowManagerHelper {
      */
     public void upDateView(View v, int i, boolean isScreenOn, boolean isTouchable) {
         int mFlags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        mFlags = (isScreenOn? (mFlags | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) : mFlags);
-        mFlags = (isTouchable? mFlags : (mFlags | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE));
+
+        if(isScreenOn) {
+            mFlags = mFlags | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
+        }
+
+        if(!isTouchable){
+            mFlags = mFlags | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+        }
+
         wmParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.TYPE_SYSTEM_ERROR,
                 mFlags, PixelFormat.TRANSPARENT);
 
         wmParams.type = WindowManager.LayoutParams.TYPE_PHONE;
-        wmParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        wmParams.flags |= WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         wmParams.gravity = Gravity.END | Gravity.TOP;
         wmParams.x = 0;
         wmParams.y = 0;

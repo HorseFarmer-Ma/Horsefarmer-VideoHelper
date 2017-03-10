@@ -10,16 +10,10 @@ import android.util.Log;
 
 import com.meizu.testdevVideo.R;
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
-import com.meizu.testdevVideo.util.sharepreference.BaseData;
-import com.meizu.testdevVideo.util.sharepreference.PrefWidgetOnOff;
 import com.meizu.testdevVideo.util.wifi.WifiUtil;
 
 import java.util.List;
 
-/**
- * Author: jinghao
- * Date: 2015-04-10
- */
 public class WifiLockService extends IntentService {
 
     private WifiManager mWifiManager;
@@ -75,7 +69,9 @@ public class WifiLockService extends IntentService {
     public void connectToNet() {
         if (settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, true)) {
             Log.e(TAG, "wifi 锁收到新任务. SSID是" + getCurrentSsid());
-            this.clearWifiConfig();
+            for(int i = 0; i < 2; i++){
+                this.clearWifiConfig();
+            }
             String ssid;
             String usr = (this.getResources().getString(R.string.usr));
             String pwd = (this.getResources().getStringArray(R.array.pwd))[0];
@@ -127,10 +123,10 @@ public class WifiLockService extends IntentService {
 
 
     private String getCurrentSsid(){
-        if(settingSharedPreferences.getString(SettingPreferenceKey.LOCK_WIFI_TYPE, "MZ-MEIZU-5G").equals("自定义")){
+        if(settingSharedPreferences.getString(SettingPreferenceKey.LOCK_WIFI_TYPE, "MZ-Inweb-Test").equals("自定义")){
             return settingSharedPreferences.getString(SettingPreferenceKey.DEFINED_WIFI_SSID, "MZ-Inweb-Test");
         }else{
-            return settingSharedPreferences.getString(SettingPreferenceKey.LOCK_WIFI_TYPE, "MZ-MEIZU-5G");
+            return settingSharedPreferences.getString(SettingPreferenceKey.LOCK_WIFI_TYPE, "MZ-Inweb-Test");
         }
     }
 
@@ -143,18 +139,14 @@ public class WifiLockService extends IntentService {
 
     // 返回当前连接的WIFI密码
     private String getPwd(String ssid) {
-        if("MZ-Inweb-Test".equals(ssid)){
-            return getResources().getStringArray(R.array.pwd)[1];
-        }else{
-            return settingSharedPreferences.getString(SettingPreferenceKey.DEFINED_WIFI_PSW, "Inweb@meizu.com");
-        }
-
+        return settingSharedPreferences.getString(SettingPreferenceKey.DEFINED_WIFI_PSW, "Inweb@meizu.com");
     }
 
 
     // 判断是否为加密的WIFI
     private boolean isEapWifi(String ssid) {
-        return "MZ-MEIZU-5G".equals(ssid) || "MZ-MEIZU-2.4G".equals(ssid) || "MZ-Hkline-5G".equals(ssid) || "MZ-mgt".equals(ssid);
+        return "MZ-MEIZU-5G".equals(ssid) || "MZ-MEIZU-2.4G".equals(ssid) || "MZ-Hkline-5G".equals(ssid) || "MZ-mgt".equals(ssid)
+                || "MZ-Inweb-Test".equals(ssid);
     }
 }
 

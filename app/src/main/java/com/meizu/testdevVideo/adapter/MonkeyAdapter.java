@@ -3,6 +3,7 @@ package com.meizu.testdevVideo.adapter;
 import java.util.List;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,6 @@ import com.meizu.testdevVideo.adapter.data.gridview.MonkeyWidgetList;
 import com.meizu.testdevVideo.library.ViewHolderHelper;
 
 public class MonkeyAdapter extends BaseAdapter{
-	private View mContentView;
 	private List<MonkeyWidgetList> mList;
 	private LayoutInflater inflater = null;
 
@@ -54,11 +54,11 @@ public class MonkeyAdapter extends BaseAdapter{
 
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
-		if (convertView == null) {
+		Log.e("AppChooseActivity", "渲染刷新行数：" + position);
+		if (null == convertView) {
 			convertView = inflater.inflate(R.layout.listviewitem, parent, false);
 		}
 
-		mContentView = convertView;
 		Switch widget_bt = ViewHolderHelper.get(convertView, R.id.widget_bt);
 		widget_bt.setChecked(mList.get(position).getSwitch());
 		widget_bt.setText(mList.get(position).getFunction());

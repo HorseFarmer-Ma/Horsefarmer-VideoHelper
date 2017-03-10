@@ -8,25 +8,30 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.ScaleAnimation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.SimpleAdapter;
 
+import com.meizu.testdevVideo.activity.MainActivity;
 import com.meizu.testdevVideo.activity.PerformsActivity;
 import com.meizu.testdevVideo.R;
 import com.meizu.testdevVideo.adapter.data.gridview.MyContent;
+import com.meizu.testdevVideo.interports.iPerformsKey;
 import com.meizu.testdevVideo.interports.iPublicConstants;
+import com.meizu.testdevVideo.library.AnimationHelper;
 import com.meizu.testdevVideo.library.ToastHelper;
-import com.meizu.testdevVideo.service.MonkeyProcessService;
 import com.meizu.testdevVideo.service.PerformsTestService;
+import com.meizu.testdevVideo.service.RegisterAppService;
 import com.meizu.testdevVideo.util.PublicMethod;
+import com.meizu.testdevVideo.util.sharepreference.PerformsData;
 
 import java.io.File;
 
 /**
- * A simple {@link Fragment} subclass.
+ * 性能测试Fragment
  */
-public class PerformsTestFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class PerformsTestFragment extends Fragment implements AdapterView.OnItemClickListener, MainActivity.NotifyPerformsAnimation {
     private AbsListView mListView;
     private SimpleAdapter mAdapter;
     private MyContent mPerformsContent;
@@ -35,6 +40,12 @@ public class PerformsTestFragment extends Fragment implements AdapterView.OnItem
     private String water_test = "纯净后台";
     private String time_test = "启动时间";
     private String stop_performs_test = "中止任务";
+    private String persion_register = "手动注册";
+    private ScaleAnimation animation;
+
+    public PerformsTestFragment(){
+        MainActivity.setNotifyPerformsAnimation(this);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -49,6 +60,7 @@ public class PerformsTestFragment extends Fragment implements AdapterView.OnItem
         mPerformsContent.addItem(new MyContent.DummyItem(water_test, R.drawable.ic_water));
         mPerformsContent.addItem(new MyContent.DummyItem(time_test, R.mipmap.ic_time));
         mPerformsContent.addItem(new MyContent.DummyItem(stop_performs_test, R.drawable.ic_stop_performs));
+        mPerformsContent.addItem(new MyContent.DummyItem(persion_register, R.drawable.ic_register));
 
         mAdapter = new SimpleAdapter(getActivity(), mPerformsContent.ITEMS, R.layout.tool_listview,
                 new String[]{"text", "img"},
@@ -58,6 +70,8 @@ public class PerformsTestFragment extends Fragment implements AdapterView.OnItem
 
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
+        animation = AnimationHelper.getInstance().getScaleAnimation(1.0f, 1.0f, 0f, 1.0f, 0, 0, 500, true, 0.5f, 0f);
+        mListView.setAnimation(animation);
         mThread.start();
 
         return view;
@@ -73,22 +87,30 @@ public class PerformsTestFragment extends Fragment implements AdapterView.OnItem
             startActivity(mIntent);
             // 设置动画效果
             getActivity().overridePendingTransition(R.anim.zoom_enter, R.anim.zoom_exit);
-        } else{
-            if(PublicMethod.isServiceWorked(getActivity(), "com.meizu.testdevVideo.service.PerformsTestService")){
-                Intent intent = new Intent(getActivity(), PerformsTestService.class);
-                getActivity().stopService(intent);
-                PublicMethod.killProcess("ps|grep uiautomator", "system    ", " ");
-                PublicMethod.killProcess("ps |grep com.android.commands.monkey", "system    ", " ");
-                ToastHelper.addToast("已终止", getActivity());
-            }else{
-                ToastHelper.addToast("当前没有运行中的任务", getActivity());
-            }
-
-            if(PublicMethod.isServiceWorked(getActivity(), "com.meizu.testdevVideo.service.MonkeyProcessService")){
-                Intent intent = new Intent(getActivity(), MonkeyProcessService.class);
-                getActivity().stopService(intent);
-            }
         }
+
+        switch (position){
+            case 4:
+                if(PublicMethod.isServiceWorked(getActivity(), "com.meizu.testdevVideo.service.PerformsTestService")){
+                    Intent intent = new Intent(getActivity(), PerformsTestService.class);
+                    getActivity().stopService(intent);
+                    PublicMethod.killProcess("ps|grep uiautomator", "system    ", " ");
+                    PublicMethod.killProcess("ps |grep com.android.commands.monkey", "system    ", " ");
+                    ToastHelper.addToast("已终止", getActivity());
+                }else{
+                    ToastHelper.addToast("当前没有运行中的任务", getActivity());
+                }
+
+                break;
+            case 5:
+                PerformsData.getInstance(getActivity()).writeBooleanData(iPerformsKey.isRegister, false);
+                Intent registerIntent = new Intent(getActivity(), RegisterAppService.class);
+                getActivity().startService(registerIntent);
+                break;
+            default:
+                break;
+        }
+
 
     }
 
@@ -127,4 +149,17 @@ public class PerformsTestFragment extends Fragment implements AdapterView.OnItem
         }
     });
 
+    @Override
+    public void choosePerformsFragment(boolean isFirstTime) {
+        if (!isFirstTime){
+            animation.cancel();
+            animation.startNow();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        animation.cancel();
+    }
 }

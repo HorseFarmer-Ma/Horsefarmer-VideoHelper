@@ -42,13 +42,15 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/textView1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
                     android:background="@drawable/textview1_style"
                     android:padding="15dp"
                     android:textSize="15sp"
@@ -98,6 +100,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/textview5_style"
                     android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     android:visibility="gone"
                     android:padding="15dp"
                     android:textSize="15sp"

@@ -17,7 +17,7 @@ public class SharedPreferencesHelper {
     public SharedPreferencesHelper(Context context, String tableName){
         this.mContext = context;
         mSharedPreference1 = mContext.getSharedPreferences(tableName,
-                Activity.MODE_PRIVATE);
+                Context.MODE_MULTI_PROCESS);
         editor = mSharedPreference1.edit();
     }
 

@@ -14,11 +14,8 @@ import android.util.Log;
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
 import com.meizu.testdevVideo.interports.iPerformsKey;
 import com.meizu.testdevVideo.service.RegisterAppService;
-import com.meizu.testdevVideo.service.WifiLockService;
 import com.meizu.testdevVideo.util.PublicMethod;
-import com.meizu.testdevVideo.util.sharepreference.BaseData;
 import com.meizu.testdevVideo.util.sharepreference.PerformsData;
-import com.meizu.testdevVideo.util.sharepreference.PrefWidgetOnOff;
 import com.meizu.testdevVideo.util.wifi.WifiFunction;
 
 

@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -38,6 +39,7 @@ public class PerformsReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        long currentTime = System.currentTimeMillis();
         String mAction = intent.getAction();
 
         if(mAction.equals("action.st.performs.test.over")){
@@ -68,10 +70,12 @@ public class PerformsReceiver extends BroadcastReceiver {
             PerformsData.getInstance(context).writeStringData(iPerformsKey.result, mBundle.getString("result"));
 
             PublicMethod.saveStringToFileWithoutDeleteSrcFile("\n\n" + PublicMethod.getSystemTime() + "收到结束测试的广播",
-                    "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                    "PerformTestLog", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
             if(this.mPerformsCaseCompleteCallBack != null){
                 this.mPerformsCaseCompleteCallBack.onCaseComplete();
             }
+
+            Log.e(PerformsReceiver.class.getSimpleName(), "收到测试结束广播,花费初始化时间为(ms): " + (System.currentTimeMillis() - currentTime));
         }
 
         if(mAction.equals("action.st.kill.performs")){

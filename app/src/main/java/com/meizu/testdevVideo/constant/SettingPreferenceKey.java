@@ -17,4 +17,9 @@ public class SettingPreferenceKey {
     public static String MONKEY_MTK_SET = "preference_monkey_mtk_set";
     public static String CLEAR_LOG = "preference_clear_log";
     public static String CATCH_LOG_TYPE = "preference_catch_log_type";
+    public static String APP_TYPE = "preference_app_type";
+    public static String APP_PACKAGE_NAME = "app_package_name";
+    public static String MONKEY_CHOOSE_APP = "monkey_choose_app";
+    public static String MONKEY_DEFINED_CHOOSE_APP= "monkey_defined_choose_app";
+    public static String EMAIL_ADDRESS= "email_address";
 }

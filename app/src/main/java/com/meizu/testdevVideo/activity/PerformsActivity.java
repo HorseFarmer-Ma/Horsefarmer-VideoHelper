@@ -272,7 +272,7 @@ public class PerformsActivity extends AppCompatActivity {
         PerformsData.getInstance(PerformsActivity.this).writeStringData(iPerformsKey.appType,
                 mTestCaseData.get(position).getTestAppType());
         PerformsData.getInstance(PerformsActivity.this).writeStringData(iPerformsKey.appVersion,
-                PublicMethod.getAppVersion(mTestCaseData.get(position).getTestAppType()));
+                PublicMethod.getAppVersion(this, mTestCaseData.get(position).getTestAppType()));
         PerformsData.getInstance(PerformsActivity.this).writeStringData(iPerformsKey.doPackageName,
                 mTestCaseData.get(position).getCaseName());
     }

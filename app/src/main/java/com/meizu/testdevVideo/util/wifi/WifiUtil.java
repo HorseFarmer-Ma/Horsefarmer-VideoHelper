@@ -6,10 +6,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiEnterpriseConfig;
 
-/**
- * Author: jinghao
- * Date: 2015-11-07
- */
+
 public class WifiUtil {
 
     public static WifiConfiguration getEAPConfig(String ssid, String usr, String pwd){

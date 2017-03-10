@@ -31,6 +31,8 @@ public interface iPerformsKey {
     String framerate = "framerate";
     String memory = "memory";
     String purebackstage = "purebackstage";
+    String isPurebackstageSet = "isPurebackstageSet";       // 纯净后台熄屏唤醒标志位，默认为false
+
     // 任务状态
     String taskRunStatus = "1";                 // 正在进行
     String taskFinishStatus = "2";              // 已完成

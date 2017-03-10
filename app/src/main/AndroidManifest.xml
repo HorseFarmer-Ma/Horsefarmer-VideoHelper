@@ -66,7 +66,6 @@
             </intent-filter>
         </activity>
 
-
         <receiver android:name=".broadcast.SuperTestReceiver">
             <intent-filter android:priority="1000">
 
@@ -83,12 +82,11 @@
                 <action android:name="st.action.monkey.service.destroy" />
             </intent-filter>
         </receiver>
-
-
         <receiver
             android:name=".broadcast.JpushReceiver"
             android:enabled="true">
             <intent-filter>
+
                 <!-- Required 用户注册SDK的intent -->
                 <action android:name="cn.jpush.android.intent.REGISTRATION" />
                 <!-- Required 用户接收SDK消息的intent -->
@@ -101,7 +99,23 @@
                 <action android:name="cn.jpush.android.intent.ACTION_RICHPUSH_CALLBACK" />
                 <!-- 接收网络变化 连接/断开 since 1.6.3 -->
                 <action android:name="cn.jpush.android.intent.CONNECTION" />
+
                 <category android:name="com.meizu.testdevVideo" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".broadcast.WidgetStatusReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="st.action.widget.wakeup" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".broadcast.AlarmManagerReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.ALARM_RECEIVER" />
+                <action android:name="st.action.set.performs.alarm" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
 
@@ -119,7 +133,7 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter android:priority="1000">
-                <action android:name="com.meizu.testdevVideo.service.MonkeyService" />
+                <action android:name="com.meizu.testdevVideo.service.SuperTestService" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -216,15 +230,26 @@
             android:exported="false" />
 
         <service
-            android:name=".service.TrySendResultAgainService"
+            android:name=".service.RegisterAppService"
             android:exported="false" />
         <service
-            android:name=".service.MonkeyProcessService"
+            android:name=".service.MonkeyService"
             android:exported="false"
-            android:process=":monkey" />
+            android:priority="1000"></service>
+
+        <activity
+            android:name=".activity.AppChooseActivity"
+            android:label="@string/choose_app"
+            android:theme="@style/Theme.AppCompat.Dialog"></activity>
+
         <service
-            android:name=".service.RegisterAppService"
-            android:exported="false"></service>
+            android:name=".service.DaemonService"
+            android:enabled="true"
+            android:exported="true"
+            android:priority="1000"
+            android:process=":daemon"></service>
+
+        <activity android:name=".activity.EmptyActivity"></activity>
     </application>
 
 </manifest>

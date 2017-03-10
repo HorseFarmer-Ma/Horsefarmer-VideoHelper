@@ -1,13 +1,21 @@
 package com.meizu.testdevVideo.broadcast;
 
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.meizu.testdevVideo.activity.MainActivity;
+import com.meizu.testdevVideo.constant.SettingPreferenceKey;
+import com.meizu.testdevVideo.interports.iPerformsKey;
+import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.library.SharedPreferencesHelper;
+import com.meizu.testdevVideo.library.ToastHelper;
+import com.meizu.testdevVideo.service.PerformsTestService;
 import com.meizu.testdevVideo.util.PublicMethod;
 
 import org.json.JSONException;
@@ -27,12 +35,18 @@ import cn.jpush.android.api.JPushInterface;
 public class JpushReceiver extends BroadcastReceiver {
 	private static final String TAG = "JpushReceiver";
 	private SharedPreferencesHelper shared;
+	private SharedPreferences settingSharedPreferences = null;
+	private SharedPreferences.Editor editor = null;
+
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		settingSharedPreferences = ((settingSharedPreferences ==  null)?
+				PreferenceManager.getDefaultSharedPreferences(context) : settingSharedPreferences);
+		editor = (editor == null) ? settingSharedPreferences.edit() : editor;
         Bundle bundle = intent.getExtras();
 		Log.e(TAG, "[JpushReceiver] onReceive - " + intent.getAction() + ", extras: " + printBundle(bundle));
-		
+
         if (JPushInterface.ACTION_REGISTRATION_ID.equals(intent.getAction())) {
             String regId = bundle.getString(JPushInterface.EXTRA_REGISTRATION_ID);
             Log.e(TAG, "[JpushReceiver] 接收Registration Id : " + regId);
@@ -48,9 +62,37 @@ public class JpushReceiver extends BroadcastReceiver {
         	processCustomMessage(context, bundle);
         
         } else if (JPushInterface.ACTION_NOTIFICATION_RECEIVED.equals(intent.getAction())) {
-            Log.e(TAG, "[JpushReceiver] 接收到推送下来的通知");
-            int notifactionId = bundle.getInt(JPushInterface.EXTRA_NOTIFICATION_ID);
-            Log.e(TAG, "[JpushReceiver] 接收到推送下来的通知的ID: " + notifactionId);
+            String msg = bundle.getString("cn.jpush.android.ALERT");
+			int notificationId = bundle.getInt(JPushInterface.EXTRA_NOTIFICATION_ID);
+            Log.e(TAG, "接收到的推送消息为" + msg);
+			// 收到的为任务Json，则不显示通知栏
+			if(msg.contains("testPackageName")){
+				NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+				mNotificationManager.cancel(notificationId);
+				editor.remove(SettingPreferenceKey.KEEP_WAKEUP);
+				editor.putBoolean(SettingPreferenceKey.KEEP_WAKEUP, true);    // 设置保持屏幕唤醒
+				editor.apply();
+				PublicMethod.deleteDirectory(iPublicConstants.PERFORMS_RESULT);    // 清除测试结果
+				PublicMethod.deleteDirectory(iPublicConstants.PERFORMS_TESTCASE_PATH);   // 清除jar包
+				PublicMethod.deleteDirectory(iPublicConstants.PERFORMS_LOG);   // 清除打印的Log
+				Intent mTaskIntent = new Intent(context, PerformsTestService.class);
+				mTaskIntent.putExtra("taskType", 1);
+				mTaskIntent.putExtra(iPerformsKey.taskPushJson, msg);
+				if (PublicMethod.isServiceWorked(context, "com.meizu.testdevVideo.service.PerformsTestService")){
+					context.stopService(mTaskIntent);
+				}
+				context.startService(mTaskIntent);
+			}
+
+			if(msg.equals("stopTask")){
+				NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+				mNotificationManager.cancel(notificationId);
+				Intent mTaskIntent = new Intent(context, PerformsTestService.class);
+				context.stopService(mTaskIntent);
+				PublicMethod.killProcess("ps|grep uiautomator", "system    ", " ");
+				PublicMethod.killProcess("ps |grep com.android.commands.monkey", "system    ", " ");
+				ToastHelper.addToast("云端kill", context);
+			}
         	
         } else if (JPushInterface.ACTION_NOTIFICATION_OPENED.equals(intent.getAction())) {
 			// 用于自定义点击通知栏通知的功能
