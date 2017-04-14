@@ -39,10 +39,7 @@ public class PerformsReportSend {
             public void onFailure(Throwable t, int errorNo, String strMsg) {
                 super.onFailure(t, errorNo, strMsg);
                 reportSendCallBack.isSendComplete(true);
-                if(500 == errorNo){
-
-                }
-                saveLogLocal("发送失败");
+                saveLogLocal("发送失败onFailure");
                 saveLogLocal(String.valueOf(errorNo));
                 saveLogLocal(strMsg);
             }
@@ -61,11 +58,13 @@ public class PerformsReportSend {
                 //根据服务器返回的json数据，判断上传是否成功
                 if(!TextUtils.isEmpty(t)){
                     if("200".equals(t)){
-                        saveLogLocal("发送报告成功");
+                        saveLogLocal("发送报告成功" + t);
                     }else{
-                        saveLogLocal("服务器异常500");
-                        ToastHelper.addToast("服务器异常", mContext);
+                        saveLogLocal("服务器异常" + t);
+                        ToastHelper.addToast("服务器异常" + t, mContext);
                     }
+                }else{
+                    saveLogLocal("没有返回值" + t);
                 }
             }
         });
@@ -77,7 +76,7 @@ public class PerformsReportSend {
      */
     private void saveLogLocal(String log){
         PublicMethod.saveStringToFileWithoutDeleteSrcFile("\n" + PublicMethod.getSystemTime() + log,
-                "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                "PerformTestLog", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
     }
 
 

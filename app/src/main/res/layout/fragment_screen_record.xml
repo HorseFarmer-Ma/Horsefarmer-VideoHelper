@@ -52,33 +52,40 @@
         android:textColor="#FFFFFF"
         android:text="@string/action_screen_record"/>
 
-    <Button
-        android:id="@+id/button_zip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:gravity="center"
-        android:textSize="20dp"
-        android:layout_gravity="center_horizontal"
-        android:background="@drawable/my_button_purple"
-        android:textColor="#FFFFFF"
-        android:text="压缩测试" />
+    <!--<TextView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginTop="40dp"-->
+        <!--android:layout_gravity="center_horizontal"-->
+        <!--android:gravity="center"-->
+        <!--android:text="1:starttime\n2:framerate\n3:memory\n4:purebackstage"/>-->
 
-    <Button
-        android:id="@+id/button_unzip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:gravity="center"
-        android:textSize="20dp"
-        android:layout_gravity="center_horizontal"
-        android:background="@drawable/my_button_purple"
-        android:textColor="#FFFFFF"
-        android:text="解压测试" />
+    <!--<EditText-->
+        <!--android:id="@+id/edt_result"-->
+        <!--android:layout_marginTop="40dp"-->
+        <!--android:layout_width="50dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="center_horizontal"/>-->
+
+    <!--<Spinner-->
+        <!--android:id="@+id/package_choose"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content">-->
+    <!--</Spinner>-->
+
+    <!--<Button-->
+        <!--android:id="@+id/button_test"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginTop="20dp"-->
+        <!--android:paddingLeft="20dp"-->
+        <!--android:paddingRight="20dp"-->
+        <!--android:gravity="center"-->
+        <!--android:textSize="20dp"-->
+        <!--android:layout_gravity="center_horizontal"-->
+        <!--android:background="@drawable/my_button_purple"-->
+        <!--android:textColor="#FFFFFF"-->
+        <!--android:text="Test" />-->
 
 
 </LinearLayout>

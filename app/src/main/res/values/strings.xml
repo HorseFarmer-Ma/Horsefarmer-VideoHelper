@@ -7,7 +7,7 @@
     <string name="performs_test">性能测试</string>
     <string name="common_tool">常用工具</string>
     <string name="monkey">Monkey</string>
-    <string name="MTK_logcat">MTK一键抓log</string>
+    <string name="MTK_logcat">一键抓log</string>
     <string name="print_trace">导出Trace|DrodBox</string>
     <string name="check_update">检查更新</string>
     <string name="setting">设置</string>
@@ -29,15 +29,23 @@
     <string name="action_open_mtkLog">MTKLOG</string>
     <string name="action_clear_mtkLog">清除MTKLOG</string>
     <string name="action_history">执行历史</string>
-    <string name="action_timetask">定时任务</string>
+    <string name="action_timetask">添加定时</string>
     <string name="action_run_monkey">跑monkey</string>
+    <string name="action_choose_app">选择业务</string>
     <string name="action_first_step">第一步</string>
     <string name="action_second_step">选择应用</string>
     <string name="action_my_monkey">自定义执行monkey</string>
+    <string name="action_defined_value">自定义参数</string>
+    <string name="action_defined_value_seed">seed</string>
+    <string name="action_defined_value_click_time">times</string>
+    <string name="action_defined_value_click_number">number</string>
     <string name="action_copy_monkey">复制指令</string>
     <string name="action_blacklist_defined">自定义</string>
     <string name="action_blacklist">默认</string>
     <string name="action_save_blacklist">保存黑名单</string>
+    <string name="action_email_adress">魅族邮箱地址【必填】</string>
+    <string name="action_send">重新发送</string>
+    <string name="action_send_fail">上次发送报告失败</string>
 
     <!--ScreenRecord-->
     <string name="action_screen_record">开始录制屏幕</string>
@@ -68,12 +76,14 @@
 
     <!--设置菜单-->
     <string name="setting_category_performs">性能测试设置</string>
+    <string name="setting_category_base">基本设置</string>
     <string name="setting_category_wifi">WiFi设置</string>
     <string name="setting_lock_wifi">锁定WiFi</string>
     <string name="setting_wakeup">保持屏幕唤醒</string>
     <string name="setting_category_voice">静音设置</string>
     <string name="setting_no_voice">手机静音</string>
     <string name="setting_category_monkey">Monkey设置</string>
+    <string name="setting_app_type">业务类型 ~ 邮箱地址</string>
 
     <!--WIFI列表-->
     <string-array name="ssid">
@@ -92,5 +102,21 @@
     </string-array>
 
     <string name="performs_test_type">测试类型：</string>
+    <string name="no_netword">无网络连接</string>
+    <string name="download">下载</string>
+    <string name="install">安装</string>
+
+    <string name="choose_app">请选择您所属业务</string>
+    <string name="loading">正在加载..</string>
+    <string name="app_search_hint">请输入应用名/包名搜索</string>
+    <string name="choose_app_type">请选择您所属的业务</string>
+    <string name="choose_monkey_app">选择执行应用</string>
+
+    <string name="btn_cancel">取消</string>
+    <string name="btn_ok">确定</string>
+    <string name="choose_item_remind">已选择%d项</string>
+
+    <!--默认清除应用缓存周期-->
+    <string name="clear_cache_orign_times">10</string>
 
 </resources>

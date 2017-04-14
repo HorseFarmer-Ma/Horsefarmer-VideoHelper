@@ -5,7 +5,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimary</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/red</item>
         <item name="android:windowBackground">@color/colorBackground</item>
     </style>
 
@@ -58,5 +58,7 @@
         <item name="android:navigationIcon">@android:color/white</item>
         <item name="navigationIcon">?attr/homeAsUpIndicator</item>
     </style>
+
+
 
 </resources>

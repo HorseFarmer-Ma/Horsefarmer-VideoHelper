@@ -89,7 +89,6 @@ public class ZipUtil {
             }
         } catch (IOException ex) {
             ex.printStackTrace();
-            // throw ex;
         } finally {
             if (in != null) {
                 try {

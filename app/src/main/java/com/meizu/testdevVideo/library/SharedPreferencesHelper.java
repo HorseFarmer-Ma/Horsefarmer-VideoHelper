@@ -17,7 +17,7 @@ public class SharedPreferencesHelper {
     public SharedPreferencesHelper(Context context, String tableName){
         this.mContext = context;
         mSharedPreference1 = mContext.getSharedPreferences(tableName,
-                Activity.MODE_PRIVATE);
+                Context.MODE_MULTI_PROCESS);
         editor = mSharedPreference1.edit();
     }
 
@@ -63,6 +63,7 @@ public class SharedPreferencesHelper {
     public String readStringData(String key){
         return mSharedPreference1.getString(key, null);
     }
+
     /**
      * 读取整型数据
      * @param key：键值
@@ -71,6 +72,7 @@ public class SharedPreferencesHelper {
     public int readIntData(String key){
         return mSharedPreference1.getInt(key, 0);
     }
+
     /**
      * 读取布尔型数据
      * @param key：键值
@@ -78,6 +80,15 @@ public class SharedPreferencesHelper {
      */
     public boolean readBooleanData(String key){
         return mSharedPreference1.getBoolean(key, false);
+    }
+
+    /**
+     * 读取布尔型数据，默认初始值为true
+     * @param key：键值
+     * @return 读取值
+     */
+    public boolean readBooleanDataDefTrue(String key){
+        return mSharedPreference1.getBoolean(key, true);
     }
 
 

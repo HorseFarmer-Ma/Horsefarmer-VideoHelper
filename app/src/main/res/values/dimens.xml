@@ -7,5 +7,8 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="recomment_block_divider_height2">20dp</dimen>
     <color name="recommend_block_divider2">#FFF0F0F0</color>
+
+    <dimen name="button_margin">10dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="page_margin">-4dp</dimen>
 </resources>

@@ -2,9 +2,19 @@ package com.meizu.testdevVideo.library;
 
 import android.util.Log;
 
+import com.meizu.testdevVideo.util.PublicMethod;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -50,14 +60,14 @@ public class PostUploadHelper {
             outputStream.write(data);
 
             int response = httpURLConnection.getResponseCode();            //获得服务器的响应码
-            Log.e("POST", "发送数据");
+            Log.d("POST", "发送数据");
             if(response == HttpURLConnection.HTTP_OK) {
-                Log.e("POST结果", "发送成功");
+                Log.d("POST结果", "发送成功");
                 InputStream inptStream = httpURLConnection.getInputStream();
                 postCallBack.resultCallBack(true, response, dealResponseResult(inptStream));
             } else{
                 postCallBack.resultCallBack(true, response, null);
-                Log.e("POST结果", "发送失败");
+                Log.d("POST结果", "发送失败");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -106,4 +116,111 @@ public class PostUploadHelper {
         resultData = new String(byteArrayOutputStream.toByteArray());
         return resultData;
     }
+
+
+    /**
+     * Function  : POST文本和文件到服务器
+     * Param     : params请求体内容
+     */
+    public void postFile(String actionUrl, Map<String, String> params,
+                              Map<String, File> files, PostCallBack postCallBack) throws IOException {
+
+        String BOUNDARY = java.util.UUID.randomUUID().toString();
+        String PREFIX = "--", LINEND = "\r\n";
+        String MULTIPART_FROM_DATA = "multipart/form-data";
+        String CHARSET = "UTF-8";
+        URL uri = new URL(actionUrl);
+        HttpURLConnection conn = (HttpURLConnection) uri.openConnection();
+        conn.setChunkedStreamingMode(128 * 1024);   // 设置块大小：128K，当内容达到这个值的时候就把流输出
+        conn.setReadTimeout(5 * 1000);
+        conn.setDoInput(true);   // 允许输入
+        conn.setDoOutput(true);   // 允许输出
+        conn.setUseCaches(false);
+        conn.setRequestMethod("POST"); // Post方式
+        conn.setRequestProperty("connection", "Keep-Alive");
+        conn.setRequestProperty("Charsert", "UTF-8");
+        conn.setRequestProperty("Content-Type", MULTIPART_FROM_DATA
+                + ";boundary=" + BOUNDARY);
+
+        // 首先组拼文本类型的参数
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            sb.append(PREFIX);
+            sb.append(BOUNDARY);
+            sb.append(LINEND);
+            sb.append("Content-Disposition: form-data; name=\""
+                    + entry.getKey() + "\"" + LINEND);
+            sb.append("Content-Type: text/plain; charset=" + CHARSET + LINEND);
+            sb.append("Content-Transfer-Encoding: 8bit" + LINEND);
+            sb.append(LINEND);
+            sb.append(entry.getValue());
+            sb.append(LINEND);
+        }
+
+        DataOutputStream outStream = new DataOutputStream(conn
+                .getOutputStream());
+        outStream.write(sb.toString().getBytes());
+
+        // 发送文件数据
+        if (files != null)
+            for (Map.Entry<String, File> file : files.entrySet()) {
+                StringBuilder sb1 = new StringBuilder();
+                sb1.append(PREFIX);
+                sb1.append(BOUNDARY);
+                sb1.append(LINEND);
+                sb1.append("Content-Disposition: form-data; name=\"file\"; filename=\""
+                                + PublicMethod.getFileName(file.getValue().toString()) + "\"" + LINEND);
+                sb1.append("Content-Type: application/octet-stream; charset="
+                        + CHARSET + LINEND);
+                sb1.append(LINEND);
+                outStream.write(sb1.toString().getBytes());
+                InputStream is = new FileInputStream(file.getValue());
+                byte[] buffer = new byte[1024];
+                int len = 0;
+                while ((len = is.read(buffer)) != -1) {
+                    outStream.write(buffer, 0, len);
+                }
+
+                is.close();
+                outStream.write(LINEND.getBytes());
+            }
+
+        // 请求结束标志
+        byte[] end_data = (PREFIX + BOUNDARY + PREFIX + LINEND).getBytes();
+        outStream.write(end_data);
+        outStream.flush();
+
+        // 得到响应码
+        int res = conn.getResponseCode();
+        boolean isSendComplete = false;
+
+        InputStream in = conn.getInputStream();
+        StringBuilder sb2 = new StringBuilder();
+//        InputStreamReader isReader = new InputStreamReader(in);
+//        BufferedReader bufReader = new BufferedReader(isReader);
+//        String line = null;
+//        String data = "OK";
+
+//        while ((line = bufReader.readLine()) == null)
+//            data += line;
+
+        if (200 == res) {
+            int ch;
+            while ((ch = in.read()) != -1) {
+                sb2.append((char) ch);
+            }
+            isSendComplete = true;
+        }
+
+        postCallBack.resultCallBack(isSendComplete, res, sb2.toString());
+        outStream.close();
+        in.close();
+
+        conn.disconnect();
+//        return in.toString();
+    }
+
+
+
+
 }

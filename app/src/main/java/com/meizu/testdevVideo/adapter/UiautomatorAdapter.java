@@ -13,9 +13,7 @@ import com.meizu.widget.checkbox.AnimateCheckBox;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by liuzipeng on 15/12/4.
- */
+
 public class UiautomatorAdapter extends RecyclerView.Adapter<UiautomatorAdapter.MyViewHolder> {
 
     private List<Map<String, Object>> mList;        // 案例列表数据

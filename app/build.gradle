@@ -8,8 +8,8 @@ android {
         applicationId "com.meizu.testdevVideo"
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 1286
-        versionName "1.2.86"
+        versionCode 2110
+        versionName "2.1.10"
 
         ndk {
             //选择要添加的对应cpu类型的.so库。
@@ -32,8 +32,11 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            // 是否混淆
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // 移除无用的resource文件
+            shrinkResources true
         }
     }
 
@@ -48,14 +51,18 @@ android {
 
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     // 此处以SDK 2.1.9版本为例
     compile files('libs/afinal_0.5.1_bin.jar')
+    compile files('libs/ftp4j-1.7.2.jar')
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.3'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.3'
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.android.support:design:23.4.0'
     compile 'com.android.support:support-v4:23.4.0'
     compile 'com.android.support:cardview-v7:23.4.0'
     compile 'cn.jiguang:jpush:2.1.9'
-    compile files('libs/perflib.jar')
+    compile files('libs/jxl.jar')
+    compile files('libs/androidannotations-api-3.0.1.jar')
 }

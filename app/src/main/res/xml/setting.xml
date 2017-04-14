@@ -25,7 +25,7 @@
 
         <ListPreference
             android:key="preference_lock_wifi_type"
-            android:defaultValue="MZ-MEIZU-5G"
+            android:defaultValue="MZ-Inweb-Test"
             android:title="锁定目标"
             android:entries="@array/ssid"
             android:entryValues="@array/ssid"
@@ -38,6 +38,7 @@
 
         <EditTextPreference
             android:key="preference_defined_wifi_psw"
+            android:inputType="textPassword"
             android:title="password"
             android:defaultValue="Inweb@meizu.com"/>
 
@@ -65,6 +66,12 @@
     <PreferenceCategory
         android:title="@string/setting_category_monkey"
         android:selectable="false">
+
+        <Preference
+            android:key="preference_app_type"
+            android:title="@string/setting_app_type"
+            android:summary="未选择业务">
+        </Preference>
 
         <SwitchPreference
             android:key="preference_monkey_float_btn"
@@ -103,6 +110,19 @@
             android:key="preference_all_log_size"
             android:title="总日志容量最大值(MB)"
             android:defaultValue="10000">
+        </EditTextPreference>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/setting_category_base"
+        android:selectable="false">
+
+        <EditTextPreference
+            android:key="preference_clear_cache"
+            android:title="清除应用缓存周期/天"
+            android:inputType="number"
+            android:defaultValue="@string/clear_cache_orign_times">
         </EditTextPreference>
 
     </PreferenceCategory>

@@ -15,8 +15,19 @@ public class AppInfo {
     private Intent intent ;     //启动应用程序的Intent ，一般是Action为Main和Category为Lancher的Activity
     private String pkgName ;    //应用程序所对应的包名
     private String version;  // 获取应用版本号
-      
-    public AppInfo(){}  
+
+    @Override
+    public String toString() {
+        return "AppInfo{" +
+                "appLabel='" + appLabel + '\'' +
+                ", appIcon=" + appIcon +
+                ", intent=" + intent +
+                ", pkgName='" + pkgName + '\'' +
+                ", version='" + version + '\'' +
+                '}';
+    }
+
+    public AppInfo(){}
       
     public String getAppLabel() {  
         return appLabel;  

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.meizu.testdevVideo"
-    android:sharedUserId="android.uid.system">
+    android:sharedUserId="android.uid.system" >
 
     <!-- android:sharedUserId="android.uid.system" -->
 
@@ -19,6 +19,7 @@
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.RESTART_PACKAGES" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.READ_SMS" />
@@ -49,12 +50,13 @@
 
     <!-- android:persistent="true" -->
     <application
-        android:name=".MyApplication"
+        android:name=".SuperTestApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_app"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:persistent="true">
         <activity
             android:name=".activity.MainActivity"
             android:label="@string/app_name"
@@ -65,7 +67,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
 
         <receiver android:name=".broadcast.SuperTestReceiver">
             <intent-filter android:priority="1000">
@@ -83,12 +84,11 @@
                 <action android:name="st.action.monkey.service.destroy" />
             </intent-filter>
         </receiver>
-
-
         <receiver
             android:name=".broadcast.JpushReceiver"
             android:enabled="true">
             <intent-filter>
+
                 <!-- Required 用户注册SDK的intent -->
                 <action android:name="cn.jpush.android.intent.REGISTRATION" />
                 <!-- Required 用户接收SDK消息的intent -->
@@ -101,7 +101,23 @@
                 <action android:name="cn.jpush.android.intent.ACTION_RICHPUSH_CALLBACK" />
                 <!-- 接收网络变化 连接/断开 since 1.6.3 -->
                 <action android:name="cn.jpush.android.intent.CONNECTION" />
+
                 <category android:name="com.meizu.testdevVideo" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".broadcast.WidgetStatusReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="st.action.widget.wakeup" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".broadcast.AlarmManagerReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.ALARM_RECEIVER" />
+                <action android:name="st.action.set.performs.alarm" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
 
@@ -119,7 +135,7 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter android:priority="1000">
-                <action android:name="com.meizu.testdevVideo.service.MonkeyService" />
+                <action android:name="com.meizu.testdevVideo.service.SuperTestService" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -216,15 +232,26 @@
             android:exported="false" />
 
         <service
-            android:name=".service.TrySendResultAgainService"
-            android:exported="false" />
-        <service
-            android:name=".service.MonkeyProcessService"
-            android:exported="false"
-            android:process=":monkey" />
-        <service
             android:name=".service.RegisterAppService"
-            android:exported="false"></service>
+            android:exported="false" />
+
+        <service
+            android:name=".service.MonkeyService"
+            android:exported="false"
+            android:priority="1000" />
+
+        <activity
+            android:name=".activity.AppChooseActivity"
+            android:label="@string/choose_app"
+            android:theme="@style/Theme.AppCompat.Dialog">
+        </activity>
+
+        <service
+            android:name=".service.TestService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+
     </application>
 
 </manifest>

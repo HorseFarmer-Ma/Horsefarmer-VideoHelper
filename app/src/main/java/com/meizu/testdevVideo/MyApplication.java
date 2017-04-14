@@ -13,6 +13,7 @@ import com.meizu.testdevVideo.interports.iPerformsKey;
 import com.meizu.testdevVideo.service.RegisterAppService;
 import com.meizu.testdevVideo.util.sharepreference.PerformsData;
 import com.meizu.testdevVideo.util.shell.ShellUtils;
+import com.squareup.leakcanary.LeakCanary;
 
 import cn.jpush.android.api.JPushInterface;
 
@@ -29,6 +30,7 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+//        LeakCanary.install(this);   // 內存泄漏检测工具
         //初始化sdk
         long i = SystemClock.currentThreadTimeMillis();
         TelephonyManager tm = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);   // 获取手机号码信息
@@ -104,4 +106,15 @@ public class MyApplication extends Application {
 //            }
 //        }
 //    };
+
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        switch (level) {
+            case TRIM_MEMORY_UI_HIDDEN:
+                // 进行资源释放操作
+                break;
+        }
+    }
 }

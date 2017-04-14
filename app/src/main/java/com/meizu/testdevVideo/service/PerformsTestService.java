@@ -1,13 +1,19 @@
 package com.meizu.testdevVideo.service;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
+
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +23,7 @@ import android.widget.TextView;
 
 import com.meizu.testdevVideo.R;
 import com.meizu.testdevVideo.constant.Constants;
+import com.meizu.testdevVideo.constant.SettingPreferenceKey;
 import com.meizu.testdevVideo.interports.PerformsCaseCompleteCallBack;
 import com.meizu.testdevVideo.interports.PerformsJarDownloadCallBack;
 import com.meizu.testdevVideo.broadcast.PerformsReceiver;
@@ -25,6 +32,7 @@ import com.meizu.testdevVideo.interports.iPerformsKey;
 import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.library.PostCallBack;
 import com.meizu.testdevVideo.library.PostUploadHelper;
+import com.meizu.testdevVideo.library.ServiceNotificationHelper;
 import com.meizu.testdevVideo.library.ToastHelper;
 import com.meizu.testdevVideo.library.WindowManagerHelper;
 import com.meizu.testdevVideo.constant.CommonVariable;
@@ -90,17 +98,8 @@ public class PerformsTestService extends Service {
 
     // 如果id设置为0,会导致不能设置为前台
     private static final int NOTIFICATION_ID = 101;
-    private static final Class<?>[] mSetForegroundSignature = new Class[] { boolean.class };
-    private static final Class<?>[] mStartForegroundSignature = new Class[] { int.class , Notification.class };
-    private static final Class<?>[] mStopForegroundSignature = new Class[] { boolean.class };
-    private NotificationManager mNM;
-    private Method mSetForeground;
-    private Method mStartForeground;
-    private Method mStopForeground;
-    private Object[] mSetForegroundArgs = new Object[1];
-    private Object[] mStartForegroundArgs = new Object[2];
-    private Object[] mStopForegroundArgs = new Object[1];
-    private boolean mReflectFlg = false;
+    private SharedPreferences.Editor editor = null;
+    private SharedPreferences settingSharedPreferences = null;
 
 
 
@@ -109,6 +108,8 @@ public class PerformsTestService extends Service {
         super.onCreate();
         broadcastInit();
         onCreateInit();
+        ServiceNotificationHelper.getInstance(this).notification(NOTIFICATION_ID,
+                this, "性能测试", "性能测试执行中...");
     }
 
     @Override
@@ -128,13 +129,14 @@ public class PerformsTestService extends Service {
         super.onDestroy();
         CommonVariable.isPerformsStart = false;
         saveLogLocal("服务被销毁了");
+        keepWakeUp(false);   // 关闭屏幕唤醒
         stopTimer();
         PerformsData.getInstance(this).writeBooleanData(iPerformsKey.isStart, false);
         if(null != windowManagerHelper){
             windowManagerHelper.removeView(startView);
         }
         checkStatusFinally();
-        stopForegroundCompat(NOTIFICATION_ID);
+        ServiceNotificationHelper.getInstance(this).notificationCancel(this, NOTIFICATION_ID);
         unregisterReceiver(PerformsReceiver.getInstance());
     }
 
@@ -146,13 +148,14 @@ public class PerformsTestService extends Service {
         CommonVariable.isPerformsStart = true;
         PerformsData.getInstance(this).writeBooleanData(iPerformsKey.isStart, true);
         Window_Init();
-        notificationInit();
+
     }
 
     /**
      * onStartCommand初始化
      */
     private void onStartCommandInit(){
+        PerformsData.getInstance(this).writeBooleanData(iPerformsKey.isPurebackstageSet, false);
         String title = getResources().getString(R.string.performs_test_type)
                 + PerformsData.getInstance(this).readStringData(iPerformsKey.testType);
         txt_test_type.setText(title);
@@ -238,7 +241,13 @@ public class PerformsTestService extends Service {
     }
 
     /**
+     *
      * 发送任务状态函数
+     * @param taskId 总任务ID
+     * @param testType 测试类型
+     * @param status 单个任务状态
+     * @param allTaskState 是否完成全部任务
+     * @throws MalformedURLException
      */
     private void sendTaskStatus(String taskId, String testType, String status, String allTaskState) throws MalformedURLException {
         taskStatusParams.clear();    // 清除之前字段存储信息
@@ -246,14 +255,23 @@ public class PerformsTestService extends Service {
         taskStatusParams.put(iPerformsKey.testType, testType);
         taskStatusParams.put(iPerformsKey.status, status);
         taskStatusParams.put(iPerformsKey.allTaskState, allTaskState);
-        PostUploadHelper.getInstance().submitPostData(iPublicConstants.PERFORMS_POST_TASK_STATUS_URL, taskStatusParams, new PostCallBack() {
+        new Thread(new Runnable() {
             @Override
-            public void resultCallBack(boolean isSuccess, int resultCode, String result) {
-                Log.e(TAG, "isSuccess：" + isSuccess);
-                Log.e(TAG, "resultCode：" + resultCode);
-                Log.e(TAG, "result：" + result);
+            public void run() {
+                try {
+                    PostUploadHelper.getInstance().submitPostData(iPublicConstants.PERFORMS_POST_TASK_STATUS_URL, taskStatusParams, new PostCallBack() {
+                        @Override
+                        public void resultCallBack(boolean isSuccess, int resultCode, String data) {
+                            Log.d(TAG, "isSuccess：" + isSuccess);
+                            Log.d(TAG, "resultCode：" + resultCode);
+                            Log.d(TAG, "result：" + data);
+                        }
+                    });
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
             }
-        });
+        }).start();
     }
 
     /**
@@ -261,29 +279,45 @@ public class PerformsTestService extends Service {
      * @param intent 传送的intent值
      */
     private void jpushTaskInit(Intent intent) throws JSONException {
-        taskType = intent.getIntExtra("taskType", 0);
-        switch (taskType){
-            case 0:      // 本地任务
-                doPackageName = PerformsData.getInstance(getApplicationContext()).readStringData(iPerformsKey.doPackageName);
-                break;
-            case 1:      // 云端任务，写进测试包名，测试类型
-                taskPushJson = new JSONObject(intent.getStringExtra(iPerformsKey.taskPushJson));
-                // 预先初始化
-                PerformsData.getInstance(this).writeStringData(iPerformsKey.testTime,
-                        String.valueOf(System.currentTimeMillis()));
-                PerformsData.getInstance(this).writeStringData(iPerformsKey.appType,
-                        PerformsPushTaskMethod.getAppType(taskPushJson));
-                PerformsData.getInstance(this).writeStringData(iPerformsKey.appVersion,
-                        PublicMethod.getAppVersion(PerformsPushTaskMethod.getAppType(taskPushJson)));
-                taskId = PerformsPushTaskMethod.getTaskIdFromJson(taskPushJson);
-                starttime_task_number = PerformsPushTaskMethod.getStarttimeNumber(taskPushJson);
-                framerate_task_number = PerformsPushTaskMethod.getFramerateNumber(taskPushJson);
-                memory_task_number = PerformsPushTaskMethod.getMemoryNumber(taskPushJson);
-                purebackstage_task_number = PerformsPushTaskMethod.getPurebackstageNumber(taskPushJson);
-                chooseTask(false);
-                break;
-            default:
-                break;
+        if(null != intent){
+            taskType = intent.getIntExtra("taskType", 0);
+            switch (taskType){
+                case 0:      // 本地任务
+                    saveLogLocal("收到本地任务");
+                    doPackageName = PerformsData.getInstance(getApplicationContext()).readStringData(iPerformsKey.doPackageName);
+                    break;
+                case 1:      // 云端任务，写进测试包名，测试类型
+                    saveLogLocal("收到云端任务");
+                    taskPushJson = new JSONObject(intent.getStringExtra(iPerformsKey.taskPushJson));
+                    // 预先初始化
+                    PerformsData.getInstance(this).writeStringData(iPerformsKey.testTime,
+                            String.valueOf(System.currentTimeMillis()));
+
+                    String appType = PerformsPushTaskMethod.getAppType(taskPushJson);
+                    PerformsData.getInstance(this).writeStringData(iPerformsKey.appType, appType);
+                    saveLogLocal("测试应用类型：" + appType);
+
+                    String appVersion = PublicMethod.getAppVersion(this, PerformsPushTaskMethod.getAppType(taskPushJson));
+                    PerformsData.getInstance(this).writeStringData(iPerformsKey.appVersion, appVersion);
+                    saveLogLocal("测试应用版本号：" + appVersion);
+
+                    taskId = PerformsPushTaskMethod.getTaskIdFromJson(taskPushJson);
+                    saveLogLocal("taskId：" + taskId);
+                    starttime_task_number = PerformsPushTaskMethod.getStarttimeNumber(taskPushJson);
+                    saveLogLocal("starttime_task_number：" + starttime_task_number);
+                    framerate_task_number = PerformsPushTaskMethod.getFramerateNumber(taskPushJson);
+                    saveLogLocal("framerate_task_number：" + framerate_task_number);
+                    memory_task_number = PerformsPushTaskMethod.getMemoryNumber(taskPushJson);
+                    saveLogLocal("memory_task_number：" + memory_task_number);
+                    purebackstage_task_number = PerformsPushTaskMethod.getPurebackstageNumber(taskPushJson);
+                    saveLogLocal("purebackstage_task_number：" + purebackstage_task_number);
+                    chooseTask(false);
+                    break;
+                default:
+                    break;
+            }
+        }else{
+            stopSelf();
         }
     }
 
@@ -293,55 +327,68 @@ public class PerformsTestService extends Service {
      * @param isRun 是否执行
      */
     private void chooseTask(boolean isRun) throws JSONException {
-        // 检测启动时间任务是否执行完毕
-        if(starttime_task_run_number < starttime_task_number){
-            saveLogLocal("存在启动时间任务，执行条目：" + starttime_task_run_number);
-            doPackageName = PerformsPushTaskMethod.getStarttimeCase(taskPushJson)[starttime_task_run_number];
-            PerformsData.getInstance(this).writeStringData(iPerformsKey.testType, iPerformsKey.starttime);
-            starttime_task_run_number ++;
-        }
-
-        // 检测帧率测试任务是否执行完毕
-        if(framerate_task_run_number < framerate_task_number && starttime_task_run_number == starttime_task_number){
-            saveLogLocal("存在帧率测试任务，执行条目：" + framerate_task_run_number);
-            doPackageName = PerformsPushTaskMethod.getFramerateCase(taskPushJson)[framerate_task_run_number];
-            PerformsData.getInstance(this).writeStringData(iPerformsKey.testType, iPerformsKey.framerate);
-            framerate_task_run_number ++;
-        }
-
-        // 检测内存测试任务是否执行完毕
-        if(memory_task_run_number < memory_task_number && framerate_task_run_number == framerate_task_number
-                && starttime_task_run_number == starttime_task_number){
-            saveLogLocal("存在内存测试任务，执行条目：" + memory_task_run_number);
-            doPackageName = PerformsPushTaskMethod.getMemoryCase(taskPushJson)[memory_task_run_number];
-            PerformsData.getInstance(this).writeStringData(iPerformsKey.testType, iPerformsKey.framerate);
-            memory_task_run_number ++;
-        }
-
-        // 检测纯净后台任务是否执行完毕
-        if(purebackstage_task_run_number < purebackstage_task_number && framerate_task_run_number == framerate_task_number
-                && starttime_task_run_number == starttime_task_number && memory_task_run_number == memory_task_number){
-            saveLogLocal("存在纯净后台任务，执行条目：" + purebackstage_task_run_number);
-            doPackageName = PerformsPushTaskMethod.getPurebackstageCase(taskPushJson)[purebackstage_task_run_number];
-            PerformsData.getInstance(this).writeStringData(iPerformsKey.testType, iPerformsKey.framerate);
-            purebackstage_task_run_number ++;
-        }
+        boolean isDestroyService = false;   // 判断是否销毁服务
 
         // 任务全部执行完毕，先于下面的判断代码执行，一旦执行完毕，停止服务
         if(purebackstage_task_run_number == purebackstage_task_number && framerate_task_run_number == framerate_task_number
                 && starttime_task_run_number == starttime_task_number && memory_task_run_number == memory_task_number){
+            isDestroyService = true;
             saveLogLocal("云端任务执行完毕，正常停止服务");
             stopSelf();
+        }else if(starttime_task_run_number < starttime_task_number){
+            // 检测启动时间任务是否执行完毕
+            saveLogLocal("存在启动时间任务，执行条目：" + starttime_task_run_number);
+            doPackageName = PerformsPushTaskMethod.getStarttimeCase(taskPushJson)[starttime_task_run_number];
+            PerformsData.getInstance(this).writeStringData(iPerformsKey.testType, iPerformsKey.starttime);
+            starttime_task_run_number ++;
+        }else if(framerate_task_run_number < framerate_task_number && starttime_task_run_number == starttime_task_number){
+            // 检测帧率测试任务是否执行完毕
+            saveLogLocal("存在帧率测试任务，执行条目：" + framerate_task_run_number);
+            doPackageName = PerformsPushTaskMethod.getFramerateCase(taskPushJson)[framerate_task_run_number];
+            PerformsData.getInstance(this).writeStringData(iPerformsKey.testType, iPerformsKey.framerate);
+            framerate_task_run_number ++;
+        }else if(memory_task_run_number < memory_task_number && framerate_task_run_number == framerate_task_number
+                && starttime_task_run_number == starttime_task_number){
+            // 检测内存测试任务是否执行完毕
+            saveLogLocal("存在内存测试任务，执行条目：" + memory_task_run_number);
+            doPackageName = PerformsPushTaskMethod.getMemoryCase(taskPushJson)[memory_task_run_number];
+            PerformsData.getInstance(this).writeStringData(iPerformsKey.testType, iPerformsKey.memory);
+            memory_task_run_number ++;
+        }else if(purebackstage_task_run_number < purebackstage_task_number && framerate_task_run_number == framerate_task_number
+                && starttime_task_run_number == starttime_task_number && memory_task_run_number == memory_task_number){
+            // 检测纯净后台任务是否执行完毕
+            saveLogLocal("存在纯净后台任务，执行条目：" + purebackstage_task_run_number);
+            doPackageName = PerformsPushTaskMethod.getPurebackstageCase(taskPushJson)[purebackstage_task_run_number];
+            PerformsData.getInstance(this).writeStringData(iPerformsKey.testType, iPerformsKey.purebackstage);
+            purebackstage_task_run_number ++;
         }
 
         // 若上述代码没有结束服务，证明存在测试任务，设置悬浮窗标题并继续执行
-        if(isRun){
+        if(isRun && !isDestroyService){
             String title = getResources().getString(R.string.performs_test_type)
                     + PerformsData.getInstance(this).readStringData(iPerformsKey.testType);
-            txt_test_type.setText(title);
-            runUiAutomator(doPackageName);
+            Message msg = new Message();
+            msg.what = 100;
+            msg.obj = title;
+            handler.sendMessage(msg);
         }
     }
+
+    // 创建属于主线程的handler
+    @SuppressLint("HandlerLeak")
+    private Handler handler=new Handler() {
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 100:
+                    txt_test_type.setText((String)msg.obj);
+                    runUiAutomator(doPackageName);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     /**
      * 初始化函数
@@ -351,6 +398,10 @@ public class PerformsTestService extends Service {
             @Override
             public void onCaseComplete() {
                 isSendComplete = false;
+                // 如果发现标志位isPurebackstageSet为True，则重置为false
+                if(PerformsData.getInstance(PerformsTestService.this).readBooleanData(iPerformsKey.isPurebackstageSet)){
+                    PerformsData.getInstance(PerformsTestService.this).writeBooleanData(iPerformsKey.isPurebackstageSet, false);
+                }
                 Log.d(TAG, "案例测试完成，可以发报告啦！");
                 saveLogLocal("案例测试完成，可以发报告啦！");
                 AjaxParams params = GetPerformsParams.getInstance().getPerformsParamsByPre(getApplicationContext());
@@ -378,10 +429,17 @@ public class PerformsTestService extends Service {
                 if(result.contains("true")){
                     if(!TextUtils.isEmpty(filePath)){
                         String report = PublicMethod.readFile(filePath);
-                        if(!TextUtils.isEmpty(report)){
+                        if(testType.equals(iPerformsKey.purebackstage) && !TextUtils.isEmpty(report)){
                             report = report.replace("\"", "");
-                        }else{
-                            report = "本地路径找不到报告！";
+                            String packageName = getPreferenceValue(iPerformsKey.packageName, false);
+                            if(report.contains("Proc " + packageName)){
+                                int startNum= report.indexOf("Proc " + packageName);
+                                report = report.substring(startNum-280, startNum+230);
+                                saveLogLocal("正常获取到日志");
+                            }else{
+                                saveLogLocal("日志中找不到Proc_packageName");
+                                report = "";
+                            }
                         }
                         params.put("\"" + iPerformsKey.stepValue + "\"", "\"" + report + "\"");
                         saveLogLocal("报告路径为：" + caseName + "\n" + filePath);
@@ -397,6 +455,7 @@ public class PerformsTestService extends Service {
                 params.put("\"" + iPerformsKey.packageName + "\"", getPreferenceValue(iPerformsKey.packageName, true));
                 params.put("\"" + iPerformsKey.caseName + "\"", caseName);
                 params.put("\"" + iPerformsKey.result + "\"", result);
+                params.put("\"" + iPerformsKey.taskId + "\"", taskId);
 
                 saveLogLocal("WIFI是否连接：" + String.valueOf(WifiUtil.isWifiConnected(PerformsTestService.this)));
 
@@ -437,50 +496,29 @@ public class PerformsTestService extends Service {
      * @param doTaskClassName 执行的用例
      */
     private void runUiAutomator(String doTaskClassName){
-        final String uiCommand = "/system/bin/sh /data/data/com.meizu.testdevVideo/files/uitest/a5/uiautomator runtest "
-                + iPublicConstants.PERFORMS_TESTCASE_PATH + iPublicConstants.PERFORMS_JAR_NAME
-                + " -c " + doTaskClassName;
-        Log.e(TAG, "执行的指令为：\n" + uiCommand);
+        // 排除执行纯净后台GPRS用例然后没插卡的情况
+        if(!doTaskClassName.contains("GprsBlackTest") || PublicMethod.hasSimCard(PerformsTestService.this)){
+            final String uiCommand = "/system/bin/sh /data/data/com.meizu.testdevVideo/files/uitest/a5/uiautomator runtest "
+                    + iPublicConstants.PERFORMS_TESTCASE_PATH + iPublicConstants.PERFORMS_JAR_NAME
+                    + " -c " + doTaskClassName;
+            Log.d(TAG, "执行的指令为：\n" + uiCommand);
 
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                try {
-                    Runtime.getRuntime().exec(uiCommand);
-                } catch (IOException e) {
-                    e.printStackTrace();
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    try {
+                        Runtime.getRuntime().exec(uiCommand);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
                 }
-                return null;
-            }
-        }.execute();
+            }.execute();
+        }else{
+            isSendComplete = true;
+        }
     }
 
-    /**
-     * 通知栏初始化
-     */
-    private void notificationInit(){
-        try {
-            mStartForeground = PerformsTestService.class.getMethod("startForeground" , mStartForegroundSignature);
-            mStopForeground = PerformsTestService.class.getMethod("stopForeground" , mStopForegroundSignature);
-        } catch (NoSuchMethodException e) {
-            mStartForeground = mStopForeground = null;
-        }
-
-        try {
-            mSetForeground = getClass().getMethod( "setForeground", mSetForegroundSignature);
-        } catch (NoSuchMethodException e) {
-            throw new IllegalStateException( "OS doesn't have Service.startForeground OR Service.setForeground!");
-        }
-
-        Notification.Builder builder = new Notification.Builder(this);
-        builder.setSmallIcon(R.mipmap.ic_app)
-                .setContentTitle("SuperTest")
-                .setDefaults(Notification.DEFAULT_SOUND)
-                .setContentText("Performs testing running..");
-        Notification notification = builder.build();
-        startForegroundCompat(NOTIFICATION_ID, notification);
-        ToastHelper.addToast("请耐心等待，环境已准备，即将执行", this);
-    }
 
     /**
      * 下载JAR包
@@ -503,6 +541,7 @@ public class PerformsTestService extends Service {
                     UiautomatorTimerInit();
                     // 执行Uiautomator
                     runUiAutomator(doPackageName);
+                    PublicMethod.wakeUpAndUnlock(PerformsTestService.this);   // 亮一下屏幕
                 }
             }
         });
@@ -519,7 +558,8 @@ public class PerformsTestService extends Service {
                 checkDealUiProcess();
             }
         };
-        // 定时检测是否没有uiautomator进程了，没有的话就杀掉服务
+        // 定时检测是否没有uiautomator进程了，没有的话就杀掉服务，15秒检测一下
+        // 如果本次任务在15秒内还没起来就可能直接跑到下个任务了
         mTimer.schedule(checkStopTheServiceOrNotTask, 20 * Constants.TIME.SECOND, 15 * Constants.TIME.SECOND);
     }
 
@@ -528,11 +568,9 @@ public class PerformsTestService extends Service {
      * 本地的则直接判断并退出，平台的判断有无剩下任务后执行退出
      */
     private void checkDealUiProcess(){
-        if(TextUtils.isEmpty(ShellUtils.execCommand("ps|grep uiautomator", false, true).successMsg) && isSendComplete){
-            if(PublicMethod.isServiceWorked(PerformsTestService.this, "com.meizu.testdevVideo.service.MonkeyProcessService")){
-                Intent intent = new Intent(PerformsTestService.this, MonkeyProcessService.class);
-                stopService(intent);
-            }
+        if(TextUtils.isEmpty(ShellUtils.execCommand("ps|grep uiautomator", false, true).successMsg) && isSendComplete
+                && !PerformsData.getInstance(PerformsTestService.this).readBooleanData(iPerformsKey.isPurebackstageSet)){
+
             switch (taskType){
                 case 0:        // 本地任务
                     saveLogLocal("检测不到运行的本地任务，正常停止运行");
@@ -613,93 +651,22 @@ public class PerformsTestService extends Service {
         mTimer.schedule(mJarTimeTask, 2 * Constants.TIME.MINUTE, 2 * Constants.TIME.MINUTE);
     }
 
+    private void keepWakeUp(boolean isKeepWakeUp){
+        settingSharedPreferences = ((settingSharedPreferences ==  null)?
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()) : settingSharedPreferences);
+        editor = (editor == null) ? settingSharedPreferences.edit() : editor;
+        editor.remove(SettingPreferenceKey.KEEP_WAKEUP);
+        editor.putBoolean(SettingPreferenceKey.KEEP_WAKEUP, isKeepWakeUp);
+        editor.apply();
+    }
+
     /**
      * 保存服务LOG到本地
      * @param log
      */
     private void saveLogLocal(String log){
         PublicMethod.saveStringToFileWithoutDeleteSrcFile("\n" + PublicMethod.getSystemTime() + log,
-                "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
-    }
-
-    /**
-     * This is a wrapper around the new startForeground method, using the older
-     * APIs if it is not available.
-     */
-    void startForegroundCompat(int id, Notification notification) {
-        if (mReflectFlg) {
-            // If we have the new startForeground API, then use it.
-            if (mStartForeground != null) {
-                mStartForegroundArgs[0] = Integer.valueOf(id);
-                mStartForegroundArgs[1] = notification;
-                invokeMethod( mStartForeground, mStartForegroundArgs);
-                return;
-            }
-
-            // Fall back on the old API.
-            mSetForegroundArgs[0] = Boolean. TRUE;
-            invokeMethod( mSetForeground, mSetForegroundArgs);
-            mNM.notify(id, notification);
-        } else {
-           /*
-           * 还可以使用以下方法，当 sdk大于等于5时，调用sdk现有的方法startForeground设置前台运行，
-           * 否则调用反射取得的 sdk level 5（对应Android 2.0）以下才有的旧方法setForeground设置前台运行
-           */
-            if (Build.VERSION. SDK_INT >= 5) {
-                startForeground(id, notification);
-            } else {
-                // Fall back on the old API.
-                mSetForegroundArgs[0] = Boolean. TRUE;
-                invokeMethod( mSetForeground, mSetForegroundArgs);
-                mNM.notify(id, notification);
-            }
-        }
-    }
-
-    /**
-     * This is a wrapper around the new stopForeground method, using the older
-     * APIs if it is not available.
-     */
-    void stopForegroundCompat(int id) {
-        if (mReflectFlg) {
-            // If we have the new stopForeground API, then use it.
-            if ( mStopForeground != null) {
-                mStopForegroundArgs[0] = Boolean. TRUE;
-                invokeMethod( mStopForeground, mStopForegroundArgs);
-                return;
-            }
-
-            // Fall back on the old API. Note to cancel BEFORE changing the
-            // foreground state, since we could be killed at that point.
-            mNM.cancel(id);
-            mSetForegroundArgs[0] = Boolean. FALSE;
-            invokeMethod(mSetForeground, mSetForegroundArgs);
-        } else {
-           /*
-           * 还可以使用以下方法，当 sdk大于等于5时，调用 sdk现有的方法stopForeground停止前台运行， 否则调用反射取得的 sdk
-           * level 5（对应Android 2.0）以下才有的旧方法setForeground停止前台运行
-           */
-            if (Build.VERSION.SDK_INT >= 5) {
-                stopForeground(true);
-            } else {
-                // Fall back on the old API. Note to cancel BEFORE changing the
-                // foreground state, since we could be killed at that point.
-                mNM.cancel(id);
-                mSetForegroundArgs[0] = Boolean. FALSE;
-                invokeMethod(mSetForeground, mSetForegroundArgs);
-            }
-        }
-    }
-
-
-    void invokeMethod(Method method, Object[] args) {
-        try {
-            method.invoke(this, args);
-        } catch (InvocationTargetException e) {
-            Log.w("ApiDemos", "Unable to invoke method", e);
-        } catch (IllegalAccessException e) {
-            Log.w("ApiDemos", "Unable to invoke method", e);
-        }
+                "PerformTestLog", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
     }
 
     @Override

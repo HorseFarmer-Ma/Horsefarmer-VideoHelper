@@ -1,9 +1,10 @@
 package com.meizu.testdevVideo.activity;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -14,21 +15,24 @@ import com.meizu.testdevVideo.fragment.AppListFragment;
 import com.meizu.testdevVideo.fragment.AppUpdateFragment;
 import com.meizu.testdevVideo.fragment.ScreenRecordFragment;
 import com.meizu.testdevVideo.fragment.UiautomatorFragment;
+import com.meizu.testdevVideo.fragment.UpdateSoftwareFtpFragment;
 
 
 public class CommonToolsActivity extends AppCompatActivity {
 
-//    private DnsFragment dnsFragment;
     private ScreenRecordFragment screenRecordFragment;
     private UiautomatorFragment uiautomatorFragment;
     private AppListFragment appListFragment;
-    private AppUpdateFragment appUpdateFragment;
+//    private AppUpdateFragment appUpdateFragment;
+    private UpdateSoftwareFtpFragment updateSoftwareFtpFragment;
+    private static Activity mActivity = null;
     String object;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mActivity = this;
         Intent intend = getIntent();    // 获取跳转数据
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);   // 设置竖屏
         Bundle bundle=intend.getExtras();  // 从Intent中获得Bundle对象
@@ -53,7 +57,7 @@ public class CommonToolsActivity extends AppCompatActivity {
     // 设置Fragment
     private void setFragment(String fragmentFlag)
     {
-        FragmentManager fm = getFragmentManager();
+        FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction transaction = fm.beginTransaction();
         if(fragmentFlag.equals("录制视频")){
             screenRecordFragment = new ScreenRecordFragment();
@@ -64,9 +68,14 @@ public class CommonToolsActivity extends AppCompatActivity {
         }else if(fragmentFlag.equals("应用信息")){
             appListFragment = new AppListFragment();
             transaction.replace(R.id.id_common_tools, appListFragment);
+//        }else if(fragmentFlag.equals("业务更新")){
+//            appUpdateFragment = new AppUpdateFragment();
+//            transaction.replace(R.id.id_common_tools, appUpdateFragment);
         }else if(fragmentFlag.equals("业务更新")){
-            appUpdateFragment = new AppUpdateFragment();
-            transaction.replace(R.id.id_common_tools, appUpdateFragment);
+            updateSoftwareFtpFragment = new UpdateSoftwareFtpFragment();
+            transaction.replace(R.id.id_common_tools, updateSoftwareFtpFragment);
+        }else if(fragmentFlag.equals("Scheme Test")){
+
         }
         transaction.commit();
     }
@@ -81,5 +90,8 @@ public class CommonToolsActivity extends AppCompatActivity {
     @Override
     public void onDestroy(){
         super.onDestroy();
+        if(null != mActivity){
+            mActivity = null;
+        }
     }
 }

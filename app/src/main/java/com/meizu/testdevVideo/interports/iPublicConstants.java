@@ -25,6 +25,8 @@ public interface iPublicConstants {
     String PERFORMS_TESTCASE_PATH = LOCAL_MEMORY + "SuperTest/PerformsTest/TestCase/";
     // 下载的JAR包名
     String PERFORMS_JAR_NAME = "multimedia.jar";    // 下载的jar包名
+    // 测试结果文件存放路径
+    String PERFORMS_RESULT = LOCAL_MEMORY + "SuperTest/PerformsTest/Result/";
     // 帧率测试结果文件存放路径
     String PERFORMS_FPS_RESULT = LOCAL_MEMORY + "SuperTest/PerformsTest/Result/framerate/";
     // 内存测试结果文件存放路径
@@ -42,27 +44,40 @@ public interface iPublicConstants {
      * 上报测试结果接口
      */
     String PERFORMS_POST_TESTRESULT_URL = "http://multimedia.meizu.com/TR_PerformAnalysis_DeviceIFCtrl/Performance.do";
-//    String PERFORMS_POST_TESTRESULT_URL = "http://172.17.148.20:8080/saury/TR_PerformAnalysis_DeviceIFCtrl/Performance.do";
+//    String PERFORMS_POST_TESTRESULT_URL = "http://172.17.132.159:8080/saury2/TR_PerformAnalysis_DeviceIFCtrl/Performance.do";
 
     /**
      * 拉取测试列表接口
      */
     String PPERFORMS_PULL_TESTCASE_URL = "http://multimedia.meizu.com/TR_PerformAnalysis_ConfigIFCtrl/get/";
-//    String PPERFORMS_PULL_TESTCASE_URL = "http://172.17.148.20:8080/saury/TR_PerformAnalysis_ConfigIFCtrl/get/";
+//    String PPERFORMS_PULL_TESTCASE_URL = "http://172.17.132.159:8080/saury2/TR_PerformAnalysis_ConfigIFCtrl/get/";
 
     /**
      * 下载Jar包网址
      */
     String PERFORMS_TESTCASE_DOWNLOAD_URL = "http://172.17.53.51/static/upload/user-resources/SuperTest/Jar/multimedia.jar";
-//    String PERFORMS_TESTCASE_DOWNLOAD_URL = "http://ats.meizu.com/static/upload/user-resources/SuperTest/Case/Video.jar";
-
     /**
      * 本地上传ALIAS和TAG和注册ID
      */
-    String PERFORMS_POST_ID_TAG_ALIAS_URL = "http://172.17.132.211:8080/saury2/DevicePoolIFCtrl/addDevicePool.do";
+//    String PERFORMS_POST_ID_TAG_ALIAS_URL = "http://172.17.132.159:8080/saury2/DevicePoolIFCtrl/addDevicePool.do";
+    String PERFORMS_POST_ID_TAG_ALIAS_URL = "http://multimedia.meizu.com/DevicePoolIFCtrl/addDevicePool.do";
 
     /**
      * 上报任务状态接口
      */
-    String PERFORMS_POST_TASK_STATUS_URL = "http://172.17.132.211:8080/saury2/SubTaskIFCtrl/SubTask.do";
+//    String PERFORMS_POST_TASK_STATUS_URL = "http://172.17.132.159:8080/saury2/SubTaskIFCtrl/SubTask.do";
+    String PERFORMS_POST_TASK_STATUS_URL = "http://multimedia.meizu.com/SubTaskIFCtrl/SubTask.do";
+
+    /**
+     * 上报monkey日志接口
+     */
+    String MONKEY_RESULT_POST_URL = "http://ats.meizu.com/other/log/upload";
+//    String MONKEY_RESULT_POST_URL = "http://172.17.53.54/other/log/upload";
+
+    /**----------------------------- FTP服务器 ---------------------------------*/
+    String USERNAME = "SuperTest";
+    String PASSWORD = "mxm##mxm666";
+    String HOST = "172.17.132.85";
+    int PORT = 2121;
+    String FILENAME = "FileName";
 }
