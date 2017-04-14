@@ -10,6 +10,11 @@ import android.util.Log;
 
 import com.meizu.testdevVideo.interports.PerformsJarDownloadCallBack;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 /**
  * Created by maxueming on 2016/10/22.
  */
@@ -47,14 +52,33 @@ public class DownloadReceiver extends BroadcastReceiver {
 
         String action = intent.getAction();
         if(action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
-            // TODO 判断这个id与之前的id是否相等，如果相等说明是之前的那个要下载的文件
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
             Query query = new Query();
             query.setFilterById(id);
             downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+
+            // 利用反射修改UNDERLYING_COLUMNS中的值，解决部分手机系统存在下述BUG，去除allow_write字段
+            // android.database.sqlite.SQLiteException: no such column: allow_write (code 1)
+            try {
+                Field fields= DownloadManager.class.getDeclaredField("UNDERLYING_COLUMNS");
+                fields.setAccessible(true);
+                try {
+                    fields.set("UNDERLYING_COLUMNS", new String[] {"_id",
+                            "_data AS local_filename", "mediaprovider_uri", "destination",
+                            "title", "description", "uri", "status", "hint", "mimetype AS media_type",
+                            "total_bytes AS total_size", "lastmod AS last_modified_timestamp",
+                            "current_bytes AS bytes_so_far", "'placeholder' AS local_uri", "'placeholder' AS reason"});
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            }
+
+
             Cursor cursor = downloadManager.query(query);
             int columnCount = cursor.getColumnCount();
-            String path = null; //TODO 这里把所有的列都打印一下，有什么需求，就怎么处理,文件的本地路径就是path
+            String path = null;
             while(cursor.moveToNext()) {
                 for (int j = 0; j < columnCount; j++) {
                     String columnName = cursor.getColumnName(j);
@@ -76,7 +100,7 @@ public class DownloadReceiver extends BroadcastReceiver {
                                 this.mPerformsJarDownloadCallBack.onDownLoadComplete(string, cursor.getString(j + 1));
                             }
                         }
-//                        Log.e("调试一下", columnName + string);
+//                        Log.d("调试一下", columnName + string);
                     }else {
                         Log.d(TAG, "日志3" + columnName + ": null");
                     }

@@ -60,14 +60,14 @@ public class PostUploadHelper {
             outputStream.write(data);
 
             int response = httpURLConnection.getResponseCode();            //获得服务器的响应码
-            Log.e("POST", "发送数据");
+            Log.d("POST", "发送数据");
             if(response == HttpURLConnection.HTTP_OK) {
-                Log.e("POST结果", "发送成功");
+                Log.d("POST结果", "发送成功");
                 InputStream inptStream = httpURLConnection.getInputStream();
                 postCallBack.resultCallBack(true, response, dealResponseResult(inptStream));
             } else{
                 postCallBack.resultCallBack(true, response, null);
-                Log.e("POST结果", "发送失败");
+                Log.d("POST结果", "发送失败");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -131,12 +131,13 @@ public class PostUploadHelper {
         String CHARSET = "UTF-8";
         URL uri = new URL(actionUrl);
         HttpURLConnection conn = (HttpURLConnection) uri.openConnection();
+        conn.setChunkedStreamingMode(128 * 1024);   // 设置块大小：128K，当内容达到这个值的时候就把流输出
         conn.setReadTimeout(5 * 1000);
-        conn.setDoInput(true);// 允许输入
-        conn.setDoOutput(true);// 允许输出
+        conn.setDoInput(true);   // 允许输入
+        conn.setDoOutput(true);   // 允许输出
         conn.setUseCaches(false);
         conn.setRequestMethod("POST"); // Post方式
-        conn.setRequestProperty("connection", "keep-alive");
+        conn.setRequestProperty("connection", "Keep-Alive");
         conn.setRequestProperty("Charsert", "UTF-8");
         conn.setRequestProperty("Content-Type", MULTIPART_FROM_DATA
                 + ";boundary=" + BOUNDARY);
@@ -213,6 +214,8 @@ public class PostUploadHelper {
 
         postCallBack.resultCallBack(isSendComplete, res, sb2.toString());
         outStream.close();
+        in.close();
+
         conn.disconnect();
 //        return in.toString();
     }

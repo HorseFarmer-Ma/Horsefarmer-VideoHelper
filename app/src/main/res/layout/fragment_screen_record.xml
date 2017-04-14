@@ -74,7 +74,7 @@
     <!--</Spinner>-->
 
     <!--<Button-->
-        <!--android:id="@+id/button_zip"-->
+        <!--android:id="@+id/button_test"-->
         <!--android:layout_width="wrap_content"-->
         <!--android:layout_height="wrap_content"-->
         <!--android:layout_marginTop="20dp"-->
@@ -85,7 +85,7 @@
         <!--android:layout_gravity="center_horizontal"-->
         <!--android:background="@drawable/my_button_purple"-->
         <!--android:textColor="#FFFFFF"-->
-        <!--android:text="设置DNS" />-->
+        <!--android:text="Test" />-->
 
 
 </LinearLayout>

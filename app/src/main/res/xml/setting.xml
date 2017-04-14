@@ -38,6 +38,7 @@
 
         <EditTextPreference
             android:key="preference_defined_wifi_psw"
+            android:inputType="textPassword"
             android:title="password"
             android:defaultValue="Inweb@meizu.com"/>
 
@@ -109,6 +110,19 @@
             android:key="preference_all_log_size"
             android:title="总日志容量最大值(MB)"
             android:defaultValue="10000">
+        </EditTextPreference>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/setting_category_base"
+        android:selectable="false">
+
+        <EditTextPreference
+            android:key="preference_clear_cache"
+            android:title="清除应用缓存周期/天"
+            android:inputType="number"
+            android:defaultValue="@string/clear_cache_orign_times">
         </EditTextPreference>
 
     </PreferenceCategory>

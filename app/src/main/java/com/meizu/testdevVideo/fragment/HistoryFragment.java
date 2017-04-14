@@ -51,7 +51,7 @@ public class HistoryFragment extends Fragment {
         mCornerListViewAdapter.setOnDeleteClickListener(new CornerListViewAdapter.onDeleteClickListener() {
             @Override
             public void onDeleteClick(View v, int position) {
-                Log.e(HistoryFragment.class.getSimpleName(), "删除" + String.valueOf(position));
+                Log.d(HistoryFragment.class.getSimpleName(), "删除" + String.valueOf(position));
                 SqlAlterHelper.getInstance(getActivity()).db.delete(MonkeyHistoryParam.TABLE_NAME,
                         "id=?", new String[]{String.valueOf(mHistoryLvData.get(position).getId())});
                 mHistoryLvData.remove(position);
@@ -62,7 +62,7 @@ public class HistoryFragment extends Fragment {
         mCornerListViewAdapter.setOnReviewClickListener(new CornerListViewAdapter.onReviewClickListener() {
             @Override
             public void onReviewClick(View v, int position) {
-                Log.e(HistoryFragment.class.getSimpleName(), "预览" + String.valueOf(position));
+                Log.d(HistoryFragment.class.getSimpleName(), "预览" + String.valueOf(position));
                 DialogHelper.getInstance().createdDialogWithDismissButton(getActivity(), "预览指令",
                         mHistoryLvData.get(position).getMonkeyCommand());
             }
@@ -71,7 +71,7 @@ public class HistoryFragment extends Fragment {
         mCornerListViewAdapter.setOnReportClickListener(new CornerListViewAdapter.onReportClickListener() {
             @Override
             public void onReportClick(View v, int position) {
-                Log.e(HistoryFragment.class.getSimpleName(), "报告" + String.valueOf(position));
+                Log.d(HistoryFragment.class.getSimpleName(), "报告" + String.valueOf(position));
                 DialogHelper.getInstance().createdDialogWithDismissButton(getActivity(), "报告",
                         "实现中。。。");
             }

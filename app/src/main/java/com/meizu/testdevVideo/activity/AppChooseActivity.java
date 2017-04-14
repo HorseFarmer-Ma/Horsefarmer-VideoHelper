@@ -155,6 +155,7 @@ public class AppChooseActivity extends AppCompatActivity implements AdapterView.
             Intent intent = new Intent(AppChooseActivity.this, MainActivity.class);
             Bundle bundle = new Bundle();
             bundle.putString(SettingPreferenceKey.APP_TYPE, mlistAppInfo.get(position).getAppLabel());
+            bundle.putString(SettingPreferenceKey.MONKEY_PACKAGE, mlistAppInfo.get(position).getPkgName());
             bundle.putString(SettingPreferenceKey.EMAIL_ADDRESS, email_adress.getText().toString());
             intent.putExtras(bundle);
             setResult(RESULT_OK, intent);

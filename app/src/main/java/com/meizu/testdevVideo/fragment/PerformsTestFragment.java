@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +32,7 @@ import java.io.File;
 /**
  * 性能测试Fragment
  */
-public class PerformsTestFragment extends Fragment implements AdapterView.OnItemClickListener, MainActivity.NotifyPerformsAnimation {
+public class PerformsTestFragment extends Fragment implements AdapterView.OnItemClickListener {
     private AbsListView mListView;
     private SimpleAdapter mAdapter;
     private MyContent mPerformsContent;
@@ -42,39 +43,40 @@ public class PerformsTestFragment extends Fragment implements AdapterView.OnItem
     private String stop_performs_test = "中止任务";
     private String persion_register = "手动注册";
     private ScaleAnimation animation;
-
-    public PerformsTestFragment(){
-        MainActivity.setNotifyPerformsAnimation(this);
-    }
+    private View rootView;     // 缓存Fragment view
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_item_grid, container, false);
+        if(null == rootView){
+            rootView = inflater.inflate(R.layout.fragment_item_grid, container, false);
 
-        mPerformsContent = new MyContent();
+            mPerformsContent = new MyContent();
 
-        mListView = (AbsListView) view.findViewById(android.R.id.list);
-        mPerformsContent.addItem(new MyContent.DummyItem(memory_test, R.mipmap.ic_sdcard));
-        mPerformsContent.addItem(new MyContent.DummyItem(fps_test, R.mipmap.ic_fps));
-        mPerformsContent.addItem(new MyContent.DummyItem(water_test, R.drawable.ic_water));
-        mPerformsContent.addItem(new MyContent.DummyItem(time_test, R.mipmap.ic_time));
-        mPerformsContent.addItem(new MyContent.DummyItem(stop_performs_test, R.drawable.ic_stop_performs));
-        mPerformsContent.addItem(new MyContent.DummyItem(persion_register, R.drawable.ic_register));
+            mListView = (AbsListView) rootView.findViewById(android.R.id.list);
+            mPerformsContent.addItem(new MyContent.DummyItem(memory_test, R.mipmap.ic_sdcard));
+            mPerformsContent.addItem(new MyContent.DummyItem(fps_test, R.mipmap.ic_fps));
+            mPerformsContent.addItem(new MyContent.DummyItem(water_test, R.drawable.ic_water));
+            mPerformsContent.addItem(new MyContent.DummyItem(time_test, R.mipmap.ic_time));
+            mPerformsContent.addItem(new MyContent.DummyItem(stop_performs_test, R.drawable.ic_stop_performs));
+            mPerformsContent.addItem(new MyContent.DummyItem(persion_register, R.drawable.ic_register));
 
-        mAdapter = new SimpleAdapter(getActivity(), mPerformsContent.ITEMS, R.layout.tool_listview,
-                new String[]{"text", "img"},
-                new int[]{R.id.tool_text, R.id.tool_img});    // 生成列表数据
+            mAdapter = new SimpleAdapter(getActivity(), mPerformsContent.ITEMS, R.layout.tool_listview,
+                    new String[]{"text", "img"},
+                    new int[]{R.id.tool_text, R.id.tool_img});    // 生成列表数据
 
-        mListView.setAdapter(mAdapter);
+            mListView.setAdapter(mAdapter);
 
-        // Set OnItemClickListener so we can be notified on item clicks
-        mListView.setOnItemClickListener(this);
-        animation = AnimationHelper.getInstance().getScaleAnimation(1.0f, 1.0f, 0f, 1.0f, 0, 0, 500, true, 0.5f, 0f);
+            mListView.setOnItemClickListener(this);
+            animation = AnimationHelper.getInstance().getScaleAnimation(1.0f, 1.0f, 0f, 1.0f, 0, 0, 500, true, 0.5f, 0f);
+            mThread.start();
+        }
+
         mListView.setAnimation(animation);
-        mThread.start();
+        animation.cancel();
+        animation.startNow();
 
-        return view;
+        return rootView;
     }
 
     @Override
@@ -149,13 +151,6 @@ public class PerformsTestFragment extends Fragment implements AdapterView.OnItem
         }
     });
 
-    @Override
-    public void choosePerformsFragment(boolean isFirstTime) {
-        if (!isFirstTime){
-            animation.cancel();
-            animation.startNow();
-        }
-    }
 
     @Override
     public void onDestroy() {

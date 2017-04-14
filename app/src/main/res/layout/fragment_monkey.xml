@@ -344,6 +344,61 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/layout_fail_send"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:background="@drawable/boder"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:padding="@dimen/button_margin"
+                        android:textStyle="bold"
+                        android:text="@string/action_send_fail"
+                        android:textSize="15sp"/>
+
+                    <Button
+                        android:id="@+id/btn_fail_and_send"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        android:paddingLeft="@dimen/button_margin"
+                        android:paddingRight="@dimen/button_margin"
+                        android:layout_marginStart="15dp"
+                        android:background="@drawable/my_button_purple"
+                        android:textColor="#FFFFFF"
+                        android:gravity="center"
+                        android:textSize="15sp"
+                        android:text="@string/action_send"/>
+
+                </LinearLayout>
+                
+                <TextView
+                    android:id="@+id/txt_send_fail_reason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="15dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"/>
+            </LinearLayout>
+
         </LinearLayout>
+
     </ScrollView>
+
 </LinearLayout>

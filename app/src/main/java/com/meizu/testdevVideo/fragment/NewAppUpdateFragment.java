@@ -295,7 +295,7 @@ public class NewAppUpdateFragment extends Fragment implements RefreshListView.On
     @Override
     public void onDestroy() {
         super.onDestroy();
-
+        handler.removeCallbacksAndMessages(null);
         if(null != handler){
             handler = null;
         }

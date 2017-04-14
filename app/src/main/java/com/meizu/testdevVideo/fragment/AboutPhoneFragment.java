@@ -5,7 +5,7 @@ import android.annotation.TargetApi;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,9 +23,13 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.meizu.testdevVideo.SuperTestApplication;
 import com.meizu.testdevVideo.activity.AppChooseActivity;
+import com.meizu.testdevVideo.broadcast.BootReceiver;
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
+import com.meizu.testdevVideo.interports.InstallCallBack;
 import com.meizu.testdevVideo.interports.iPerformsKey;
+import com.meizu.testdevVideo.library.SimpleTaskHelper;
 import com.meizu.testdevVideo.util.sharepreference.BaseData;
 import com.meizu.testdevVideo.util.sharepreference.PerformsData;
 import com.meizu.widget.floatingbutton.FabTagLayout;
@@ -37,26 +41,50 @@ import com.meizu.testdevVideo.util.PublicMethod;
 import com.meizu.testdevVideo.util.shell.ShellUtil;
 import com.meizu.testdevVideo.library.ToastHelper;
 
-public class AboutPhoneFragment extends Fragment {
-    private TextView textView1, textView2, textView3, textView4, textView5;   // 定义变量
-    private LinearLayout mAboutPhoneProgress;   // 加载进度圈
+public class AboutPhoneFragment extends Fragment implements InstallCallBack{
+    private TextView textView1, textView2, textView3, textView4, textView5;
+    private LinearLayout mAboutPhoneProgress;
     private FloatingActionButtonPlus mActionButtonPlus;
-    StringBuilder Str1 = new StringBuilder();
-    StringBuilder Str2 = new StringBuilder();
-    StringBuilder Str3 = new StringBuilder();
-    StringBuilder Str4 = new StringBuilder();
-    StringBuilder Str5 = new StringBuilder();
-    // 关于手机界面元素
-    String sn = "";    // 手机SN信息
-    String internalModel = "";   // 手机内部型号
-    private PackageManager pm;    // 包名管理
+    private static Context sApplicationContext = null;
+
+    private StringBuilder Str1 = new StringBuilder();
+    private StringBuilder Str2 = new StringBuilder();
+    private StringBuilder Str3 = new StringBuilder();
+    private StringBuilder Str4 = new StringBuilder();
+    private StringBuilder Str5 = new StringBuilder();
+    private String sn = "";
+    private String internalModel = "";
+    private PackageManager pm;
+
+    private BootReceiver bootReceiver = null;
+    private static final int UPDATE_MSG = 100;
+    private static final int UPDATE_MSG_SOON = 200;
+    private View rootView;     // 缓存Fragment view
+    private IntentFilter bootFilter;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_about_phone, container, false);
-        pm = getActivity().getApplication().getPackageManager();
+
+        if(null == rootView){
+            rootView = inflater.inflate(R.layout.fragment_about_phone, container, false);
+            sApplicationContext = SuperTestApplication.getContext();
+            findView(rootView);
+            bootReceiver = new BootReceiver();
+            bootReceiver.setOnInstallListener(AboutPhoneFragment.this);
+            bootFilter = new IntentFilter();
+            bootFilter.addAction("android.intent.action.PACKAGE_ADDED");
+            bootFilter.addAction("android.intent.action.PACKAGE_REMOVED");
+            bootFilter.addDataScheme("package");
+            pm = sApplicationContext.getPackageManager();
+            readPhoneMsgThread.start();
+        }
+        sApplicationContext.registerReceiver(bootReceiver, bootFilter);
+        return rootView;
+    }
+
+    private void findView(View view){
         textView1 = (TextView) view.findViewById(R.id.textView1);
         textView2 = (TextView) view.findViewById(R.id.textView2);
         textView3 = (TextView) view.findViewById(R.id.textView3);
@@ -64,40 +92,11 @@ public class AboutPhoneFragment extends Fragment {
         textView5 = (TextView) view.findViewById(R.id.textView5);
         mAboutPhoneProgress = (LinearLayout) view.findViewById(R.id.mAboutPhoneProgress);
         mActionButtonPlus = (FloatingActionButtonPlus) view.findViewById(R.id.FabPlus);
-        ReadThread.start();
-        handler.post(myRunnable);
-        return view;
     }
 
-    // 更新APK包信息任务
-    private Runnable myRunnable= new Runnable() {
-        public void run() {
-            handler.postDelayed(this, 10 * 1000);
-            if(isDataChange()){
-                CommonVariable.about_phone_video_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_VIDEO);
-                CommonVariable.about_phone_music_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_MUSIC);
-                CommonVariable.about_phone_ebook_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_EBOOK);
-                CommonVariable.about_phone_gallery_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_GALLERY);
-                CommonVariable.about_phone_reader_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_READER);
-                CommonVariable.about_phone_vip_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_COMPAIGN);
-                Str1.delete(0, Str1.length());
-                testAdd("应用版本号:\n", 1);
-                testAdd("视频：" + CommonVariable.about_phone_video_version +
-                        "                    " + "音乐："
-                        + CommonVariable.about_phone_music_version + "\n", 1);    // 产品对外名称
-                testAdd("读书：" + CommonVariable.about_phone_ebook_version +
-                        "                " + "图库："
-                        + CommonVariable.about_phone_gallery_version + "\n", 1);    // 产品对外名称
-                testAdd("资讯：" + CommonVariable.about_phone_reader_version +
-                        "                    " + "会员："
-                        + CommonVariable.about_phone_vip_version, 1);    // 产品对外名称
-                CommonVariable.isDataChange = true;
-            }
-        }
-    };
 
     // 读取手机信息线程
-    Thread ReadThread=new Thread(){
+    Thread readPhoneMsgThread = new Thread(){
         public void run(){
             aboutPhone();     // 关于手机信息填充
             /**---------------------------- 浮动按钮 ---------------------------*/
@@ -124,50 +123,54 @@ public class AboutPhoneFragment extends Fragment {
             });
 
             if(handler != null){
-                handler.sendMessage(handler.obtainMessage());
+                handler.sendEmptyMessage(UPDATE_MSG);
             }
         }
     };
 
-    //消息处理队列
+    // 消息处理队列
     @SuppressLint("HandlerLeak")
     Handler handler= new Handler(){
         public void handleMessage(Message msg){
             super.handleMessage(msg);
-            mAboutPhoneProgress.setVisibility(View.GONE);
-            textView1.setVisibility(View.VISIBLE);
-            textView1.setText(Str1.toString());
-            textView2.setVisibility(View.VISIBLE);
-            textView2.setText(Str2.toString());
-            textView3.setVisibility(View.VISIBLE);
-            textView3.setText(Str3.toString());
-            textView4.setVisibility(View.VISIBLE);
-            textView4.setText(Str4.toString());
-            textView5.setVisibility(View.VISIBLE);
-            textView5.setText(Str5.toString().split("产品名称")[0]);
-//            // 选择所属业务
-//            if(null == BaseData.getInstance(getActivity()).readStringData(SettingPreferenceKey.APP_TYPE)){
-//                Intent appChooseIntent = new Intent(getActivity(), AppChooseActivity.class);
-//                Bundle bundle = new Bundle();
-//                bundle.putString(AppChooseActivity.TITLE, getResources().getString(R.string.choose_app_type));
-//                appChooseIntent.putExtras(bundle);
-//                startActivityForResult(appChooseIntent, 0);
-//            }
+            switch (msg.what){
+                case UPDATE_MSG:
+                    mAboutPhoneProgress.setVisibility(View.GONE);
+                    textView1.setVisibility(View.VISIBLE);
+                    textView1.setText(Str1.toString());
+                    textView2.setVisibility(View.VISIBLE);
+                    textView2.setText(Str2.toString());
+                    textView3.setVisibility(View.VISIBLE);
+                    textView3.setText(Str3.toString());
+                    textView4.setVisibility(View.VISIBLE);
+                    textView4.setText(Str4.toString());
+                    textView5.setVisibility(View.VISIBLE);
+                    textView5.setText(Str5.toString().split("产品名称")[0]);
+                    break;
+                case UPDATE_MSG_SOON:
+                    CommonVariable.about_phone_video_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_VIDEO);
+                    CommonVariable.about_phone_music_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_MUSIC);
+                    CommonVariable.about_phone_ebook_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_EBOOK);
+                    CommonVariable.about_phone_gallery_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_GALLERY);
+                    CommonVariable.about_phone_reader_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_READER);
+                    CommonVariable.about_phone_vip_version = PublicMethod.getVersion(pm, iPublicConstants.PACKET_COMPAIGN);
+                    Str1.delete(0, Str1.length());
+                    testAdd("应用版本号:\n", 1);
+                    testAdd("视频：" + CommonVariable.about_phone_video_version +
+                            "                    " + "音乐："
+                            + CommonVariable.about_phone_music_version + "\n", 1);    // 产品对外名称
+                    testAdd("读书：" + CommonVariable.about_phone_ebook_version +
+                            "                " + "图库："
+                            + CommonVariable.about_phone_gallery_version + "\n", 1);    // 产品对外名称
+                    testAdd("资讯：" + CommonVariable.about_phone_reader_version +
+                            "                    " + "会员："
+                            + CommonVariable.about_phone_vip_version, 1);    // 产品对外名称
+
+                    CommonVariable.isDataChange = false;
+                    textView1.setText(Str1.toString());
+            }
         }
     };
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // 取出字符串
-        if (data != null){
-            Bundle bundle = data.getExtras();
-            BaseData.getInstance(getActivity().getApplicationContext()).writeStringData(SettingPreferenceKey.APP_TYPE,
-                    bundle.getString(SettingPreferenceKey.APP_TYPE));
-            BaseData.getInstance(getActivity().getApplicationContext()).writeStringData(SettingPreferenceKey.EMAIL_ADDRESS,
-                    bundle.getString(SettingPreferenceKey.EMAIL_ADDRESS));
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
 
     /**
      * 添加关于手机信息
@@ -183,6 +186,7 @@ public class AboutPhoneFragment extends Fragment {
      */
     private void connectMyPhoneMes(){
         // ---------------------------添加信息----------------------
+        Str1.delete(0, Str1.length());
         testAdd("应用版本号:\n", 1);
         testAdd("视频：" + CommonVariable.about_phone_video_version +
                 "                    " + "音乐："
@@ -217,18 +221,6 @@ public class AboutPhoneFragment extends Fragment {
         testAdd("CPU信息：" + CommonVariable.about_phone_cpu, 5);// CPU信息
     }
 
-    // 判断信息是否更改
-    private boolean isDataChange(){
-        if(!CommonVariable.about_phone_video_version.equals(PublicMethod.getVersion(pm, iPublicConstants.PACKET_VIDEO)) |
-                !CommonVariable.about_phone_music_version.equals(PublicMethod.getVersion(pm, iPublicConstants.PACKET_MUSIC)) |
-                !CommonVariable.about_phone_ebook_version.equals(PublicMethod.getVersion(pm, iPublicConstants.PACKET_EBOOK)) |
-                !CommonVariable.about_phone_gallery_version.equals(PublicMethod.getVersion(pm, iPublicConstants.PACKET_GALLERY)) |
-                !CommonVariable.about_phone_reader_version.equals(PublicMethod.getVersion(pm, iPublicConstants.PACKET_READER)) |
-                !CommonVariable.about_phone_vip_version.equals(PublicMethod.getVersion(pm, iPublicConstants.PACKET_COMPAIGN))) {
-            return true;
-        }
-        return false;
-    }
 
     /**
      * 获取手机信息
@@ -255,7 +247,6 @@ public class AboutPhoneFragment extends Fragment {
             if(CommonVariable.about_phone_isLocked == null){
                 CommonVariable.about_phone_isLocked = "";
             }
-            System.out.print("输出的值是" + CommonVariable.about_phone_isLocked .toString());
             if(CommonVariable.about_phone_isLocked.contains("1")){
                 CommonVariable.about_phone_isLocked = "已解锁";
             }else if(CommonVariable.about_phone_isLocked.contains("0")){
@@ -440,11 +431,8 @@ public class AboutPhoneFragment extends Fragment {
 
     @Override
     public void onResume(){
-        Log.e("AboutPhoneFragment", "执行onResume()");
-        if(CommonVariable.isDataChange){
-            CommonVariable.isDataChange = false;
-            textView1.setText(Str1);
-        }
+        Log.d("AboutPhoneFragment", "执行onResume()");
+        handler.sendEmptyMessage(UPDATE_MSG_SOON);
         super.onResume();
     }
 
@@ -452,12 +440,16 @@ public class AboutPhoneFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(!TextUtils.isEmpty(Str1)){
-            Str1 = null;
-            Str2 = null;
-            Str3 = null;
-            Str4 = null;
-            Str5 = null;
+        sApplicationContext.unregisterReceiver(bootReceiver);
+    }
+
+    @Override
+    public void installOrUninstall(boolean isInstall, String packageName) {
+        if(packageName.equals("package:" + iPublicConstants.PACKET_VIDEO) || packageName.equals("package:" + iPublicConstants.PACKET_MUSIC)
+                || packageName.equals("package:" + iPublicConstants.PACKET_EBOOK) || packageName.equals("package:" + iPublicConstants.PACKET_EBOOK)
+                || packageName.equals("package:" + iPublicConstants.PACKET_GALLERY) || packageName.equals("package:" + iPublicConstants.PACKET_COMPAIGN)){
+            CommonVariable.isDataChange = true;
+            handler.sendEmptyMessage(UPDATE_MSG_SOON);
         }
     }
 }

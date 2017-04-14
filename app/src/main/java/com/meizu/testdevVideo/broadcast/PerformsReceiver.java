@@ -17,7 +17,7 @@ import com.meizu.testdevVideo.util.PublicMethod;
 import com.meizu.testdevVideo.util.sharepreference.PerformsData;
 
 /**
- * 采集FPS频率：100ms采集一次，10Hz
+ * 接收案例测试结束广播
  * Created by maxueming on 2016/8/8.
  */
 public class PerformsReceiver extends BroadcastReceiver {
@@ -43,7 +43,7 @@ public class PerformsReceiver extends BroadcastReceiver {
         String mAction = intent.getAction();
 
         if(mAction.equals("action.st.performs.test.over")){
-            Log.e(PerformsReceiver.class.getSimpleName(), "收到案例测试结束的广播");
+            Log.d(PerformsReceiver.class.getSimpleName(), "收到案例测试结束的广播");
             String fileName = "";
             ToastHelper.addToast("上传报告中..", context);
             Bundle mBundle = intent.getExtras();
@@ -75,7 +75,7 @@ public class PerformsReceiver extends BroadcastReceiver {
                 this.mPerformsCaseCompleteCallBack.onCaseComplete();
             }
 
-            Log.e(PerformsReceiver.class.getSimpleName(), "收到测试结束广播,花费初始化时间为(ms): " + (System.currentTimeMillis() - currentTime));
+            Log.d(PerformsReceiver.class.getSimpleName(), "收到测试结束广播,花费初始化时间为(ms): " + (System.currentTimeMillis() - currentTime));
         }
 
         if(mAction.equals("action.st.kill.performs")){

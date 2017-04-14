@@ -61,14 +61,14 @@ public class WifiLockService extends IntentService {
 
     @Override
     public void onDestroy() {
-        Log.e(TAG, "成功完成连接wifi");
+        Log.d(TAG, "成功完成连接wifi");
         super.onDestroy();
         this.stopSelf = true;
     }
 
     public void connectToNet() {
         if (settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, true)) {
-            Log.e(TAG, "wifi 锁收到新任务. SSID是" + getCurrentSsid());
+            Log.d(TAG, "wifi 锁收到新任务. SSID是" + getCurrentSsid());
             for(int i = 0; i < 2; i++){
                 this.clearWifiConfig();
             }
@@ -81,13 +81,13 @@ public class WifiLockService extends IntentService {
                     || !this.mWifiManager.isWifiEnabled()) && settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, true)) {
                 // 大于尝试次数，连接默认WiFi
                 if (connectTime > tryTime) {
-                    Log.e(TAG, "超过尝试次数");
+                    Log.d(TAG, "超过尝试次数");
                 } else {
                     connectTime++;
                 }
                 WifiConfiguration config;
                 if ("".equals(ssid)) {
-                    Log.e(TAG, "ssid is invalid, do nothing");
+                    Log.d(TAG, "ssid is invalid, do nothing");
                     break;
                 }
 
@@ -104,7 +104,7 @@ public class WifiLockService extends IntentService {
                 this.mWifiManager.reconnect();
                 this.mWifiManager.setWifiEnabled(true);
                 try {
-                    Log.e(TAG, "connect to wifi...");
+                    Log.d(TAG, "connect to wifi...");
                     Thread.sleep(7000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();

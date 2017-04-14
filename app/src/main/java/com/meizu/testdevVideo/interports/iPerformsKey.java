@@ -4,6 +4,7 @@ package com.meizu.testdevVideo.interports;
  * Created by maxueming on 2016/10/26.
  */
 public interface iPerformsKey {
+    String TABLE_NAME = "PerformsUploadFailCase";
     String isStart = "isStart";
     String isRegister = "isRegister";                   // 标志设备是否已注册
     String deviceType = "deviceType";                   // 设备名

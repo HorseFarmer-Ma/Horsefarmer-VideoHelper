@@ -137,7 +137,7 @@ public class RefreshListView extends ListView implements OnScrollListener {
         if (isRefreshable) {
             switch (ev.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-//                    Log.e(TAG, "ACTION_DOWN");
+//                    Log.d(TAG, "ACTION_DOWN");
                     if (!isRecored) {
                         isRecored = true;
                         startY = (int) ev.getY();// 手指按下时记录当前位置
@@ -145,7 +145,7 @@ public class RefreshListView extends ListView implements OnScrollListener {
                     }
                     break;
                 case MotionEvent.ACTION_UP:
-//                    Log.e(TAG, "ACTION_UP");
+//                    Log.d(TAG, "ACTION_UP");
                     if (state != REFRESHING && state != LOADING) {
                         if (state == PULL_To_REFRESH) {
                             state = DONE;
@@ -163,7 +163,7 @@ public class RefreshListView extends ListView implements OnScrollListener {
                     break;
 
                 case MotionEvent.ACTION_MOVE:
-//                    Log.e(TAG, "ACTION_MOVE");
+//                    Log.d(TAG, "ACTION_MOVE");
                     int tempY = (int) ev.getY();
                     int tempX = (int) ev.getX();
                     if (!isRecored) {
@@ -206,7 +206,7 @@ public class RefreshListView extends ListView implements OnScrollListener {
                         // done状态下，添加(tempY - startY) > 2 * Math.abs(tempX - startX)，防止左右滑动fragment时导致列表误下拉
                         if (state == DONE) {
                             if (tempY - startY > 0 && (tempY - startY) > 10 * Math.abs(tempX - startX)) {
-                                Log.e(TAG, "PULL_To_REFRESH");
+                                Log.d(TAG, "PULL_To_REFRESH");
                                 state = PULL_To_REFRESH;
                                 changeHeaderViewByState();
                             }
@@ -215,7 +215,7 @@ public class RefreshListView extends ListView implements OnScrollListener {
                         if (state == PULL_To_REFRESH) {
                             headerView.setPadding(0, -1 * headerContentHeight
                                     + (tempY - startY) / RATIO, 0, 0);
-                            Log.e(TAG, "更新headView的size");
+                            Log.d(TAG, "更新headView的size");
                         }
                         // 更新headView的paddingTop
                         if (state == RELEASE_TO_REFRESH) {

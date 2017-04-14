@@ -47,13 +47,13 @@ public class AlarmManagerReceiver extends BroadcastReceiver{
             PerformsData.getInstance(context).writeBooleanData(iPerformsKey.isPurebackstageSet, true);
             long alarmTime = intent.getIntExtra("alarmTime", 0);
             PublicMethod.saveLog("纯净后台，休眠时长：" + alarmTime);
-            Log.e(TAG, "设置闹钟：时间" + alarmTime);
+            Log.d(TAG, "设置闹钟：时间" + alarmTime);
             String packageName = intent.getStringExtra("packageName");
             PublicMethod.saveLog("纯净后台，设置包名：" + packageName);
-            Log.e(TAG, "设置闹钟：包名" + packageName);
+            Log.d(TAG, "设置闹钟：包名" + packageName);
             String step = intent.getStringExtra("step");
             PublicMethod.saveLog("纯净后台，设置步骤：" + step);
-            Log.e(TAG, "设置闹钟：步骤" + step);
+            Log.d(TAG, "设置闹钟：步骤" + step);
             // 设置各项参数
             PerformsData.getInstance(context).writeStringData(iPerformsKey.caseName, step);
             PerformsData.getInstance(context).writeStringData(iPerformsKey.packageName, packageName);
@@ -63,20 +63,20 @@ public class AlarmManagerReceiver extends BroadcastReceiver{
             alarmIntent = (null == alarmIntent)? new Intent("android.intent.action.ALARM_RECEIVER") : alarmIntent;
             operation = (null == operation)? PendingIntent.getBroadcast(context, 0, alarmIntent, 0) : operation;
             long startAlarmTime = System.currentTimeMillis() + alarmTime;
-            Log.e(TAG, String.valueOf(startAlarmTime));
+            Log.d(TAG, String.valueOf(startAlarmTime));
             // 适配版本，Android 4.3以后的用setExact
             if(PublicMethod.isKitKatOrLater()){
-                Log.e(TAG, "KitKatOrLater!");
+                Log.d(TAG, "KitKatOrLater!");
                 alarmManager.setExact(AlarmManager.RTC_WAKEUP, startAlarmTime, operation);
             }else{
-                Log.e(TAG, "Not KitKatOrLater!");
+                Log.d(TAG, "Not KitKatOrLater!");
                 alarmManager.set(AlarmManager.RTC_WAKEUP, startAlarmTime, operation);
             }
         }
 
         // 收到闹钟
         if(action.equals("android.intent.action.ALARM_RECEIVER")){
-            Log.e(TAG, "设定时间到达，唤醒屏幕...");
+            Log.d(TAG, "设定时间到达，唤醒屏幕...");
             // 亮屏
             PublicMethod.wakeUpAndUnlock(context);
             // 设置屏幕唤醒开关为开
@@ -93,32 +93,32 @@ public class AlarmManagerReceiver extends BroadcastReceiver{
             PublicMethod.lockWifi(settingSharedPreferences, context);
             mHandler = (mHandler == null)? new Handler() : mHandler;
 
-            try {
-                Runtime.getRuntime().exec("am broadcast -a com.meizu.logreport.adb_cmd --ei action 1 --ei type 0 --ez zip false");
-                Thread.sleep(8 * Constants.TIME.SECOND);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            long currentTime = System.currentTimeMillis();
-            while (System.currentTimeMillis() - currentTime < 10 * Constants.TIME.MINUTE){
-                // 未连接WIFI
-                if(!WifiUtil.isWifiConnected(mContext)){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
                     try {
-                        Thread.sleep(Constants.TIME.MINUTE);
+                        Runtime.getRuntime().exec("am broadcast -a com.meizu.logreport.adb_cmd --ei action 1 --ei type 0 --ez zip false");
+                        Thread.sleep(8 * Constants.TIME.SECOND);
                     } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
 
-                    if(!PublicMethod.isServiceWorked(mContext, "com.meizu.testdevVideo.service.WifiLockService")){
-                        PublicMethod.lockWifi(settingSharedPreferences, context);
-                    }
-                }else {
-                    // 5秒后执行发送纯净后台结束测试的广播
-                    mHandler.postDelayed(new Runnable(){
-                        public void run() {
+                    long currentTime = System.currentTimeMillis();
+                    while (System.currentTimeMillis() - currentTime < 10 * Constants.TIME.MINUTE){
+                        // 未连接WIFI
+                        if(!WifiUtil.isWifiConnected(mContext)){
+                            try {
+                                Thread.sleep(10 * Constants.TIME.SECOND);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                            if(!PublicMethod.isServiceWorked(mContext, "com.meizu.testdevVideo.service.WifiLockService")){
+                                PublicMethod.lockWifi(settingSharedPreferences, mContext);
+                            }
+                        }else {
                             PublicMethod.saveLog("纯净后台，执行完毕，发送收集结果广播");
                             try {
                                 Runtime.getRuntime().exec("am broadcast -a action.st.performs.test.over" +
@@ -127,14 +127,15 @@ public class AlarmManagerReceiver extends BroadcastReceiver{
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
+                            break;
                         }
-                    }, 5 * Constants.TIME.SECOND);
-                }
-            }
+                    }
 
-            if(!WifiUtil.isWifiConnected(mContext)){
-                PublicMethod.saveLog("纯净后台，WiFi连接不上，请检查周围网络情况");
-            }
+                    if(!WifiUtil.isWifiConnected(mContext)){
+                        PublicMethod.saveLog("纯净后台，WiFi连接不上，请检查周围网络情况");
+                    }
+                }
+            }).start();
         }
     }
 

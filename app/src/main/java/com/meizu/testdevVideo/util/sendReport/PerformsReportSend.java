@@ -76,7 +76,7 @@ public class PerformsReportSend {
      */
     private void saveLogLocal(String log){
         PublicMethod.saveStringToFileWithoutDeleteSrcFile("\n" + PublicMethod.getSystemTime() + log,
-                "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                "PerformTestLog", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
     }
 
 

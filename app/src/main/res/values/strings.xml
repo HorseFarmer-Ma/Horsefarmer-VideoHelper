@@ -44,6 +44,8 @@
     <string name="action_blacklist">默认</string>
     <string name="action_save_blacklist">保存黑名单</string>
     <string name="action_email_adress">魅族邮箱地址【必填】</string>
+    <string name="action_send">重新发送</string>
+    <string name="action_send_fail">上次发送报告失败</string>
 
     <!--ScreenRecord-->
     <string name="action_screen_record">开始录制屏幕</string>
@@ -74,6 +76,7 @@
 
     <!--设置菜单-->
     <string name="setting_category_performs">性能测试设置</string>
+    <string name="setting_category_base">基本设置</string>
     <string name="setting_category_wifi">WiFi设置</string>
     <string name="setting_lock_wifi">锁定WiFi</string>
     <string name="setting_wakeup">保持屏幕唤醒</string>
@@ -112,5 +115,8 @@
     <string name="btn_cancel">取消</string>
     <string name="btn_ok">确定</string>
     <string name="choose_item_remind">已选择%d项</string>
+
+    <!--默认清除应用缓存周期-->
+    <string name="clear_cache_orign_times">10</string>
 
 </resources>

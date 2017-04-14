@@ -1,7 +1,10 @@
 package com.meizu.testdevVideo.util;
 
 import android.app.ActivityManager;
+import android.app.AlarmManager;
 import android.app.KeyguardManager;
+import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,20 +15,19 @@ import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.PowerManager;
+import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.EditText;
 
-import com.meizu.testdevVideo.constant.CommonVariable;
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
 import com.meizu.testdevVideo.interports.iPerformsKey;
 import com.meizu.testdevVideo.interports.iPublicConstants;
@@ -386,14 +388,14 @@ public class PublicMethod {
 
         try {
             new File(newPath).mkdirs(); //如果文件夹不存在 则建立新文件夹
-            File a=new File(oldPath);
-            String[] file=a.list();
-            File temp=null;
+            File a = new File(oldPath);
+            String[] file = a.list();
+            File temp = null;
             for (int i = 0; i < file.length; i++) {
                 if(oldPath.endsWith(File.separator)){
-                    temp=new File(oldPath+file[i]);
+                    temp = new File(oldPath+file[i]);
                 }else {
-                    temp=new File(oldPath+File.separator+file[i]);
+                    temp = new File(oldPath+File.separator+file[i]);
                 }
 
                 if(temp.isFile()){
@@ -409,13 +411,66 @@ public class PublicMethod {
                     output.close();
                     input.close();
                 }
+
                 if(temp.isDirectory()){//如果是子文件夹
                     copyFolder(oldPath+"/"+file[i], newPath+"/"+file[i]);
                 }
             }
+
         } catch (Exception e) {
             isok = false;
         }
+        return isok;
+    }
+
+    /**
+     * 剪切整个文件夹内容
+     * @param oldPath String 原文件路径 如：c:/fqf
+     * @param newPath String 复制后路径 如：f:/fqf/ff
+     * @return boolean
+     */
+    public static boolean cutFolder(String oldPath, String newPath) {
+        boolean isok = true;
+
+        try {
+            new File(newPath).mkdirs(); //如果文件夹不存在 则建立新文件夹
+            File a = new File(oldPath);
+            String[] file = a.list();
+            File temp = null;
+            for (int i = 0; i < file.length; i++) {
+                if(oldPath.endsWith(File.separator)){
+                    temp = new File(oldPath+file[i]);
+                }else {
+                    temp = new File(oldPath+File.separator+file[i]);
+                }
+
+                if(temp.isFile()){
+                    FileInputStream input = new FileInputStream(temp);
+                    FileOutputStream output = new FileOutputStream(newPath + "/" +
+                            (temp.getName()).toString());
+                    byte[] b = new byte[1024 * 5];
+                    int len;
+                    while ( (len = input.read(b)) != -1) {
+                        output.write(b, 0, len);
+                    }
+                    output.flush();
+                    output.close();
+                    input.close();
+                    temp.delete();   // 复制后马上删除当前文件
+                }
+                if(temp.isDirectory()){    // 如果是子文件夹
+                    cutFolder(oldPath + "/" + file[i], newPath + "/" + file[i]);
+                }
+            }
+
+            if(a.isDirectory()){
+                a.delete();
+            }
+
+        } catch (Exception e) {
+            isok = false;
+        }
+
         return isok;
     }
 
@@ -496,6 +551,16 @@ public class PublicMethod {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");   // 格式化当前时间
         String time = dateFormat.format(new Date());    // 获取当前时间
         return time + "   ";
+    }
+
+    /**
+     * 格式化时间戳
+     * @return time
+     */
+    public static String dateFormatTimes(long t){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date a = new Date(t);
+        return dateFormat.format(a);
     }
 
     /**
@@ -638,7 +703,7 @@ public class PublicMethod {
             String regex = start + "([^" + end + "]*)";
             Pattern p = Pattern.compile(regex);
             Matcher m = p.matcher(content);
-            if (m.find()) {
+            while (m.find()) {
                 try {
                     Runtime.getRuntime().exec("kill process " + m.group(1));
                 } catch (IOException e) {
@@ -727,7 +792,7 @@ public class PublicMethod {
 
     public static void saveLog(String log){
         PublicMethod.saveStringToFileWithoutDeleteSrcFile("\n" + PublicMethod.getSystemTime() + log,
-                "PerformsLog", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                "PerformTestLog", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
     }
 
     /**
@@ -763,7 +828,7 @@ public class PublicMethod {
         int width = getScreenWidthHeight(context, true);
         int height = getScreenWidthHeight(context, false);
         if (km.inKeyguardRestrictedInputMode()) {
-            Log.e("PublicMethod", "键盘锁已锁，需要解锁");
+            Log.d("PublicMethod", "键盘锁已锁，需要解锁");
 //            kl.disableKeyguard();
             // 滑动屏幕，解锁键盘
             try {
@@ -919,6 +984,40 @@ public class PublicMethod {
         } else {
             return null;
         }
+    }
+
+    /**
+     * 设置心跳包，用于定时1s启动DaemonService服务，判断SuperTestService是否挂了，挂了重启
+     */
+    public static void setHeartbeat(Context context, Class clazz){
+        // 获取AlarmManager对象，设置心跳包，1秒钟执行1次，用于自启SuperTestService
+        AlarmManager alarmManager = (AlarmManager)context.getSystemService(Service.ALARM_SERVICE);
+        Intent intent = new Intent(context, clazz);
+        PendingIntent pi = PendingIntent.getService(context, 0, intent, 0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            alarmManager.setWindow(AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis() + 10, 10, pi);
+        } else {
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis() + 10, 10, pi);
+        }
+    }
+
+    /**
+     * 根据路径获取内存状态
+     * @param path
+     * @return 返回手机可用空间，举例："5.84 GB"
+     */
+    public static String getMemoryInfo(Context context, File path) {
+        // 获得一个磁盘状态对象
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize = stat.getBlockSize();   // 获得一个扇区的大小
+//        long totalBlocks = stat.getBlockCount();    // 获得扇区的总数
+        long availableBlocks = stat.getAvailableBlocks();   // 获得可用的扇区数量
+//        // 总空间
+//        String totalMemory =  Formatter.formatFileSize(context, totalBlocks * blockSize);
+        // 可用空间
+        return Formatter.formatFileSize(context, availableBlocks * blockSize);
     }
 
 }

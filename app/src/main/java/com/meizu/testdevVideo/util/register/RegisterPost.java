@@ -35,14 +35,14 @@ public class RegisterPost {
             mContext = context;
         }
 
-        Log.e("RegisterPost", params.toString());
+        Log.d("RegisterPost", params.toString());
 
         GetFinalHttpHelper.getInstance().post(iPublicConstants.PERFORMS_POST_ID_TAG_ALIAS_URL, params, new AjaxCallBack<String>() {
             @Override
             public void onFailure(Throwable t, int errorNo, String strMsg) {
                 super.onFailure(t, errorNo, strMsg);
                 registerCallBack.isSendSuccess(false, true);
-                Log.e("RegisterPost", "发送Failure");
+                Log.d("RegisterPost", "发送Failure");
             }
 
             @Override
@@ -54,18 +54,18 @@ public class RegisterPost {
             public void onSuccess(String t) {
                 super.onSuccess(t);
                 //根据服务器返回的json数据，判断上传是否成功
-                Log.e("RegisterPost", "返回的数据为：" + t);
+                Log.d("RegisterPost", "返回的数据为：" + t);
                 if (!TextUtils.isEmpty(t)) {
                     if ("200".equals(t)) {
-                        Log.e("RegisterPost", "发送成功");
+                        Log.d("RegisterPost", "发送成功");
                         registerCallBack.isSendSuccess(true, true);
                     } else {
-                        Log.e("RegisterPost", "服务器异常");
+                        Log.d("RegisterPost", "服务器异常");
                         registerCallBack.isSendSuccess(false, true);
                     }
                 }else{
                     registerCallBack.isSendSuccess(false, true);
-                    Log.e("RegisterPost", "发送异常");
+                    Log.d("RegisterPost", "发送异常");
                 }
             }
         });

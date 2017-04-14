@@ -19,12 +19,12 @@ public class SuperTestReceiver extends BroadcastReceiver {
         Log.d(TAG, "触发SuperTestService后台监听器！!");
         if(!PublicMethod.isServiceWorked(context, "com.meizu.testdevVideo.service.SuperTestService")){
             PublicMethod.saveStringToFileWithoutDeleteSrcFile(PublicMethod.getSystemTime()
-                    + "服务被销毁了，触发监听器，启动服务\n",
-                    "SuperTestServiceLog", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
-            Intent service=new Intent(context, SuperTestService.class);
+                            + "服务被销毁了，触发监听器，启动服务\n",
+                    "SuperTestService", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
+            Intent service = new Intent(context, SuperTestService.class);
             //启动服务
             context.startService(service);
-            Log.d(TAG, "别睡了老大，请重新启动服务！！!");
+            Log.d(TAG, "SuperTestService didn't run, run again!");
         }
     }
 }

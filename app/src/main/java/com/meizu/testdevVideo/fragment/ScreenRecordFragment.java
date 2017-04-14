@@ -13,11 +13,10 @@ import android.widget.EditText;
 import com.meizu.testdevVideo.R;
 import com.meizu.testdevVideo.service.ScreenRecordService;
 import com.meizu.testdevVideo.constant.CommonVariable;
-import com.meizu.testdevVideo.util.wifi.DnsSettingLollipopDown;
 
 public class ScreenRecordFragment extends Fragment {
 
-    private Button screenRecord, btnZip;
+    private Button screenRecord;
     //    private EditText editText;
     private EditText screen_record_times;
 
@@ -42,7 +41,7 @@ public class ScreenRecordFragment extends Fragment {
 
         //点击录制屏幕，开启服务后台
         screenRecord = (Button) view.findViewById(R.id.button_screenRecord);
-//        btnZip = (Button) view.findViewById(R.id.button_zip);
+//        button_test = (Button) view.findViewById(R.id.button_test);
 //        editText = (EditText) view.findViewById(R.id.edt_result);
         screen_record_times = (EditText) view.findViewById(R.id.screen_record_times);
 
@@ -54,7 +53,7 @@ public class ScreenRecordFragment extends Fragment {
 //            @Override
 //            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 //                choose = parent.getItemAtPosition(position).toString();
-//                Log.e("TAG", choose);
+//                Log.d("TAG", choose);
 //            }
 //
 //            @Override
@@ -75,10 +74,13 @@ public class ScreenRecordFragment extends Fragment {
             }
         });
 
-//        btnZip.setOnClickListener(new View.OnClickListener() {
+//        button_test.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
-//                new DnsSettingLollipopDown(getActivity().getApplicationContext()).setIpWithStaticIp();
+////                Log.d("ScreenRecordFragment", "剩余内存容量为："
+////                        + PublicMethod.getMemoryInfo(getActivity().getApplicationContext(), Environment.getExternalStorageDirectory()));
+//
+//                PublicMethod.cutFolder(iPublicConstants.LOCAL_MEMORY + "Android/log/monkey/", iPublicConstants.LOCAL_MEMORY + "SuperTest/monkey/");
 //            }
 //        });
 
@@ -100,7 +102,7 @@ public class ScreenRecordFragment extends Fragment {
 //                String i = PublicMethod.readFile(Environment.getExternalStorageDirectory()
 //                        .toString() + "/" + "Android/log/dumpsys_batterystats").replace("\"", "");
 //                if(i.contains("Proc " + choose)){
-//                    Log.e("TAG", choose);
+//                    Log.d("TAG", choose);
 //                    int startNum= i.indexOf("Proc " + choose);
 //                    i = i.substring(startNum-280, startNum+230);
 //                }else{
@@ -123,9 +125,9 @@ public class ScreenRecordFragment extends Fragment {
 //                        if(500 == errorNo){
 //
 //                        }
-//                        Log.e(ScreenRecordFragment.class.getSimpleName(), "发送失败");
-//                        Log.e(ScreenRecordFragment.class.getSimpleName(), String.valueOf(errorNo));
-//                        Log.e(ScreenRecordFragment.class.getSimpleName(), strMsg);
+//                        Log.d(ScreenRecordFragment.class.getSimpleName(), "发送失败");
+//                        Log.d(ScreenRecordFragment.class.getSimpleName(), String.valueOf(errorNo));
+//                        Log.d(ScreenRecordFragment.class.getSimpleName(), strMsg);
 //                    }
 //
 //                    @Override
@@ -140,9 +142,9 @@ public class ScreenRecordFragment extends Fragment {
 //                        //根据服务器返回的json数据，判断上传是否成功
 //                        if(!TextUtils.isEmpty(t)){
 //                            if("200".equals(t)){
-//                                Log.e(ScreenRecordFragment.class.getSimpleName(), "发送报告成功");
+//                                Log.d(ScreenRecordFragment.class.getSimpleName(), "发送报告成功");
 //                            }else{
-//                                Log.e(ScreenRecordFragment.class.getSimpleName(), "服务器异常500");
+//                                Log.d(ScreenRecordFragment.class.getSimpleName(), "服务器异常500");
 //                            }
 //                        }
 //                    }

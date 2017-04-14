@@ -71,8 +71,8 @@ public interface iPublicConstants {
     /**
      * 上报monkey日志接口
      */
-//    String MONKEY_RESULT_POST_URL = "http://ats.meizu.com/report/logprocess";
-    String MONKEY_RESULT_POST_URL = "http://172.17.53.54/other/upload";
+    String MONKEY_RESULT_POST_URL = "http://ats.meizu.com/other/log/upload";
+//    String MONKEY_RESULT_POST_URL = "http://172.17.53.54/other/log/upload";
 
     /**----------------------------- FTP服务器 ---------------------------------*/
     String USERNAME = "SuperTest";

@@ -1,7 +1,7 @@
 package com.meizu.testdevVideo.fragment;
 
 import android.app.AlertDialog;
-import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,7 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.app.Fragment;
 
-import android.os.SystemClock;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -32,25 +32,28 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.meizu.testdevVideo.R;
+import com.meizu.testdevVideo.SuperTestApplication;
 import com.meizu.testdevVideo.activity.AppChooseActivity;
 import com.meizu.testdevVideo.activity.HistoryAndTimeTaskActivity;
 
+import com.meizu.testdevVideo.activity.SettingActivity;
 import com.meizu.testdevVideo.constant.Constants;
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
 import com.meizu.testdevVideo.constant.CommonVariable;
 import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.library.AnimationHelper;
-import com.meizu.testdevVideo.library.SqlAlterHelper;
 
 import com.meizu.testdevVideo.service.MonkeyService;
 import com.meizu.testdevVideo.util.sharepreference.BaseData;
+import com.meizu.testdevVideo.util.sharepreference.FailPostRecordData;
 import com.meizu.testdevVideo.util.sharepreference.MonkeyTableData;
 import com.meizu.testdevVideo.util.sharepreference.PrefWidgetOnOff;
-import com.meizu.testdevVideo.service.SuperTestService;
+
 import com.meizu.testdevVideo.util.PublicMethod;
 import com.meizu.testdevVideo.library.ToastHelper;
 import com.meizu.testdevVideo.util.shell.ShellUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,27 +64,30 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
     private SharedPreferences sharedPreferences;
     private static List<String> packet_list;
     private ArrayAdapter<String> myAdapter;
+    private static Context sApplicationContext = null;
 
     private int function_choose;
 
     private Button btn_choose_app, button_single_monkey, button_system_monkey,
             button_blacklist, button_blacklist_defined, button_save_blacklist, button_single_choose,
-            button_system_choose, bt_timetask, bt_history, btn_open_mtkLog;
+            button_system_choose, bt_timetask, bt_history, btn_open_mtkLog, btn_fail_and_send;
 
     private EditText edit_blacklist_defined, edit_seed, edit_click_time, edit_click_numbers;
 
     private CheckBox checkbox_defined_value;
 
-    private TextView single_monkey_text, system_monkey_text;
-    private LinearLayout layout_single_monkey, layout_system_monkey, layout_tab_value;
+    private TextView single_monkey_text, system_monkey_text, txt_send_fail_reason;
+    private LinearLayout layout_single_monkey, layout_system_monkey, layout_tab_value, layout_fail_send;
     private boolean blacklist_flag = true;               // 黑名单选择标志位
     private boolean defined_monkey_value_flag = false;    // 自定义参数选择标志位
 
     private LinearLayout.LayoutParams params = null;
-    private String monkeyApp = null;
+    private String monkeyApp = "";
 
     private ScaleAnimation openAnimation;
     private ScaleAnimation closeAnimation;
+
+    private View rootView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,13 +97,14 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        long i = SystemClock.currentThreadTimeMillis();
-        View view = inflater.inflate(R.layout.fragment_monkey, container, false);
-        findView(view);
-        monkey_fragment_init();
-        function_choose(1);
-        Log.e("MonkeyFragment", "初始化时间为:" + (SystemClock.currentThreadTimeMillis() - i));
-        return view;
+        if(null == rootView){
+            rootView = inflater.inflate(R.layout.fragment_monkey, container, false);
+            findView(rootView);
+            sApplicationContext = SuperTestApplication.getContext();
+            monkey_fragment_init();
+            function_choose(1);
+        }
+        return rootView;
     }
 
     /**
@@ -108,6 +115,7 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
         button_single_monkey = (Button) view.findViewById(R.id.button_single_monkey);
         button_system_monkey = (Button) view.findViewById(R.id.button_system_monkey);
         button_blacklist = (Button) view.findViewById(R.id.button_blacklist);
+        btn_fail_and_send = (Button) view.findViewById(R.id.btn_fail_and_send);
         button_blacklist_defined = (Button) view.findViewById(R.id.button_blacklist_defined);
         button_save_blacklist = (Button) view.findViewById(R.id.button_save_blacklist);
         button_single_choose = (Button) view.findViewById(R.id.button_single_choose);
@@ -118,9 +126,11 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
         btn_choose_app = (Button) view.findViewById(R.id.btn_choose_app);
         single_monkey_text = (TextView) view.findViewById(R.id.single_monkey_text);
         system_monkey_text = (TextView) view.findViewById(R.id.system_monkey_text);
+        txt_send_fail_reason = (TextView) view.findViewById(R.id.txt_send_fail_reason);
         checkbox_defined_value = (CheckBox) view.findViewById(R.id.checkbox_defined_value);
         layout_single_monkey = (LinearLayout) view.findViewById(R.id.layout_single_monkey);
         layout_system_monkey = (LinearLayout) view.findViewById(R.id.layout_system_monkey);
+        layout_fail_send = (LinearLayout) view.findViewById(R.id.layout_fail_send);
         layout_tab_value = (LinearLayout) view.findViewById(R.id.layout_tab_value);
         edit_blacklist_defined = (EditText) view.findViewById(R.id.edit_blacklist_defined);
         edit_seed = (EditText) view.findViewById(R.id.edit_seed);
@@ -150,6 +160,7 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
         button_system_choose.setOnClickListener(this);
         bt_history.setOnClickListener(this);
         bt_timetask.setOnClickListener(this);
+        btn_fail_and_send.setOnClickListener(this);
         btn_open_mtkLog.setOnClickListener(this);
         btn_choose_app.setOnClickListener(this);
         edit_seed.addTextChangedListener(this);
@@ -162,9 +173,8 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
         layout_tab_value.setVisibility(View.GONE);
         closeAnimation.setAnimationListener(this);
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        monkeyApp = BaseData.getInstance(getActivity()
-                .getApplicationContext()).readStringData(SettingPreferenceKey.MONKEY_CHOOSE_APP);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(sApplicationContext);
+        monkeyApp = BaseData.getInstance(sApplicationContext).readStringData(SettingPreferenceKey.MONKEY_CHOOSE_APP);
 
         params = (LinearLayout.LayoutParams) single_monkey_text.getLayoutParams();
 
@@ -277,17 +287,15 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
         int id = v.getId();   // 读取按键值id
         switch (id){
             case R.id.button_single_monkey:
-                if(TextUtils.isEmpty(BaseData.getInstance(getActivity().getApplicationContext())
+                if(TextUtils.isEmpty(BaseData.getInstance(sApplicationContext)
                         .readStringData(SettingPreferenceKey.APP_TYPE))){
-                    ToastHelper.addToast("请前往设置选定好目标业务！",
-                            getActivity().getApplicationContext());
-                }else if(TextUtils.isEmpty(BaseData.getInstance(getActivity().getApplicationContext())
-                        .readStringData(SettingPreferenceKey.EMAIL_ADDRESS))){
-                    ToastHelper.addToast("请前往设置填写接收结果邮箱！",
-                            getActivity().getApplicationContext());
+                    ToastHelper.addToast("请设置目标业务和邮箱！",
+                            sApplicationContext);
+                    Intent intent = new Intent(getActivity(), SettingActivity.class);
+                    startActivity(intent);
                 }else if(single_monkey_text.getText().equals("您尚未选择业务")){
                     ToastHelper.addToast("请先选择要执行monkey的应用！",
-                            getActivity().getApplicationContext());
+                            sApplicationContext);
                 }else{
                     if(defined_monkey_value_flag){
                         if(CommonVariable.about_phone_cpu.contains("mt")){
@@ -295,7 +303,7 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
                                     || TextUtils.isEmpty(edit_click_time.getText())
                                     || TextUtils.isEmpty(edit_seed.getText())){
                                 ToastHelper.addToast("请先补全参数！",
-                                        getActivity().getApplicationContext());
+                                        sApplicationContext);
                             }else{
                                 monkey_dialog();
                             }
@@ -303,7 +311,7 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
                             if(TextUtils.isEmpty(edit_click_numbers.getText())
                                     || TextUtils.isEmpty(edit_click_time.getText())){
                                 ToastHelper.addToast("请先补全参数！",
-                                        getActivity().getApplicationContext());
+                                        sApplicationContext);
                             }else{
                                 monkey_dialog();
                             }
@@ -327,7 +335,7 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
             case R.id.button_save_blacklist:
                 PublicMethod.saveStringToFile(edit_blacklist_defined.getText().toString(),
                         "blacklist_save.txt", iPublicConstants.MEMORY_BACK_UP);      // 保存黑名单
-                ToastHelper.addToast("已保存黑名单", getActivity().getApplicationContext());
+                ToastHelper.addToast("已保存黑名单", sApplicationContext);
                 break;
             case R.id.button_single_choose:
                 function_choose(1);
@@ -355,6 +363,13 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
                 appChooseIntent.putExtras(bundle);
                 startActivityForResult(appChooseIntent, 0);
                 break;
+            case R.id.btn_fail_and_send:
+                if(PublicMethod.isServiceWorked(getActivity().getApplicationContext(), "com.meizu.testdevVideo.service.MonkeyService")){
+                    ToastHelper.addToast("发送正在执行中...\n耐心等待，稍后重试", getActivity().getApplicationContext());
+                }else{
+                    MonkeyService.startActionRetryPostReport(getActivity().getApplicationContext());
+                }
+                break;
             default:
                 break;
         }
@@ -367,7 +382,6 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        Log.e("MonkeyFragment", "改变了字体");
         setAppMonkeyText(monkeyApp, edit_seed.getText().toString(),
                 edit_click_time.getText().toString(), edit_click_numbers.getText().toString());
     }
@@ -382,10 +396,10 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
         // 取出字符串
         if (data != null){
             Bundle bundle = data.getExtras();
-            Log.e("MonkeyFragment", bundle.getString(SettingPreferenceKey.MONKEY_CHOOSE_APP));
+            Log.d("MonkeyFragment", bundle.getString(SettingPreferenceKey.MONKEY_CHOOSE_APP));
             if(1 == function_choose){
                 monkeyApp = bundle.getString(SettingPreferenceKey.MONKEY_CHOOSE_APP);
-                BaseData.getInstance(getActivity().getApplicationContext())
+                BaseData.getInstance(sApplicationContext)
                         .writeStringData(SettingPreferenceKey.MONKEY_CHOOSE_APP, monkeyApp);
                 checkbox_defined_value.setVisibility(View.VISIBLE);
                 params.setMargins(16, 0, 16, 0);
@@ -398,7 +412,7 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
                 }
 
             }else if (3 == function_choose){
-                BaseData.getInstance(getActivity().getApplicationContext())
+                BaseData.getInstance(sApplicationContext)
                         .writeStringData(SettingPreferenceKey.MONKEY_DEFINED_CHOOSE_APP,
                                 bundle.getString(SettingPreferenceKey.MONKEY_CHOOSE_APP));
             }
@@ -416,6 +430,9 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
      * @param number 点击数量
      */
     private void setAppMonkeyText(String monkeyApp, String seed, String time, String number){
+        if(null == monkeyApp){
+            monkeyApp = "";
+        }
         if(CommonVariable.about_phone_cpu.contains("mt")){
             single_monkey_text.setText(Constants.MonkeyCommand.MTK_APP_MONKEY.replace("%ss", seed)
                     .replace("%ps", monkeyApp).replace("%ts", time).replace("%ns", number));
@@ -442,59 +459,82 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
      * 弹出对话框，选择
      */
     private void monkey_dialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if(1 == function_choose){
-            builder.setTitle("应用monkey").setMessage("确定执行吗？");
-        }else if (2 == function_choose){
-            builder.setTitle("系统monkey").setMessage("确定执行吗？");
+        // 存在更新包，删除
+        File a = new File(iPublicConstants.LOCAL_MEMORY + "update.zip");
+        if(a.exists()){
+            ToastHelper.addToast("删除update.zip中！",
+                    sApplicationContext);
+            a.delete();
+            ToastHelper.addToast("删除update.zip完成！",
+                    sApplicationContext);
         }
 
-        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String strMonkeyType = null;
-                dialog.dismiss();
+        String restMem = PublicMethod.getMemoryInfo(getActivity().getApplicationContext(), Environment.getExternalStorageDirectory());
+        // 三星手机或MTK手机，但内存大于MONKEY_PHONE_SIZE_NEED GB允许执行monkey
+        if(!CommonVariable.about_phone_cpu.contains("mt")
+                || (CommonVariable.about_phone_cpu.contains("mt") && restMem.contains("GB")
+                && Float.parseFloat(restMem.replace(" GB", "")) > Constants.Monkey.MONKEY_PHONE_SIZE_NEED)){
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            if(1 == function_choose){
+                builder.setTitle("应用monkey").setMessage("确定执行吗？");
+            }else if (2 == function_choose){
+                builder.setTitle("系统monkey").setMessage("确定执行吗？");
+            }
 
-                if(1 == function_choose){
-                    strMonkeyType = "应用Monkey";
-                    MonkeyTableData.getInstance(getActivity()).writeStringData("monkey_command",
-                            single_monkey_text.getText().toString());
-                }else if (2 == function_choose){
-                    strMonkeyType = "系统Monkey";
-                    writeBlacklist(blacklist_flag);   // 根目录填写黑名单
-                    MonkeyTableData.getInstance(getActivity()).writeStringData("monkey_command",
-                            system_monkey_text.getText().toString());
+            builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String strMonkeyType = null;
+                    dialog.dismiss();
+
+                    if(1 == function_choose){
+                        strMonkeyType = "应用Monkey";
+                        MonkeyTableData.getInstance(sApplicationContext).writeStringData("monkey_command",
+                                single_monkey_text.getText().toString());
+                    }else if (2 == function_choose){
+                        strMonkeyType = "系统Monkey";
+                        writeBlacklist(blacklist_flag);   // 根目录填写黑名单
+                        MonkeyTableData.getInstance(sApplicationContext).writeStringData("monkey_command",
+                                system_monkey_text.getText().toString());
+                    }
+
+                    MonkeyTableData.getInstance(sApplicationContext).writeStringData("strMonkeyType", strMonkeyType);
+
+                    BaseData.getInstance(sApplicationContext).writeStringData("monkey_start_time",
+                            String.valueOf(System.currentTimeMillis()));
+
+                    PrefWidgetOnOff.getInstance(sApplicationContext).writeBooleanData("isMonkeyFloating",
+                            sharedPreferences.getBoolean(SettingPreferenceKey.MONKEY_FLOAT_BTN, true));
+
+//                // 保存数据库
+//                SqlAlterHelper.getInstance(getActivity()).addData(strMonkeyType,
+//                        MonkeyTableData.getInstance(getActivity()).readStringData("monkey_command"),
+//                        PublicMethod.getSystemTime(), sharedPreferences.getBoolean(SettingPreferenceKey.MUTE, false),
+//                        sharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, true),
+//                        sharedPreferences.getBoolean(SettingPreferenceKey.MONKEY_FLOAT_BTN, true));
+
+                    sendBroadcast();
+
+                    MonkeyTableData.getInstance(sApplicationContext).writeBooleanData("isStart",
+                            !sharedPreferences.getBoolean(SettingPreferenceKey.MONKEY_FLOAT_BTN, true));
+                    String cpu = ShellUtil.getProperty("ro.hardware");
+                    MonkeyService.stopActionMonkeyReport(getActivity());
+                    MonkeyService.startActionMonkeyReport(getActivity(), null != cpu && cpu.contains("mt"));
                 }
+            });
 
-                MonkeyTableData.getInstance(getActivity()).writeBooleanData("isStart",
-                        !sharedPreferences.getBoolean(SettingPreferenceKey.MONKEY_FLOAT_BTN, true));
-                PrefWidgetOnOff.getInstance(getActivity()).writeBooleanData("isMonkeyFloating",
-                        sharedPreferences.getBoolean(SettingPreferenceKey.MONKEY_FLOAT_BTN, true));
+            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
 
-                // 保存数据库
-                SqlAlterHelper.getInstance(getActivity()).addData(strMonkeyType,
-                        MonkeyTableData.getInstance(getActivity()).readStringData("monkey_command"),
-                        PublicMethod.getSystemTime(), sharedPreferences.getBoolean(SettingPreferenceKey.MUTE, false),
-                        sharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, true),
-                        sharedPreferences.getBoolean(SettingPreferenceKey.MONKEY_FLOAT_BTN, true));
-
-                sendBroadcast();
-
-                String cpu = ShellUtil.getProperty("ro.hardware");
-
-                MonkeyService.stopActionMonkeyReport(getActivity());
-                MonkeyService.startActionMonkeyReport(getActivity(), null != cpu && cpu.contains("mt"));
-            }
-        });
-
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        builder.create().show();
+            builder.create().show();
+        }else{
+            ToastHelper.addToast("MTK手机剩余内存不足2G\n请删除大文件后再执行monkey",
+                    sApplicationContext);
+        }
     }
 
 
@@ -512,6 +552,7 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
                 if(sharedPreferences.getBoolean(SettingPreferenceKey.CLEAR_LOG, true)){
                     if(CommonVariable.about_phone_cpu.contains("mt")){
                         PublicMethod.deleteDirectory(iPublicConstants.LOCAL_MEMORY + "/mtklog");
+                        PublicMethod.deleteDirectory(iPublicConstants.LOCAL_MEMORY + "/Android/log");
                     }else{
                         PublicMethod.deleteDirectory(iPublicConstants.LOCAL_MEMORY + "/Android/log");
                     }
@@ -552,7 +593,7 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
     private void writeBlacklist(boolean choose){
 
         if(choose){
-            PublicMethod.copyAssetFile(getActivity(), "blacklist.txt", iPublicConstants.LOCAL_MEMORY);
+            PublicMethod.copyAssetFile(sApplicationContext, "blacklist.txt", iPublicConstants.LOCAL_MEMORY);
         }else{
             PublicMethod.saveStringToFile(edit_blacklist_defined.getText().toString(),
                     "blacklist.txt", iPublicConstants.LOCAL_MEMORY);      // 复制文件到根目录
@@ -562,7 +603,31 @@ public class MonkeyFragment extends Fragment implements View.OnClickListener,
 
     @Override
     public void onResume(){
-        Log.e(MonkeyFragment.class.getSimpleName(), "onResume");
+        Log.d(MonkeyFragment.class.getSimpleName(), "onResume");
+        if(TextUtils.isEmpty(monkeyApp)){
+            single_monkey_text.setText("您尚未选择业务");
+            checkbox_defined_value.setVisibility(View.GONE);
+        }else{
+            checkbox_defined_value.setVisibility(View.VISIBLE);
+            params.setMargins(16, 0, 16, 0);
+            single_monkey_text.setLayoutParams(params);
+            if(defined_monkey_value_flag){
+                setAppMonkeyText(monkeyApp, edit_seed.getText().toString(),
+                        edit_click_time.getText().toString(), edit_click_numbers.getText().toString());
+            }else{
+                setAppMonkeyText(monkeyApp, "1000", "500", "1200000000");
+            }
+        }
+
+        if(FailPostRecordData.getInstance(getActivity().getApplicationContext())
+                .readBooleanDataDefTrue(SettingPreferenceKey.IS_MONKEY_REPORT_SEND_SUCCESS)){
+            layout_fail_send.setVisibility(View.GONE);
+        }else{
+            layout_fail_send.setVisibility(View.VISIBLE);
+            txt_send_fail_reason.setText("失败原因："
+                    + FailPostRecordData.getInstance(getActivity()
+                    .getApplicationContext()).readStringData(SettingPreferenceKey.MONKEY_REPORT_SEND_FAIL_REASON));
+        }
         super.onResume();
     }
 

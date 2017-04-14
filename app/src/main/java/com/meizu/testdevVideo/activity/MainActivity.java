@@ -24,7 +24,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,7 +32,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.meizu.testdevVideo.R;
-import com.meizu.testdevVideo.constant.SettingPreferenceKey;
 import com.meizu.testdevVideo.library.SharedPreferencesHelper;
 import com.meizu.testdevVideo.fragment.AboutPhoneFragment;
 import com.meizu.testdevVideo.fragment.MonkeyFragment;
@@ -43,12 +41,9 @@ import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.library.SqlAlterHelper;
 import com.meizu.testdevVideo.util.PublicMethod;
 import com.meizu.testdevVideo.util.log.SaveLog;
-import com.meizu.testdevVideo.util.sharepreference.BaseData;
 import com.meizu.testdevVideo.util.shell.ShellUtil;
-import com.meizu.testdevVideo.util.shell.ShellUtils;
 import com.meizu.testdevVideo.util.update.SoftwareUpdate;
 import com.meizu.testdevVideo.library.ToastHelper;
-import com.meizu.testdevVideo.service.SuperTestService;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,8 +66,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean menu_function_choose = false;
     private NavigationView navigationView;
     private SharedPreferencesHelper mSharedPreferencesHelper;
-    private static NotifyToolAnimation notifyToolAnimation;
-    private static NotifyPerformsAnimation notifyPerformsAnimation;
 
     private FragmentManager fm;
     private FragmentTransaction transaction;
@@ -128,15 +121,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
         data_thread.start();    // 初始数据检测线程
 
-        if(!PublicMethod.isServiceWorked(MainActivity.this, "com.meizu.testdevVideo.service.SuperTestService")){
-            Intent mIntent = new Intent(MainActivity.this, SuperTestService.class);
-            mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startService(mIntent);   // 开始服务
-        }
-
         // 设置默认的Fragment
         setDefaultFragment();
-        Log.e("MainActivity", "初始化onCreate时间: " + (SystemClock.currentThreadTimeMillis() - i));
+        Log.d("MainActivity", "初始化onCreate时间: " + (SystemClock.currentThreadTimeMillis() - i));
     }
 
 
@@ -214,18 +201,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         transaction = fm.beginTransaction();
         if(about_phone == null){
             about_phone = new AboutPhoneFragment();
-            if(about_phone.isAdded()){
-                transaction.show(about_phone);
-            }else{
-                transaction.add(R.id.id_content, about_phone);
-            }
-        }else{
-            if(about_phone.isAdded()){
-                transaction.show(about_phone);
-            }else{
-                transaction.add(R.id.id_content, about_phone);
-            }
         }
+        transaction.replace(R.id.id_content, about_phone);
         transaction.commit();
     }
 
@@ -242,26 +219,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onResume(){
         super.onResume();
-        if (mSharedPreferencesHelper.readBooleanData("isStart")
-                || !TextUtils.isEmpty(ShellUtils.execCommand("ps |grep com.android.commands.monkey", false, true).successMsg)) {
+        if (mSharedPreferencesHelper.readBooleanData("isStart")) {
             navigationView.getMenu().getItem(0).setChecked(true);    // 导航栏默认选中关于手机
             setTitle(R.string.about_phone);
             transaction = fm.beginTransaction();
-            hideFragments(transaction);
             if(about_phone == null){
                 about_phone = new AboutPhoneFragment();
-                if(about_phone.isAdded()){
-                    transaction.show(about_phone);
-                }else{
-                    transaction.add(R.id.id_content, about_phone);
-                }
-            }else{
-                if(about_phone.isAdded()){
-                    transaction.show(about_phone);
-                }else{
-                    transaction.add(R.id.id_content, about_phone);
-                }
             }
+
+            transaction.replace(R.id.id_content, about_phone);
             transaction.commit();
             onBackPressed();
         }
@@ -273,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onDestroy(){
         SqlAlterHelper.getInstance(MainActivity.this).close();
-        Log.e("MainActivity", "onDestroy");
+        Log.d("MainActivity", "onDestroy");
         super.onDestroy();
     }
 
@@ -344,85 +310,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.nav_about_phone) {
             transaction = fm.beginTransaction();
-            hideFragments(transaction);
             setTitle(R.string.about_phone);
             if(about_phone == null){
                 about_phone = new AboutPhoneFragment();
-                if(about_phone.isAdded()){
-                    transaction.show(about_phone);
-                }else{
-                    transaction.add(R.id.id_content, about_phone);
-                }
-            }else{
-                if(about_phone.isAdded()){
-                    transaction.show(about_phone);
-                }else{
-                    transaction.add(R.id.id_content, about_phone);
-                }
             }
+            transaction.replace(R.id.id_content, about_phone);
 
         } else if (id == R.id.nav_gallery) {
             transaction = fm.beginTransaction();
-            hideFragments(transaction);
             setTitle(R.string.performs_test);
 
             if(performsTestFragment == null){
                 performsTestFragment = new PerformsTestFragment();
-                if(performsTestFragment.isAdded()){
-                    transaction.show(performsTestFragment);
-                }else{
-                    transaction.add(R.id.id_content, performsTestFragment);
-                }
-                notifyPerformsAnimation.choosePerformsFragment(true);
-            }else{
-                if(performsTestFragment.isAdded()){
-                    transaction.show(performsTestFragment);
-                }else{
-                    transaction.add(R.id.id_content, performsTestFragment);
-                }
-                notifyPerformsAnimation.choosePerformsFragment(false);
             }
+            transaction.replace(R.id.id_content, performsTestFragment);
         } else if (id == R.id.nav_slideshow) {
             transaction = fm.beginTransaction();
-            hideFragments(transaction);
             setTitle(R.string.common_tool);
-
             if(toolFragment == null){
                 toolFragment = new ToolFragment();
-                if(toolFragment.isAdded()){
-                    transaction.show(toolFragment);
-                }else{
-                    transaction.add(R.id.id_content, toolFragment);
-                }
-                notifyToolAnimation.chooseToolFragment(true);
-            }else{
-                if(toolFragment.isAdded()){
-                    transaction.show(toolFragment);
-                }else{
-                    transaction.add(R.id.id_content, toolFragment);
-                }
-                notifyToolAnimation.chooseToolFragment(false);
             }
-
+            transaction.replace(R.id.id_content, toolFragment);
         } else if (id == R.id.nav_manage) {
             transaction = fm.beginTransaction();
-            hideFragments(transaction);
             setTitle(R.string.monkey);
 
             if(monkeyFragment == null){
                 monkeyFragment = new MonkeyFragment();
-                if(monkeyFragment.isAdded()){
-                    transaction.show(monkeyFragment);
-                }else{
-                    transaction.add(R.id.id_content, monkeyFragment);
-                }
-            }else{
-                if(monkeyFragment.isAdded()){
-                    transaction.show(monkeyFragment);
-                }else{
-                    transaction.add(R.id.id_content, monkeyFragment);
-                }
             }
+            transaction.replace(R.id.id_content, monkeyFragment);
 
         } else if (id == R.id.nav_catchLog) {
             // 显示对话框
@@ -500,40 +416,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     };
 
 
-    /**
-     * 将所有的Fragment都置为隐藏状态。
-     * @param transaction
-     * 用于对Fragment执行操作的事务
-     */
-    private void hideFragments(FragmentTransaction transaction) {
-        if (about_phone != null) {
-            transaction.hide(about_phone);
-        }
-        if (performsTestFragment != null) {
-            transaction.hide(performsTestFragment);
-        }
-        if (toolFragment != null) {
-            transaction.hide(toolFragment);
-        }
-
-        if (monkeyFragment != null) {
-            transaction.hide(monkeyFragment);
-        }
-    }
-
-    public static void setNotifyToolAnimation(NotifyToolAnimation notify){
-        notifyToolAnimation = (notifyToolAnimation == null)? notify : notifyToolAnimation;
-    }
-
-    public static void setNotifyPerformsAnimation(NotifyPerformsAnimation notify){
-        notifyPerformsAnimation = (notifyPerformsAnimation == null)? notify : notifyPerformsAnimation;
-    }
-
-    public interface NotifyToolAnimation{
-        void chooseToolFragment(boolean isFirstTime);
-    }
-
-    public interface NotifyPerformsAnimation{
-        void choosePerformsFragment(boolean isFirstTime);
-    }
 }

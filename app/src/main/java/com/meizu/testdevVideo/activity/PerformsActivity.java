@@ -40,6 +40,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class PerformsActivity extends AppCompatActivity {
     private String TAG  = PerformsActivity.class.getSimpleName();
     private String url;    // 获取列表网址
@@ -124,7 +125,7 @@ public class PerformsActivity extends AppCompatActivity {
                 if(!TextUtils.isEmpty(s)){
                     try {
                         JSONObject obj = new JSONObject(s);
-                        Log.e(TAG, obj.toString());
+                        Log.d(TAG, obj.toString());
                         if(obj.optInt("code") == 200){
                             mTestCaseData = new ArrayList<TestCaseData>();
                             JSONArray data = obj.optJSONArray("data");
@@ -146,7 +147,7 @@ public class PerformsActivity extends AppCompatActivity {
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Log.e(TAG, "出现未知解析错误");
+                        Log.d(TAG, "出现未知解析错误");
                     }
                 }
             }
@@ -218,16 +219,17 @@ public class PerformsActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 ToastHelper.addToast("初始化: 写入执行数据", getApplicationContext());
+
                 PublicMethod.saveStringToFileWithoutDeleteSrcFile(PublicMethod.getSystemTime() + "初始化: 写入执行数据\n",
-                        "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                        "PerformTestLog", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
                 initTestData(mPosition);
                 ToastHelper.addToast("初始化: 清空对应目录下数据", getApplicationContext());
                 PublicMethod.saveStringToFileWithoutDeleteSrcFile(PublicMethod.getSystemTime() + "初始化: 清空对应目录下数据\n",
-                        "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                        "PerformTestLog", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
                 clearTestData(project);
                 ToastHelper.addToast("初始化: 开始执行", getApplicationContext());
                 PublicMethod.saveStringToFileWithoutDeleteSrcFile(PublicMethod.getSystemTime() + "初始化: 开始执行\n",
-                        "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                        "PerformTestLog", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
                 mIntent = new Intent(PerformsActivity.this, PerformsTestService.class);
                 mIntent.putExtra("taskType", 0);
                 stopService(mIntent);   // 停止服务
@@ -293,7 +295,7 @@ public class PerformsActivity extends AppCompatActivity {
 //                TestCaseData mCaseData = new TestCaseData();
 //                mCaseData.setCaseName(file.getName());
 //                LvTestCaseData.add(mCaseData);
-//                Log.e(PerformsActivity.class.getSimpleName(), file.getName());
+//                Log.d(PerformsActivity.class.getSimpleName(), file.getName());
 //            }
 //        }
 //        return LvTestCaseData;

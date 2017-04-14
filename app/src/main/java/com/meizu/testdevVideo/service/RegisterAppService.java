@@ -59,13 +59,13 @@ public class RegisterAppService extends IntentService {
      * 注册函数
      */
     private void register(){
-        Log.e(TAG, "欲设置的Tag为" + PerformsData.getInstance(RegisterAppService.this).readStringData(iPerformsKey.deviceType));
-        Log.e(TAG, "欲设置的别名为" + PerformsData.getInstance(RegisterAppService.this).readStringData(iPerformsKey.imei));
+        Log.d(TAG, "欲设置的Tag为" + PerformsData.getInstance(RegisterAppService.this).readStringData(iPerformsKey.deviceType));
+        Log.d(TAG, "欲设置的别名为" + PerformsData.getInstance(RegisterAppService.this).readStringData(iPerformsKey.imei));
         if(!PerformsData.getInstance(RegisterAppService.this).readBooleanData(iPerformsKey.isRegister)) {
             if (PublicMethod.isConnected(RegisterAppService.this)) {
                 if (!TextUtils.isEmpty(registerId = JPushInterface.getRegistrationID(getApplicationContext()))) {
-                    Log.e(TAG, "尝试注册");
-                    Log.e(TAG, "欲设置的RegistrationID为" + JPushInterface.getRegistrationID(getApplicationContext()));
+                    Log.d(TAG, "尝试注册");
+                    Log.d(TAG, "欲设置的RegistrationID为" + JPushInterface.getRegistrationID(getApplicationContext()));
                     if(params == null){
                         params = new HashMap<String, String>();
                         params.put(TAG_NAME, PerformsData.getInstance(RegisterAppService.this).readStringData(iPerformsKey.deviceType));
@@ -76,9 +76,9 @@ public class RegisterAppService extends IntentService {
                         PostUploadHelper.getInstance().submitPostData(iPublicConstants.PERFORMS_POST_ID_TAG_ALIAS_URL, params, new PostCallBack() {
                             @Override
                             public void resultCallBack(boolean isSuccess, int resultCode, String data) {
-                                Log.e("POST结果", "isSuccess：" + isSuccess);
-                                Log.e("POST结果", "resultCode：" + resultCode);
-                                Log.e("POST结果", "result：" + data);
+                                Log.d("POST结果", "isSuccess：" + isSuccess);
+                                Log.d("POST结果", "resultCode：" + resultCode);
+                                Log.d("POST结果", "result：" + data);
                                 if(null != data && data.equals("200")){
                                     handler.sendEmptyMessage(100);
                                     PerformsData.getInstance(RegisterAppService.this).writeBooleanData(iPerformsKey.isRegister, true);
@@ -142,6 +142,6 @@ public class RegisterAppService extends IntentService {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.e(TAG, "注册完成，退出注册服务");
+        Log.d(TAG, "注册完成，退出注册服务");
     }
 }

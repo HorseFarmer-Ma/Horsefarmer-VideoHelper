@@ -35,7 +35,6 @@ public class DialogHelper {
             }
         });
         builder.create().show();
-
     }
 
 }

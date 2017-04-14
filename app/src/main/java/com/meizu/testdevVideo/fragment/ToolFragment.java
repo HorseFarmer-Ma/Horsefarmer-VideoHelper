@@ -19,17 +19,14 @@ import com.meizu.testdevVideo.activity.MainActivity;
 import com.meizu.testdevVideo.adapter.data.gridview.MyContent;
 import com.meizu.testdevVideo.library.AnimationHelper;
 
-public class ToolFragment extends Fragment implements AbsListView.OnItemClickListener, MainActivity.NotifyToolAnimation {
+public class ToolFragment extends Fragment implements AbsListView.OnItemClickListener{
 
     private AbsListView mListView;
     private SimpleAdapter mAdapter;
     private MyContent mToolContent;
     private ScaleAnimation animation;
+    private View rootView;
 
-
-    public ToolFragment() {
-        MainActivity.setNotifyToolAnimation(this);
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,27 +36,32 @@ public class ToolFragment extends Fragment implements AbsListView.OnItemClickLis
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_item_grid, container, false);
+        if(null == rootView){
+            rootView = inflater.inflate(R.layout.fragment_item_grid, container, false);
 
-        mToolContent = new MyContent();
-        mListView = (AbsListView) view.findViewById(android.R.id.list);
-        mToolContent.addItem(new MyContent.DummyItem("录制视频", R.mipmap.ic_record));
-        mToolContent.addItem(new MyContent.DummyItem("脚本执行", R.mipmap.ic_uiautomator));
-        mToolContent.addItem(new MyContent.DummyItem("应用信息", R.mipmap.ic_applist));
-        mToolContent.addItem(new MyContent.DummyItem("业务更新", R.drawable.ic_app_update));
-        mToolContent.addItem(new MyContent.DummyItem("Scheme Test", R.drawable.ic_app_update));
+            mToolContent = new MyContent();
+            mListView = (AbsListView) rootView.findViewById(android.R.id.list);
+            mToolContent.addItem(new MyContent.DummyItem("录制视频", R.mipmap.ic_record));
+            mToolContent.addItem(new MyContent.DummyItem("脚本执行", R.mipmap.ic_uiautomator));
+            mToolContent.addItem(new MyContent.DummyItem("应用信息", R.mipmap.ic_applist));
+            mToolContent.addItem(new MyContent.DummyItem("业务更新", R.drawable.ic_app_update));
+//            mToolContent.addItem(new MyContent.DummyItem("Scheme Test", R.drawable.ic_app_update));
 //        mToolContent.addItem(new MyContent.DummyItem("业务Test", R.drawable.ic_app_update));
 
-        mAdapter = new SimpleAdapter(getActivity(), mToolContent.ITEMS, R.layout.tool_listview,
-                new String[]{"text", "img"},
-                new int[]{R.id.tool_text, R.id.tool_img});    // 生成列表数据
+            mAdapter = new SimpleAdapter(getActivity(), mToolContent.ITEMS, R.layout.tool_listview,
+                    new String[]{"text", "img"},
+                    new int[]{R.id.tool_text, R.id.tool_img});    // 生成列表数据
 
-        mListView.setAdapter(mAdapter);
-        mListView.setOnItemClickListener(this);
-        animation = AnimationHelper.getInstance().getScaleAnimation(0f, 1.0f, 0f, 1.0f, 0, 0, 500, true, 0.5f, 0.5f);
+            mListView.setAdapter(mAdapter);
+            mListView.setOnItemClickListener(this);
+            animation = AnimationHelper.getInstance().getScaleAnimation(1.0f, 1.0f, 0f, 1.0f, 0, 0, 500, true, 0.5f, 0f);
+        }
+
         mListView.setAnimation(animation);
+        animation.cancel();
+        animation.startNow();
 
-        return view;
+        return rootView;
     }
 
 
@@ -79,16 +81,7 @@ public class ToolFragment extends Fragment implements AbsListView.OnItemClickLis
     @Override
     public void onResume() {
         super.onResume();
-        Log.e(ToolFragment.class.getSimpleName(), "执行onResume");
-    }
-
-
-    @Override
-    public void chooseToolFragment(boolean isFirstTime) {
-        if (!isFirstTime){
-            animation.cancel();
-            animation.startNow();
-        }
+        Log.d(ToolFragment.class.getSimpleName(), "执行onResume");
     }
 
     @Override

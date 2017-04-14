@@ -298,11 +298,11 @@ public class UiautomatorFragment extends Fragment {
 
     // 删除选中的视频
     private void deleteBeChoose(){
-        Log.e("列表大小", String.valueOf(mList.size()));
+        Log.d("列表大小", String.valueOf(mList.size()));
         for (int i = 0; i < mList.size(); ){
-            Log.e("选中状态", String.valueOf(i) + mList.get(i).get("checkBox").toString());
+            Log.d("选中状态", String.valueOf(i) + mList.get(i).get("checkBox").toString());
             if((Boolean)mList.get(i).get("checkBox")){
-                Log.e("选中删除", String.valueOf(i));
+                Log.d("选中删除", String.valueOf(i));
                 mList.remove(i);
                 myadapter.notifyItemRemoved(i);  // 监听列表变化
             }else{

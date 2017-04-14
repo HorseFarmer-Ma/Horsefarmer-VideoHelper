@@ -54,7 +54,7 @@ public class MonkeyAdapter extends BaseAdapter{
 
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
-		Log.e("AppChooseActivity", "渲染刷新行数：" + position);
+		Log.d("AppChooseActivity", "渲染刷新行数：" + position);
 		if (null == convertView) {
 			convertView = inflater.inflate(R.layout.listviewitem, parent, false);
 		}

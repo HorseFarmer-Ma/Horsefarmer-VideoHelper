@@ -6,12 +6,14 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +23,7 @@ import android.widget.TextView;
 
 import com.meizu.testdevVideo.R;
 import com.meizu.testdevVideo.constant.Constants;
+import com.meizu.testdevVideo.constant.SettingPreferenceKey;
 import com.meizu.testdevVideo.interports.PerformsCaseCompleteCallBack;
 import com.meizu.testdevVideo.interports.PerformsJarDownloadCallBack;
 import com.meizu.testdevVideo.broadcast.PerformsReceiver;
@@ -95,6 +98,8 @@ public class PerformsTestService extends Service {
 
     // 如果id设置为0,会导致不能设置为前台
     private static final int NOTIFICATION_ID = 101;
+    private SharedPreferences.Editor editor = null;
+    private SharedPreferences settingSharedPreferences = null;
 
 
 
@@ -124,6 +129,7 @@ public class PerformsTestService extends Service {
         super.onDestroy();
         CommonVariable.isPerformsStart = false;
         saveLogLocal("服务被销毁了");
+        keepWakeUp(false);   // 关闭屏幕唤醒
         stopTimer();
         PerformsData.getInstance(this).writeBooleanData(iPerformsKey.isStart, false);
         if(null != windowManagerHelper){
@@ -256,9 +262,9 @@ public class PerformsTestService extends Service {
                     PostUploadHelper.getInstance().submitPostData(iPublicConstants.PERFORMS_POST_TASK_STATUS_URL, taskStatusParams, new PostCallBack() {
                         @Override
                         public void resultCallBack(boolean isSuccess, int resultCode, String data) {
-                            Log.e(TAG, "isSuccess：" + isSuccess);
-                            Log.e(TAG, "resultCode：" + resultCode);
-                            Log.e(TAG, "result：" + data);
+                            Log.d(TAG, "isSuccess：" + isSuccess);
+                            Log.d(TAG, "resultCode：" + resultCode);
+                            Log.d(TAG, "result：" + data);
                         }
                     });
                 } catch (MalformedURLException e) {
@@ -273,41 +279,45 @@ public class PerformsTestService extends Service {
      * @param intent 传送的intent值
      */
     private void jpushTaskInit(Intent intent) throws JSONException {
-        taskType = intent.getIntExtra("taskType", 0);
-        switch (taskType){
-            case 0:      // 本地任务
-                saveLogLocal("收到本地任务");
-                doPackageName = PerformsData.getInstance(getApplicationContext()).readStringData(iPerformsKey.doPackageName);
-                break;
-            case 1:      // 云端任务，写进测试包名，测试类型
-                saveLogLocal("收到云端任务");
-                taskPushJson = new JSONObject(intent.getStringExtra(iPerformsKey.taskPushJson));
-                // 预先初始化
-                PerformsData.getInstance(this).writeStringData(iPerformsKey.testTime,
-                        String.valueOf(System.currentTimeMillis()));
+        if(null != intent){
+            taskType = intent.getIntExtra("taskType", 0);
+            switch (taskType){
+                case 0:      // 本地任务
+                    saveLogLocal("收到本地任务");
+                    doPackageName = PerformsData.getInstance(getApplicationContext()).readStringData(iPerformsKey.doPackageName);
+                    break;
+                case 1:      // 云端任务，写进测试包名，测试类型
+                    saveLogLocal("收到云端任务");
+                    taskPushJson = new JSONObject(intent.getStringExtra(iPerformsKey.taskPushJson));
+                    // 预先初始化
+                    PerformsData.getInstance(this).writeStringData(iPerformsKey.testTime,
+                            String.valueOf(System.currentTimeMillis()));
 
-                String appType = PerformsPushTaskMethod.getAppType(taskPushJson);
-                PerformsData.getInstance(this).writeStringData(iPerformsKey.appType, appType);
-                saveLogLocal("测试应用类型：" + appType);
+                    String appType = PerformsPushTaskMethod.getAppType(taskPushJson);
+                    PerformsData.getInstance(this).writeStringData(iPerformsKey.appType, appType);
+                    saveLogLocal("测试应用类型：" + appType);
 
-                String appVersion = PublicMethod.getAppVersion(this, PerformsPushTaskMethod.getAppType(taskPushJson));
-                PerformsData.getInstance(this).writeStringData(iPerformsKey.appVersion, appVersion);
-                saveLogLocal("测试应用版本号：" + appVersion);
+                    String appVersion = PublicMethod.getAppVersion(this, PerformsPushTaskMethod.getAppType(taskPushJson));
+                    PerformsData.getInstance(this).writeStringData(iPerformsKey.appVersion, appVersion);
+                    saveLogLocal("测试应用版本号：" + appVersion);
 
-                taskId = PerformsPushTaskMethod.getTaskIdFromJson(taskPushJson);
-                saveLogLocal("taskId：" + taskId);
-                starttime_task_number = PerformsPushTaskMethod.getStarttimeNumber(taskPushJson);
-                saveLogLocal("starttime_task_number：" + starttime_task_number);
-                framerate_task_number = PerformsPushTaskMethod.getFramerateNumber(taskPushJson);
-                saveLogLocal("framerate_task_number：" + framerate_task_number);
-                memory_task_number = PerformsPushTaskMethod.getMemoryNumber(taskPushJson);
-                saveLogLocal("memory_task_number：" + memory_task_number);
-                purebackstage_task_number = PerformsPushTaskMethod.getPurebackstageNumber(taskPushJson);
-                saveLogLocal("purebackstage_task_number：" + purebackstage_task_number);
-                chooseTask(false);
-                break;
-            default:
-                break;
+                    taskId = PerformsPushTaskMethod.getTaskIdFromJson(taskPushJson);
+                    saveLogLocal("taskId：" + taskId);
+                    starttime_task_number = PerformsPushTaskMethod.getStarttimeNumber(taskPushJson);
+                    saveLogLocal("starttime_task_number：" + starttime_task_number);
+                    framerate_task_number = PerformsPushTaskMethod.getFramerateNumber(taskPushJson);
+                    saveLogLocal("framerate_task_number：" + framerate_task_number);
+                    memory_task_number = PerformsPushTaskMethod.getMemoryNumber(taskPushJson);
+                    saveLogLocal("memory_task_number：" + memory_task_number);
+                    purebackstage_task_number = PerformsPushTaskMethod.getPurebackstageNumber(taskPushJson);
+                    saveLogLocal("purebackstage_task_number：" + purebackstage_task_number);
+                    chooseTask(false);
+                    break;
+                default:
+                    break;
+            }
+        }else{
+            stopSelf();
         }
     }
 
@@ -491,7 +501,7 @@ public class PerformsTestService extends Service {
             final String uiCommand = "/system/bin/sh /data/data/com.meizu.testdevVideo/files/uitest/a5/uiautomator runtest "
                     + iPublicConstants.PERFORMS_TESTCASE_PATH + iPublicConstants.PERFORMS_JAR_NAME
                     + " -c " + doTaskClassName;
-            Log.e(TAG, "执行的指令为：\n" + uiCommand);
+            Log.d(TAG, "执行的指令为：\n" + uiCommand);
 
             new AsyncTask<Void, Void, Void>() {
                 @Override
@@ -639,6 +649,15 @@ public class PerformsTestService extends Service {
             }
         };
         mTimer.schedule(mJarTimeTask, 2 * Constants.TIME.MINUTE, 2 * Constants.TIME.MINUTE);
+    }
+
+    private void keepWakeUp(boolean isKeepWakeUp){
+        settingSharedPreferences = ((settingSharedPreferences ==  null)?
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()) : settingSharedPreferences);
+        editor = (editor == null) ? settingSharedPreferences.edit() : editor;
+        editor.remove(SettingPreferenceKey.KEEP_WAKEUP);
+        editor.putBoolean(SettingPreferenceKey.KEEP_WAKEUP, isKeepWakeUp);
+        editor.apply();
     }
 
     /**

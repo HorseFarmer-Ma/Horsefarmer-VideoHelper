@@ -109,7 +109,7 @@ public class UpdateSoftwareFtpFragment extends Fragment{
                     pageCount = listName.size();
                     for(int i = 0; i < pageCount; i++){
                         String fileName = listName.get(i).get(iPublicConstants.FILENAME).toString();
-                        Log.e(TAG, "文件名为：" + fileName);
+                        Log.d(TAG, "文件名为：" + fileName);
                         listFragment.add(NewAppUpdateFragment.newInstance(fileName, dir));
                     }
                     updateAppFragmentAdapter = new UpdateAppFragmentAdapter(getActivity().getSupportFragmentManager(), listFragment);
@@ -188,7 +188,10 @@ public class UpdateSoftwareFtpFragment extends Fragment{
     @Override
     public void onDestroy() {
         super.onDestroy();
-
+        handler.removeCallbacksAndMessages(null);
+        if(null != handler){
+            handler = null;
+        }
         new Thread(new Runnable() {
             @Override
             public void run() {
