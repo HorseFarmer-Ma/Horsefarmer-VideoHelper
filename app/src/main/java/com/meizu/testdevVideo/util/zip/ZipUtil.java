@@ -89,7 +89,6 @@ public class ZipUtil {
             }
         } catch (IOException ex) {
             ex.printStackTrace();
-            // throw ex;
         } finally {
             if (in != null) {
                 try {
@@ -165,13 +164,13 @@ public class ZipUtil {
                     if (in != null) {
                         try {
                             in.close();
-                        } catch (IOException ex) {
+                        } catch (IOException ignored) {
                         }
                     }
                     if (out != null) {
                         try {
                             out.close();
-                        } catch (IOException ex) {
+                        } catch (IOException ignored) {
                         }
                     }
                 }
@@ -183,7 +182,7 @@ public class ZipUtil {
             if (zipFile != null) {
                 try {
                     zipFile.close();
-                } catch (IOException ex) {
+                } catch (IOException ignored) {
                 }
             }
         }

@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         applicationId "com.meizu.testdevVideo"
-        minSdkVersion 18
+        minSdkVersion 15
         targetSdkVersion 23
-        versionCode 1286
-        versionName "1.2.86"
+        versionCode 2261
+        versionName "2.2.61"
 
         ndk {
             //选择要添加的对应cpu类型的.so库。
@@ -32,8 +32,11 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            // 是否混淆
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // 移除无用的resource文件
+            shrinkResources true
         }
     }
 
@@ -48,14 +51,22 @@ android {
 
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    // 此处以SDK 2.1.9版本为例
-    compile files('libs/afinal_0.5.1_bin.jar')
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    // Flyme第三方控件
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.android.support:design:23.4.0'
     compile 'com.android.support:support-v4:23.4.0'
     compile 'com.android.support:cardview-v7:23.4.0'
     compile 'cn.jiguang:jpush:2.1.9'
-    compile files('libs/perflib.jar')
+    compile 'com.meizu.flyme.sdk:meizu-common:2.0.170511'
+    compile 'com.meizu.flyme.sdk:flyme-appcompat:2.0.170511'
+    compile 'com.alibaba:fastjson:1.2.24'
+    compile 'com.meizu.flyme.sdk:colortheme-blue:2.0.170511'
+    compile 'com.meizu.flyme.sdk:colortheme-limegreen:2.0.170511'
+    compile 'com.meizu.flyme.sdk:flyme-viewpager:2.0.170216'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    testCompile 'junit:junit:4.12'
+    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
 }

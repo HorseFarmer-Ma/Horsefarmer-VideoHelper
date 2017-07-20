@@ -1,0 +1,590 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scrollbars="vertical"
+        android:fadingEdge="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:focusable="true"
+            android:focusableInTouchMode="true" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:orientation="horizontal"
+                android:background="#FFFFFF"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="14dp">
+
+                <Button
+                    android:id="@+id/button_single_choose"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:text="应用级"/>
+
+                <View
+                    android:layout_width="@dimen/divider_height"
+                    android:layout_height="match_parent"
+                    android:background="@color/divider"/>
+
+                <Button
+                    android:id="@+id/button_system_choose"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:textSize="13sp"
+                    android:text="系统级"/>
+
+                <!--<View-->
+                    <!--android:layout_width="@dimen/divider_height"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:background="@color/divider"/>-->
+
+                <!--<Button-->
+                    <!--android:id="@+id/button_smartTest_choose"-->
+                    <!--android:layout_width="0dp"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:fontFamily="sans-serif-medium"-->
+                    <!--android:background="?android:attr/selectableItemBackground"-->
+                    <!--android:textSize="13sp"-->
+                    <!--android:text="智能遍历"/>-->
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/divider_height"
+                android:background="@color/divider"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"/>
+
+            <LinearLayout
+                android:id="@+id/layout_single_monkey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:orientation="vertical"
+                android:background="@drawable/boder">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <CheckBox
+                        android:id="@+id/checkbox_defined_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/activity_horizontal_margin"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="12dp"
+                        android:text="@string/action_defined_value"/>
+
+                    <LinearLayout
+                        android:id="@+id/layout_tab_value"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/edit_seed"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="5dp"
+                            android:hint="@string/action_defined_value_seed"
+                            android:gravity="center"
+                            android:singleLine="true"
+                            android:textSize="12sp"
+                            android:background="@drawable/edit_text_style"/>
+                        <EditText
+                            android:id="@+id/edit_click_time"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="5dp"
+                            android:hint="@string/action_defined_value_click_time"
+                            android:gravity="center"
+                            android:singleLine="true"
+                            android:textSize="12sp"
+                            android:background="@drawable/edit_text_style"/>
+                        <EditText
+                            android:id="@+id/edit_click_numbers"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="@string/action_defined_value_click_number"
+                            android:gravity="center"
+                            android:singleLine="true"
+                            android:textSize="12sp"
+                            android:background="@drawable/edit_text_style"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/single_monkey_text"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#000000"
+                    android:textSize="13sp"
+                    android:ellipsize="end" />
+
+                <RelativeLayout
+                    android:id="@+id/btn_choose_app"
+                    android:layout_width="match_parent"
+                    android:clickable="true"
+                    android:layout_marginTop="10dp"
+                    android:layout_height="40dp"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <ImageView
+                        android:id="@+id/ic_choose_app"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:padding="@dimen/button_margin"
+                        android:src="@drawable/ic_choose_app"/>
+
+                    <TextView
+                        style="@style/VideoTextViewMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@id/ic_choose_app"
+                        android:layout_centerVertical="true"
+                        android:text="@string/action_choose_app"
+                        android:textColor="@color/ThemeColor"
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="14sp"/>
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+
+
+            <LinearLayout
+                android:id="@+id/layout_system_monkey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:orientation="vertical"
+                android:background="@drawable/boder">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="3"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Blacklist："
+                        android:layout_marginLeft="20dp"
+                        android:textColor="#AA0000"
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="15dp"/>
+
+                    <TextView
+                        android:id="@+id/button_blacklist"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/action_blacklist"
+                        android:layout_marginLeft="18dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/ThemeColor"
+                        android:textSize="15dp" />
+
+
+                    <TextView
+                        android:id="@+id/button_blacklist_defined"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/black"
+                        android:layout_marginLeft="20dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="@string/action_blacklist_defined"
+                        android:textSize="15dp"/>
+                </LinearLayout>
+
+
+                <EditText
+                    android:id="@+id/edit_blacklist_defined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:hint="@string/action_input_blacklist"
+                    android:background="@drawable/edit_text_style"
+                    android:padding="5dp"
+                    android:maxLines="6"
+                    android:scrollbars="vertical"
+                    android:textSize="15sp" />
+
+                <Button
+                    android:id="@+id/button_save_blacklist"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/button_margin"
+                    android:text="@string/action_save_blacklist"
+                    android:background="@drawable/button_radius"
+                    android:gravity="center"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"/>
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/system_monkey_text"
+                    android:gravity="left"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:textColor="#000000"
+                    android:textSize="15sp"
+                    android:ellipsize="end" />
+
+            </LinearLayout>
+
+            <!--<LinearLayout-->
+                <!--android:id="@+id/layout_smart_test"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginLeft="10dp"-->
+                <!--android:layout_marginRight="10dp"-->
+                <!--android:orientation="vertical"-->
+                <!--android:background="@drawable/boder">-->
+
+                <!--<LinearLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="40dp"-->
+                    <!--android:layout_marginTop="10dp"-->
+                    <!--android:orientation="horizontal">-->
+
+                    <!--<ImageView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:padding="@dimen/button_margin"-->
+                        <!--android:layout_gravity="center_vertical"-->
+                        <!--android:src="@drawable/ic_choose_app" />-->
+
+                    <!--<TextView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="@string/smart_type"-->
+                        <!--android:textColor="@color/template_title_color2"-->
+                        <!--android:fontFamily="sans-serif-medium"-->
+                        <!--android:textSize="14sp"-->
+                        <!--android:layout_gravity="center_vertical"/>-->
+
+                    <!--<Spinner-->
+                        <!--android:id="@+id/smart_type_spinner"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_marginStart="10dp"-->
+                        <!--android:layout_marginEnd="10dp"-->
+                        <!--android:layout_gravity="center_vertical"/>-->
+
+                <!--</LinearLayout>-->
+
+
+
+                <!--<RelativeLayout-->
+                    <!--android:id="@+id/btn_choose_appInfo"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:clickable="true"-->
+                    <!--android:layout_height="40dp"-->
+                    <!--android:background="?android:attr/selectableItemBackground">-->
+
+                    <!--<ImageView-->
+                        <!--android:id="@+id/ic_choose_appInfo"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_centerVertical="true"-->
+                        <!--android:padding="@dimen/button_margin"-->
+                        <!--android:src="@drawable/ic_choose_app"/>-->
+
+                    <!--<TextView-->
+                        <!--style="@style/VideoTextViewMedium"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_toEndOf="@id/ic_choose_appInfo"-->
+                        <!--android:layout_centerVertical="true"-->
+                        <!--android:text="@string/action_choose_app"-->
+                        <!--android:textColor="@color/ThemeColor"-->
+                        <!--android:fontFamily="sans-serif-medium"-->
+                        <!--android:textSize="14sp"/>-->
+
+                <!--</RelativeLayout>-->
+
+            <!--</LinearLayout>-->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/boder"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:id="@+id/monkey_alarm_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp">
+
+                    <ImageView
+                        android:id="@+id/ic_monkey_alarm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:padding="@dimen/button_margin"
+                        android:src="@drawable/ic_monkey_run_time"/>
+
+                    <TextView
+                        style="@style/VideoTextViewMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@id/ic_monkey_alarm"
+                        android:layout_centerVertical="true"
+                        android:text="@string/action_timetask"
+                        android:textColor="@color/template_title_color2"
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="14sp"/>
+
+                    <ImageView
+                        android:id="@+id/alarm_add_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginEnd="@dimen/button_margin"
+                        android:clickable="true"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_add" />
+
+                    <EditText
+                        android:id="@+id/txt_alarm_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toStartOf="@+id/alarm_add_btn"
+                        android:layout_centerVertical="true"
+                        android:paddingStart="@dimen/button_margin"
+                        android:paddingEnd="@dimen/button_margin"
+                        android:textSize="14sp"
+                        android:text="8.0"/>
+
+                    <ImageView
+                        android:id="@+id/alarm_minus_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:clickable="true"
+                        android:layout_marginEnd="3dp"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:layout_toStartOf="@+id/txt_alarm_time"
+                        android:src="@drawable/ic_minus"  />
+
+                </RelativeLayout>
+
+
+                <RelativeLayout
+                    android:id="@+id/add_alarm_run_monkey_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp">
+
+                    <ImageView
+                        android:id="@+id/ic_add_alarm_run_monkey"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:padding="@dimen/button_margin"
+                        android:src="@drawable/ic_monkey_alarm"/>
+
+                    <TextView
+                        android:id="@+id/btn_add_alarm_run_monkey"
+                        style="@style/VideoTextViewMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:layout_toEndOf="@id/ic_add_alarm_run_monkey"
+                        android:layout_centerVertical="true"
+                        android:text="@string/action_add_run_monkey_time"
+                        android:textColor="@color/ThemeColor"
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="14sp"  />
+
+                    <ImageView
+                        android:id="@+id/btn_question"
+                        android:layout_width="wrap_content"
+                        android:layout_height="15dp"
+                        android:src="@drawable/ic_question"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:layout_centerVertical="true"
+                        android:layout_toEndOf="@+id/btn_add_alarm_run_monkey"/>
+
+                    <TextView
+                        android:id="@+id/btn_clear_alarm_task"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="@dimen/button_margin"
+                        android:textColor="@color/ThemeColor"
+                        android:layout_toStartOf="@+id/btn_detail_of_alarm_task"
+                        android:fontFamily="sans-serif-medium"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:text="@string/alarm_run_monkey_clear"  />
+
+                    <TextView
+                        android:id="@+id/btn_detail_of_alarm_task"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginEnd="@dimen/button_margin"
+                        android:textColor="@color/ThemeColor"
+                        android:fontFamily="sans-serif-medium"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:text="@string/alarm_run_monkey_detail"  />
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:background="@drawable/boder"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+
+                <Button
+                    android:id="@+id/button_single_monkey"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:clickable="true"
+                    android:layout_centerHorizontal="true"
+                    android:background="@drawable/button_radius"
+                    android:textColor="#FFFFFF"
+                    android:gravity="center"
+                    android:textSize="18sp"
+                    android:text="@string/action_run_monkey" />
+
+
+                <Button
+                    android:id="@+id/btn_open_mtkLog"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:clickable="true"
+                    android:layout_alignParentEnd="true"
+                    android:background="@drawable/button_radius"
+                    android:layout_marginEnd="@dimen/radius_margin"
+                    android:textColor="#FFFFFF"
+                    android:gravity="center"
+                    android:textSize="15sp"
+                    android:text="@string/action_open_mtkLog" />
+
+            </RelativeLayout>
+
+
+            <LinearLayout
+                android:id="@+id/layout_fail_send"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:background="@drawable/boder"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:padding="@dimen/button_margin"
+                        android:textStyle="bold"
+                        android:text="@string/action_send_fail"
+                        android:textSize="15sp"/>
+
+                    <Button
+                        android:id="@+id/btn_fail_and_send"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        android:paddingLeft="@dimen/button_margin"
+                        android:paddingRight="@dimen/button_margin"
+                        android:layout_marginStart="15dp"
+                        android:textColor="#FFFFFF"
+                        android:gravity="center"
+                        android:textSize="15sp"
+                        android:text="@string/action_send"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/txt_send_fail_reason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="15dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+</RelativeLayout>

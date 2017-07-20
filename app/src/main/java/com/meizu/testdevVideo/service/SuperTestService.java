@@ -1,151 +1,150 @@
 package com.meizu.testdevVideo.service;
 
+import android.app.AlarmManager;
 import android.app.DownloadManager;
+import android.app.PendingIntent;
 import android.app.Service;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-
 import android.content.SharedPreferences;
-import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
-import android.os.IBinder;
 
+import android.net.wifi.WifiManager;
+
+import android.os.Binder;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.os.SystemClock;
+
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.WindowManager;
-
-import android.widget.Button;
-import android.widget.ImageButton;
-
+import com.meizu.aidl.ISuperTestAidl;
 import com.meizu.testdevVideo.R;
+import com.meizu.testdevVideo.SuperTestApplication;
 import com.meizu.testdevVideo.broadcast.AudioReceiver;
-import com.meizu.testdevVideo.broadcast.MonkeyReceiver;
 import com.meizu.testdevVideo.broadcast.ScreenWakeUpReceiver;
+import com.meizu.testdevVideo.broadcast.SuperTestReceiver;
 import com.meizu.testdevVideo.constant.CommonVariable;
 import com.meizu.testdevVideo.constant.Constants;
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
-import com.meizu.testdevVideo.interports.PerformsMonkeyCallBack;
-import com.meizu.testdevVideo.interports.iPerformsKey;
-import com.meizu.testdevVideo.library.ServiceHelper;
 import com.meizu.testdevVideo.broadcast.WifiReceiver;
+import com.meizu.testdevVideo.db.util.U2TaskDBUtil;
+import com.meizu.testdevVideo.interports.SuperTestCallBack;
 import com.meizu.testdevVideo.interports.iPublicConstants;
-import com.meizu.testdevVideo.library.ToastHelper;
+
+import com.meizu.testdevVideo.library.ServiceNotificationHelper;
+import com.meizu.testdevVideo.library.SimpleTaskHelper;
+import com.meizu.testdevVideo.library.SqlAlterHelper;
+import com.meizu.testdevVideo.library.apkController.ApkControllerUtils;
+import com.meizu.testdevVideo.push.android.MPushService;
+import com.meizu.testdevVideo.task.monkey.MonkeyUtils;
+import com.meizu.testdevVideo.task.monkey.SilenceAppMonkeyInfo;
+import com.meizu.testdevVideo.task.performs.GetFps;
 import com.meizu.testdevVideo.util.PublicMethod;
 import com.meizu.testdevVideo.util.PublicMethodConstant;
 import com.meizu.testdevVideo.util.download.DownloadHelper;
 import com.meizu.testdevVideo.util.download.DownloadIdCallback;
 import com.meizu.testdevVideo.util.download.DownloadReceiver;
+import com.meizu.testdevVideo.util.log.Logger;
+import com.meizu.testdevVideo.util.sharepreference.BaseData;
 import com.meizu.testdevVideo.util.sharepreference.MonkeyTableData;
-import com.meizu.testdevVideo.util.sharepreference.PerformsData;
-import com.meizu.testdevVideo.util.sharepreference.PrefWidgetOnOff;
+import com.meizu.testdevVideo.util.sharepreference.SettingPreference;
 import com.meizu.testdevVideo.util.shell.ShellUtils;
-import com.meizu.testdevVideo.library.WindowManagerHelper;
 
 import java.io.File;
 import java.io.IOException;
+
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+public class SuperTestService extends Service implements SuperTestCallBack{
 
-/**
- * Monkey服务
- */
-public class SuperTestService extends Service {
     private static final String TAG = SuperTestService.class.getSimpleName();
     private SharedPreferences settingSharedPreferences = null;
-    private WindowManagerHelper windowManagerHelper = null;
-    private ServiceHelper serviceHelper = null;
-
-    private View startView;             // 悬浮按钮视图
-    private ImageButton startTestBt, stopBt;      // 图片按钮
-    private String monkey_command;
     private Timer mTimer;
-    private static final int mId = 1;                    // 通知栏Id
-
     private Map<String, Object> apkMessageMap;
-
-    public SuperTestService() {}
+    private int iCheckTimes = 0;
+    private int NOTIFICATION_ID = 100;
 
     @Override
     public void onCreate() {
+        super.onCreate();
+        SuperTestReceiver.setSuperTestNotification(this);
+        if(SettingPreference.getInstance(SuperTestApplication.getContext()).getNotifition()){
+            ServiceNotificationHelper.getInstance(this).notification(NOTIFICATION_ID,
+                    this, "Multimedia Tool", "ST Running..");
+        }
+        checkIsInstallLogReport();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
         long startTime = SystemClock.currentThreadTimeMillis();
         serviceInit();
         registerBroadcastInit();
         timerInit();
         listenerInit();
-        checkIsInstallLogReport();
-        Log.e(TAG, "onCreate初始化时间为" + (SystemClock.currentThreadTimeMillis() - startTime));
-        super.onCreate();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        monkey_command = MonkeyTableData.getInstance(this).readStringData("monkey_command");
-
-        if(!PrefWidgetOnOff.getInstance(this).readBooleanData("isMonkeyFloating")){
-            if (MonkeyTableData.getInstance(this).readBooleanData("isStart")){
-                serviceHelper.showButtonNotify("SuperTest", "SuperTest running", "Start running", mId);
-                runMonkeyThread();
-                saveLog("不使用悬浮按钮\n");
-            }
-        }else {
-            saveLog("使用悬浮按钮\n");
-            monkey_Init();
-            if(MonkeyTableData.getInstance(this).readBooleanData("isStart")){
-                serviceHelper.showButtonNotify("SuperTest", "SuperTest running", "Start running", mId);
-                saveLog("之前意外停止，重新开始Monkey任务\n");
-                stopBt.setVisibility(View.VISIBLE);
-                startTestBt.setVisibility(View.GONE);
-                runMonkeyThread();   // 跑monkey
-            }
-        }
+        Log.d(TAG, "onStartCommand初始化时间为" + (SystemClock.currentThreadTimeMillis() - startTime));
         return START_STICKY;
     }
 
     @Override
     public void onDestroy(){
-        saveLog("服务执行onDestroy\n");
-        if(mTimer != null){
-            mTimer.cancel();
-            mTimer = null;
-        }
 
-        if(mMonkeyTimeTask != null){
-            mMonkeyTimeTask.cancel();
-            mMonkeyTimeTask = null;
-        }
+        try {
+            if(SettingPreference.getInstance(SuperTestApplication.getContext()).getNotifition()){
+                ServiceNotificationHelper.getInstance(this).notificationCancel(this, NOTIFICATION_ID);
+            }
 
-        if(mRegisterTask != null){
-            mRegisterTask.cancel();
-            mRegisterTask = null;
-        }
+            Logger.file("服务意外被杀", Logger.SUPER_TEST);
+            if(mTimer != null){
+                mTimer.cancel();
+                mTimer = null;
+            }
 
-        if(startView != null){
-            startView = null;
-        }
+            if(mDailyTimeTask != null){
+                mDailyTimeTask.cancel();
+                mDailyTimeTask = null;
+            }
 
-        if(windowManagerHelper != null){
-            windowManagerHelper = null;
-        }
+            unregisterReceiver(WifiReceiver.getInstance());
+            unregisterReceiver(AudioReceiver.getInstance());
+            unregisterReceiver(DownloadReceiver.getInstance());
+            unregisterReceiver(ScreenWakeUpReceiver.getInstance());
 
-        unregisterReceiver(mReceiver);
-        unregisterReceiver(WifiReceiver.getInstance());
-        unregisterReceiver(AudioReceiver.getInstance());
-        unregisterReceiver(DownloadReceiver.getInstance());
-        unregisterReceiver(MonkeyReceiver.getInstance());
-        unregisterReceiver(ScreenWakeUpReceiver.getInstance());
-        Intent intent = new Intent("st.action.monkey.service.destroy");
-        sendBroadcast(intent);
+            U2TaskDBUtil.getInstance().closeU2TaskDB();
+            SqlAlterHelper.getInstance(SuperTestApplication.getContext()).close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            Intent intent = new Intent("st.action.monkey.service.destroy");
+            sendBroadcast(intent);
+//            startServiceAfterClosed(this, 5);      //5s后重启
+        }
         super.onDestroy();
     }
+
+
+    /**
+     * service停掉后自动启动应用
+     *
+     * @param context
+     * @param delayed 延后启动的时间，单位为秒
+     */
+    private static void startServiceAfterClosed(Context context, int delayed) {
+        AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarm.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delayed * 1000, getOperation(context));
+    }
+
+    private static PendingIntent getOperation(Context context) {
+        Intent intent = new Intent(context, SuperTestService.class);
+        PendingIntent operation = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        return operation;
+    }
+
 
     /**
      * 服务初始化
@@ -153,13 +152,8 @@ public class SuperTestService extends Service {
     private void serviceInit(){
         settingSharedPreferences = ((settingSharedPreferences ==  null)?
                 PreferenceManager.getDefaultSharedPreferences(this) : settingSharedPreferences);
-        serviceHelper = ((serviceHelper == null)? new ServiceHelper(this) : serviceHelper);
-        windowManagerHelper = ((windowManagerHelper == null)? new WindowManagerHelper(getApplication()) : windowManagerHelper);
         PublicMethod.mute(this);
         PublicMethod.lockWifi(settingSharedPreferences, this);
-        startView = LayoutInflater.from(this).inflate(R.layout.monkey_start, null);
-        startTestBt = (ImageButton) startView.findViewById(R.id.start);
-        stopBt = (ImageButton) startView.findViewById(R.id.stop);
     }
 
     /**
@@ -167,23 +161,23 @@ public class SuperTestService extends Service {
      */
     private void registerBroadcastInit(){
         IntentFilter downloadFilter = new IntentFilter();
+        IntentFilter netFilter = new IntentFilter();
+        IntentFilter audioFliter = new IntentFilter();
+        IntentFilter wakeUpFliter = new IntentFilter();
+
         downloadFilter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         downloadFilter.addAction(DownloadManager.ACTION_NOTIFICATION_CLICKED);
-        IntentFilter netFilter = new IntentFilter();
+
         netFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         netFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         netFilter.addAction("action.st.wifi.bind");
-        IntentFilter killMonkeyFliter = new IntentFilter();
-        killMonkeyFliter.addAction("action.st.kill.monkey");
-        IntentFilter audioFliter = new IntentFilter();
+
         audioFliter.addAction("android.media.VOLUME_CHANGED_ACTION");
-        IntentFilter monkeyFliter = new IntentFilter();
-        IntentFilter wakeUpFliter = new IntentFilter();
+
         wakeUpFliter.addAction(Intent.ACTION_SCREEN_OFF);
+
         registerReceiver(WifiReceiver.getInstance(), netFilter);
         registerReceiver(AudioReceiver.getInstance(), audioFliter);
-        registerReceiver(mReceiver, killMonkeyFliter);
-        registerReceiver(MonkeyReceiver.getInstance(), monkeyFliter);
         registerReceiver(ScreenWakeUpReceiver.getInstance(), wakeUpFliter);
         registerReceiver(DownloadReceiver.getInstance(), downloadFilter);
     }
@@ -193,8 +187,21 @@ public class SuperTestService extends Service {
      */
     private void timerInit(){
         mTimer = new Timer();
-        mTimer.schedule(mMonkeyTimeTask, 10 * Constants.TIME.MINUTE, 10 * Constants.TIME.MINUTE);
-        mTimer.schedule(mRegisterTask, 10 * Constants.TIME.SECOND);
+        try {
+            mDailyTimeTask.cancel();
+        }catch (Exception e){
+            e.printStackTrace();
+            Logger.d("定时器取消" + e.toString());
+        }
+
+        try {
+            mTimer.schedule(mDailyTimeTask, 10 * Constants.TIME.SECOND, 5 * Constants.TIME.SECOND);
+        }catch (Exception e){
+            e.printStackTrace();
+            Logger.d("定时器设置失败");
+
+        }
+
     }
 
     /**
@@ -204,67 +211,108 @@ public class SuperTestService extends Service {
         // 监听下载，安装更新的业务APP
         DownloadReceiver.getInstance().setOnDownloadListener(new DownloadIdCallback() {
             @Override
-            public void onDownloadListener(String id, String filePath) {
-                if(id.equals(CommonVariable.strVideoId) || id.equals(CommonVariable.strMusicId)
-                        || id.equals(CommonVariable.strReaderId) || id.equals(CommonVariable.strEbookId)
-                        || id.equals(CommonVariable.strGalleryId)){
-                    if(filePath != null){
-                        PublicMethod.installApp(getApplicationContext(), new File(filePath));
-                    }else{
-                        ToastHelper.addToast("请您查看服务器放置您的包了没有", getApplicationContext());
-                    }
-                }
-
+            public void onDownloadListener(final String id, final String filePath) {
                 if(id.equals(CommonVariable.strLogReportId)){
-                    try {
-                        Runtime.getRuntime().exec("pm install -f " + filePath);
-                    } catch (IOException e) {
-                        PublicMethod.installApp(getApplicationContext(), new File(filePath));
-                        e.printStackTrace();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            boolean isSuccess = ApkControllerUtils.clientInstall(filePath);
+                            if(!isSuccess) {
+                                ApkControllerUtils.installApk(getApplicationContext(), new File(filePath));
+                            }
+                        }
+                    }).start();
+                }
+
+                if((null != CommonVariable.strU2ApkId && id.equals(CommonVariable.strU2ApkId)) ||
+                        (null != CommonVariable.strU2AndroidTestApkId && id.equals(CommonVariable.strU2AndroidTestApkId))){
+                    new SimpleTaskHelper(){
+                        @Override
+                        protected void doInBackground() {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            preForU2Task(id, filePath);
+                        }
+                    }.executeInSerial();
+                }
+
+                if(null != SilenceAppMonkeyInfo.getInstance().getUpdateApkId()
+                        && id.equals(SilenceAppMonkeyInfo.getInstance().getUpdateApkId())){
+                    ServiceNotificationHelper.getInstance(SuperTestApplication.getContext())
+                            .notificationCanCancel("Monkey调度", "APK下载完成", 1);
+                    Intent intent = new Intent(Constants.Monkey.ACTION_SILENCE_INSTALL_APK);
+                    intent.putExtra("filePath", filePath);
+                    sendBroadcast(intent);
+                }
+
+                int listSize = Constants.UpdateAppValue.appUpdateStringlist.size();
+                for(int i = 0; i < listSize; i++){
+                    if(id.equals(Constants.UpdateAppValue.appUpdateStringlist.get(i))){
+                        Constants.UpdateAppValue.appUpdateStringlist.remove(i);
+                        if(filePath.contains("SuperTest.apk")){
+                            // 检查到更新，则静默安装
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    if(ApkControllerUtils.getVersionCode(SuperTestApplication.getContext(), filePath) <
+                                            ApkControllerUtils.getPackageVersionCode(SuperTestApplication.getContext(), "com.meizu.testdevVideo")){
+                                        ApkControllerUtils.installApk(getApplicationContext(), new File(filePath));
+
+                                    }else{
+                                        ServiceNotificationHelper.getInstance(SuperTestApplication.getContext())
+                                                .notificationCanCancel("静默更新", "升级APK成功！", 1);
+                                        boolean isSuccess = ApkControllerUtils.clientInstall(filePath);
+                                        if(!isSuccess) {
+                                            ApkControllerUtils.installApk(getApplicationContext(), new File(filePath));
+                                        }
+                                    }
+                                }
+                            }).start();
+
+                        }else{
+                            ApkControllerUtils.installApk(getApplicationContext(), new File(filePath));
+                        }
+
+                        break;
                     }
                 }
-            }
-        });
-
-        // 设置执行性能测试monkey监听
-        MonkeyReceiver.getInstance().setPerformsMonkeyListener(new PerformsMonkeyCallBack() {
-            @Override
-            public void startMonkey(String packageName) {
-                PublicMethod.mute(getApplicationContext());
-                Intent monkeyIntent = new Intent(SuperTestService.this, MonkeyProcessService.class);
-                monkeyIntent.putExtra(MonkeyProcessService.packageName, packageName);
-                startService(monkeyIntent);
             }
         });
     }
 
-    /**
-     * 悬浮窗口初始化
-     */
-    public void monkey_Init(){
-        saveLog("启动悬浮窗_初始化开始\n");
-        windowManagerHelper.createView(startView, WindowManager.LayoutParams.WRAP_CONTENT, true, true);
-        stopBt.setVisibility(View.GONE);
-        startTestBt.setVisibility(View.VISIBLE);
-        stopBt.setOnLongClickListener(new Button.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                killMonkey();
-                return true;
-            }
-        });
+    private void preForU2Task(String id, String filePath){
+        String pkgName = ApkControllerUtils.getPackageName(SuperTestApplication.getContext(), filePath);
+        if(ApkControllerUtils.preInstallForApk(SuperTestApplication.getContext(), pkgName, filePath)) {
+            boolean isSuccess = ApkControllerUtils.clientInstall(filePath);
+            ServiceNotificationHelper.getInstance(SuperTestApplication.getContext())
+                    .notificationCanCancel("Monkey调度", "静默安装Apk" + (isSuccess? "成功" : "失败"), 1);
+            if(isSuccess){
+                try {
+                    Thread.sleep(2 * 1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-        startTestBt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                serviceHelper.showButtonNotify("SuperTest", "SuperTest running", "Start running", mId);
-                MonkeyTableData.getInstance(getApplicationContext()).writeBooleanData("isStart", true);
-                startTestBt.setVisibility(View.GONE);
-                stopBt.setVisibility(View.VISIBLE);
-                runMonkeyThread();
+                if (ApkControllerUtils.getVersionCode(SuperTestApplication.getContext(), filePath)
+                        == ApkControllerUtils.getPackageVersionCode(SuperTestApplication.getContext(), pkgName)) {
+                    Intent intent = new Intent();
+                    intent.setAction(Constants.U2TaskConstants.U2_TASK_APK_INSTALL_SUCCESS_BROADCAST_ACTION);
+                    intent.putExtra(Constants.U2TaskConstants.U2_TASK_INSTALLED_APK_ID, id);
+                    intent.putExtra(Constants.U2TaskConstants.U2_TASK_INSTALLED_APK_PASS_OR_FAIL, isSuccess);
+                    sendBroadcast(intent);
+                }else{
+                    ServiceNotificationHelper.getInstance(SuperTestApplication.getContext())
+                            .notificationCanCancel("Monkey调度", "静默安装Apk失败，版本号与安装包不一致", 1);
+                }
             }
-        });
-        saveLog("启动悬浮窗_初始化完成\n");
+        }else{
+            ServiceNotificationHelper.getInstance(SuperTestApplication.getContext())
+                    .notificationCanCancel("Monkey调度", "静默卸载APK失败", 1);
+        }
     }
 
     /**
@@ -275,145 +323,165 @@ public class SuperTestService extends Service {
             @Override
             public void run() {
                 apkMessageMap = PublicMethod.getApkMessage(SuperTestService.this, "com.meizu.logreport");
-                if(apkMessageMap != null){
-                    if(Integer.valueOf(apkMessageMap.get(PublicMethodConstant.VERSION_CODE).toString()) < 3000000){
-                        CommonVariable.strLogReportId = DownloadHelper.getInstance(SuperTestService.this).download("http://ats.meizu.com/static/upload/user-resources" +
-                                "/SuperTest/MediaAppUpdate/LogReport/LogReport.apk", "/SuperTest/UpdateApk/", "LogReport.apk");
+                if(apkMessageMap == null || Integer.valueOf(apkMessageMap
+                        .get(PublicMethodConstant.VERSION_CODE).toString()) < 3000000){
+                    File fileDirector = new File(iPublicConstants.LOCAL_MEMORY + "SuperTest/UpdateApk/常用工具");
+                    // 不是文件夹，则新建文件夹
+                    if(!fileDirector.isDirectory()){
+                        fileDirector.delete();
+                        fileDirector.mkdirs();
                     }
-                }else{
-                    CommonVariable.strLogReportId = DownloadHelper.getInstance(SuperTestService.this).download("http://ats.meizu.com/static/upload/user-resources" +
-                            "/SuperTest/MediaAppUpdate/LogReport/LogReport.apk", "/SuperTest/UpdateApk/", "LogReport.apk");
+                    File file = new File(iPublicConstants.LOCAL_MEMORY + "SuperTest/UpdateApk/常用工具/LogReport.apk");
+                    if(file.exists()){
+                        file.delete();
+                    }
+                    CommonVariable.strLogReportId = DownloadHelper.getInstance(SuperTestService.this)
+                            .download("http://ats.meizu.com/static/upload/user-resources" +
+                            "/SuperTest/MediaAppUpdate/常用工具/LogReport.apk", "/SuperTest/UpdateApk/常用工具/", "LogReport.apk");
                 }
             }
         }).start();
     }
 
+
     /**
-     * 跑monkey线程
+     * 定时器
      */
-    private void runMonkeyThread(){
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                saveLog("执行Monkey指令\n");
-                PublicMethod.mute(getApplicationContext());
-                try {
-                    Runtime.getRuntime().exec(monkey_command);
-                } catch (IOException e){
-                    e.printStackTrace();
-                    saveLog("哎呀。意外出错\n");
+    private TimerTask mDailyTimeTask = new TimerTask() {
+        @Override
+        public void run() {
+
+            ++ iCheckTimes;
+            if(iCheckTimes > 360){
+                String last_clear_time = BaseData.getInstance(SuperTestService.this)
+                        .readStringData(SettingPreferenceKey.LSAT_CLEAR_CACHE_TIME);
+                long clear_times = Long.parseLong(settingSharedPreferences.getString(SettingPreferenceKey.CLEAR_CACHE,
+                        getString(R.string.clear_cache_orign_times)))
+                        * 24 * 60 * 60 * 1000;
+                if(null == last_clear_time || clear_times < System.currentTimeMillis() - Long.parseLong(last_clear_time)){
+                    BaseData.getInstance(SuperTestService.this)
+                            .writeStringData(SettingPreferenceKey.LSAT_CLEAR_CACHE_TIME,
+                                    String.valueOf(System.currentTimeMillis()));
+                    PublicMethod.deleteDirectory(iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog");
+                    PublicMethod.deleteDirectory(iPublicConstants.LOCAL_MEMORY + "SuperTest/LogReport");
+                    PublicMethod.deleteDirectory(iPublicConstants.LOCAL_MEMORY + "SuperTest/Trace");
+                    PublicMethod.deleteDirectory(iPublicConstants.LOCAL_MEMORY + "SuperTest/Dropbox");
                 }
-                return null;
+
+                iCheckTimes = 0;
             }
-        }.execute();
-    }
 
-    /**
-     * 杀monkey
-     */
-    private void killMonkey(){
-        PublicMethod.killProcess("ps |grep com.android.commands.monkey", "system    ", " ");
-        // 停止monkey
-        if(PublicMethod.isServiceWorked(this, "com.meizu.testdevVideo.service.MonkeyProcessService")){
-            Intent monkeyIntent = new Intent(SuperTestService.this, MonkeyProcessService.class);
-            stopService(monkeyIntent);
-        }
-
-        if(MonkeyTableData.getInstance(this).readBooleanData("isStart")){
-            serviceHelper.cancelShowNotify(mId);
-            // 停止LogReport收集日志
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    if(settingSharedPreferences.getBoolean(SettingPreferenceKey.MONKEY_MTK_SET, true)){
-                        try {
-                            if(CommonVariable.snLabel.contains("71") || CommonVariable.snLabel.contains("76") || CommonVariable.snLabel.contains("86")
-                                    || CommonVariable.snLabel.contains("96")){
-                                if(settingSharedPreferences.getBoolean(SettingPreferenceKey.CATCH_LOG_TYPE, true)){
-                                    Runtime.getRuntime().exec(CommonVariable.stopCatLogBroadcast.replace("%d", "1"));
-                                }else{
-                                    Runtime.getRuntime().exec(CommonVariable.stopCatLogBroadcast.replace("%d", "7"));
-                                }
-                            }else{
-                                if(settingSharedPreferences.getBoolean(SettingPreferenceKey.CATCH_LOG_TYPE, true)){
-                                    Runtime.getRuntime().exec(CommonVariable.mtkLogBroadcast.replace("%s", "stop").replace("%d", "1"));
-                                }else{
-                                    Runtime.getRuntime().exec(CommonVariable.mtkLogBroadcast.replace("%s", "stop").replace("%d", "7"));
-                                }
-                            }
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+            if(MonkeyTableData.isMonkeyStart(getApplicationContext())){
+                if(!PublicMethod.isServiceWorked(SuperTestService.this, "com.meizu.testdevVideo.service.MonkeyService")){
+                    try {
+                        Thread.sleep(2 * Constants.TIME.SECOND);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if(MonkeyTableData.isMonkeyStart(getApplicationContext()) && !PublicMethod
+                            .isServiceWorked(SuperTestService.this, "com.meizu.testdevVideo.service.MonkeyService")){
+                        PublicMethod.killProcess("ps |grep com.android.commands.monkey", "system    ", " ");
+                        Logger.file("SuperTest触发唤醒，继续执行Monkey！", Logger.SUPER_TEST);
+                        MonkeyUtils.startMonkeyService(SuperTestService.this);
                     }
                 }
-            }).start();
-        }
-
-        if(PrefWidgetOnOff.getInstance(this).readBooleanData("isMonkeyFloating")){
-            windowManagerHelper.removeView(startView);
-        }
-
-        PrefWidgetOnOff.getInstance(SuperTestService.this).writeBooleanData("isMonkeyFloating", false);
-        MonkeyTableData.getInstance(this).writeBooleanData("isStart", false);
-        saveLog("正常停止monkey\n");
-    }
-
-    /**
-     * 注册杀monkey接收广播事件
-     */
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action.equals("action.st.kill.monkey")) {
-                killMonkey();
+            }else{
+                if((ShellUtils.execCommand("ps|grep com.android.commands.monkey",
+                        false, true).successMsg).length() > 0){
+                    PublicMethod.killProcess("ps |grep com.android.commands.monkey", "system    ", " ");
+                }
             }
         }
     };
 
-    /**
-     * 定时器
-     */
-    private TimerTask mMonkeyTimeTask = new TimerTask() {
-        @Override
-        public void run() {
-            boolean isStart = MonkeyTableData.getInstance(getApplicationContext()).readBooleanData("isStart");
-            boolean isMonkeyProcessLiving = (ShellUtils.execCommand("ps|grep com.android.commands.monkey",
-                    false, true).successMsg).length() > 0;
-            if(isStart && !isMonkeyProcessLiving){
-                saveLog("触发定时任务，monkey进程被意外杀死\n");
-                runMonkeyThread();
-            }
-        }
-    };
-
-    /**
-     * 定时器
-     */
-    private TimerTask mRegisterTask = new TimerTask() {
-        @Override
-        public void run() {
-            if(!PerformsData.getInstance(SuperTestService.this).readBooleanData(iPerformsKey.isRegister)){
-                Log.e("SuperTestService", "启动注册服务");
-                Intent registerIntent = new Intent(SuperTestService.this, RegisterAppService.class);
-                startService(registerIntent);
-            }
-        }
-    };
-
-    /**
-     * 保存Log到SuperTestService_Log.txt
-     * @param log
-     */
-    private void saveLog(String log){
-        PublicMethod.saveStringToFileWithoutDeleteSrcFile(PublicMethod.getSystemTime() + log,
-                "SuperTestService_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
-    }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return binder;
     }
 
+
+    /**
+     * SuperTest接口
+     */
+    private Binder binder = new ISuperTestAidl.Stub() {
+
+        @Override
+        public void exec(String command) throws RemoteException {
+            try {
+                Runtime.getRuntime().exec(command);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public String execWithResult(String command) throws RemoteException {
+            return ShellUtils.execCommand(command, false, true).successMsg;
+        }
+
+        @Override
+        public void fpsClear() throws RemoteException {
+            try {
+                GetFps.clear();
+            }catch (Exception e){
+                Logger.file("fpsClear" + e, Logger.PERFORMS_SERVICE);
+            }
+        }
+
+        @Override
+        public void fpsClearBuffer(String packageName, String activityName) throws RemoteException {
+            try {
+                GetFps.clearBuffer(packageName + "/" + activityName);
+            } catch (Exception e) {
+                Logger.file("fpsClearBuffer" + e, Logger.PERFORMS_SERVICE);
+            }
+        }
+
+        @Override
+        public boolean fpsDumpFrameLatency(String packageName, String activityName) throws RemoteException {
+            try {
+                return GetFps.dumpFrameLatency(packageName + "/" + activityName, true);
+            } catch (Exception e) {
+                Logger.file("fpsDumpFrameLatency" + e, Logger.PERFORMS_SERVICE);
+            }
+            return false;
+        }
+
+        @Override
+        public int fpsGetSM() throws RemoteException {
+            try{
+                return GetFps.getSM();
+            }catch (Exception e){
+                Logger.file("fpsGetSM" + e, Logger.PERFORMS_SERVICE);
+            }
+            return -1;
+        }
+
+        @Override
+        public void runMonkey(String monkeyCommand) throws RemoteException {
+            MonkeyTableData.setMonkeyCommand(getApplicationContext(), monkeyCommand); // 设置命令
+            MonkeyTableData.setMonkeyStart(getApplicationContext(), true);   // 开始Monkey
+            MonkeyTableData.setMonkeyAction(getApplicationContext(),
+                    Constants.Monkey.LABEL_OF_ACTION_JUST_RUN_MONKEY);    // 仅跑Monkey
+            MonkeyUtils.startMonkeyService(SuperTestService.this);
+        }
+
+        @Override
+        public void stopMonkey() throws RemoteException {
+            Intent intent = new Intent();
+            intent.setAction("action.st.kill.monkey");
+            sendBroadcast(intent);
+        }
+    };
+
+    @Override
+    public void changeNotification(boolean isOpen) {
+        if(isOpen){
+            ServiceNotificationHelper.getInstance(this).notification(NOTIFICATION_ID,
+                    this, "Multimedia Tool", "ST Running..");
+        }else{
+            ServiceNotificationHelper.getInstance(this).notificationCancel(this, NOTIFICATION_ID);
+        }
+    }
 }

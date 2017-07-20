@@ -1,0 +1,256 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <RelativeLayout
+        android:id="@+id/ic_user_account"
+        android:layout_width="match_parent"
+        android:clickable="true"
+        android:layout_height="70dp"
+        android:background="?android:attr/selectableItemBackground">
+
+        <ImageView
+            android:id="@+id/ic_app_image"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/image_margin2"
+            android:layout_marginEnd="@dimen/image_margin"
+            android:src="@drawable/ic_user_image"/>
+
+        <TextView
+            android:id="@+id/ic_user_email"
+            style="@style/VideoTextViewMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/ic_app_image"
+            android:layout_centerVertical="true"
+            android:text="@string/email_setting"
+            android:textColor="@color/template_title_color2"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="16sp"/>
+
+    </RelativeLayout>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="12dp"
+        android:background="@color/divider2"/>
+
+    <RelativeLayout
+        android:id="@+id/clear_data_btn"
+        android:layout_width="match_parent"
+        android:clickable="true"
+        android:layout_height="60dp"
+        android:background="?android:attr/selectableItemBackground">
+
+        <ImageView
+            android:id="@+id/ic_clear_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:padding="@dimen/image_margin"
+            android:src="@drawable/ic_clear_data"/>
+
+        <TextView
+            android:id="@+id/clear_data_txt"
+            style="@style/VideoTextViewMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/ic_clear_data"
+            android:layout_centerVertical="true"
+            android:text="@string/action_clear_data"
+            android:textColor="@color/template_title_color2"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="16sp"/>
+
+        <com.meizu.common.widget.Switch
+            android:id="@+id/function_choose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/image_margin"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_height"
+            android:layout_alignParentBottom="true"
+            android:layout_toEndOf="@+id/ic_clear_data"
+            android:layout_marginEnd="@dimen/image_margin"
+            android:background="@color/divider"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/cat_log_btn"
+        android:layout_width="match_parent"
+        android:clickable="true"
+        android:layout_height="60dp"
+        android:background="?android:attr/selectableItemBackground">
+
+        <ImageView
+            android:id="@+id/ic_cat_log"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:padding="@dimen/image_margin"
+            android:src="@drawable/ic_cat_log"/>
+
+        <TextView
+            style="@style/VideoTextViewMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/ic_cat_log"
+            android:layout_centerVertical="true"
+            android:text="@string/MTK_logcat"
+            android:textColor="@color/template_title_color2"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="16sp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_height"
+            android:layout_alignParentBottom="true"
+            android:layout_toEndOf="@+id/ic_cat_log"
+            android:layout_marginEnd="@dimen/image_margin"
+            android:background="@color/divider"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/export_trace_drodbox_btn"
+        android:layout_width="match_parent"
+        android:clickable="true"
+        android:layout_height="60dp"
+        android:background="?android:attr/selectableItemBackground">
+
+        <ImageView
+            android:id="@+id/ic_export_trace_drodbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:padding="@dimen/image_margin"
+            android:src="@drawable/ic_export"/>
+
+        <TextView
+            style="@style/VideoTextViewMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/ic_export_trace_drodbox"
+            android:layout_centerVertical="true"
+            android:text="@string/print_trace"
+            android:textColor="@color/template_title_color2"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="16sp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_height"
+            android:layout_alignParentBottom="true"
+            android:layout_toEndOf="@+id/ic_export_trace_drodbox"
+            android:layout_marginEnd="@dimen/image_margin"
+            android:background="@color/divider"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/personal_center_update_btn"
+        android:layout_width="match_parent"
+        android:clickable="true"
+        android:layout_height="60dp"
+        android:background="?android:attr/selectableItemBackground">
+
+        <ImageView
+            android:id="@+id/ic_update"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:padding="@dimen/image_margin"
+            android:src="@drawable/ic_update_app"/>
+
+        <TextView
+            android:id="@+id/update_text"
+            style="@style/VideoTextViewMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/ic_update"
+            android:layout_centerVertical="true"
+            android:text="@string/check_update"
+            android:textColor="@color/template_title_color2"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/version_text"
+            style="@style/VideoTextViewMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/image_margin2"
+            android:layout_centerVertical="true"
+            android:textColor="@color/title_background"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="12sp"/>
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_height"
+            android:layout_alignParentBottom="true"
+            android:layout_toEndOf="@+id/ic_update"
+            android:layout_marginEnd="@dimen/image_margin"
+            android:background="@color/divider"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/personal_center_setting_btn"
+        android:layout_width="match_parent"
+        android:clickable="true"
+        android:layout_height="60dp"
+        android:background="?android:attr/selectableItemBackground">
+
+        <ImageView
+            android:id="@+id/ic_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:padding="@dimen/image_margin"
+            android:src="@drawable/ic_setting"/>
+
+        <TextView
+            android:id="@+id/setting_text"
+            style="@style/VideoTextViewMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/ic_setting"
+            android:layout_centerVertical="true"
+            android:text="@string/setting"
+            android:textColor="@color/template_title_color2"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="16sp"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/image_margin"
+            android:background="@drawable/ic_arrow_info"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_height"
+            android:layout_alignParentBottom="true"
+            android:layout_toEndOf="@+id/ic_setting"
+            android:background="@color/divider"
+            android:layout_marginEnd="@dimen/image_margin"/>
+
+    </RelativeLayout>
+
+</LinearLayout>
+

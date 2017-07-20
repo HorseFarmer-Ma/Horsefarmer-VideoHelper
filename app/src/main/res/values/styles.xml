@@ -5,14 +5,35 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimary</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/red</item>
         <item name="android:windowBackground">@color/colorBackground</item>
+    </style>
+
+    <style name="Dedined.Light.ProgressBar.Horizontal" parent="android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/define_progressbar_horizontal</item>
+        <item name="android:indeterminateDrawable">@drawable/define_progressbar_horizontal</item>
+        <item name="android:minHeight">10dip</item>
+        <item name="android:maxHeight">16dip</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
+    <style name="FlymeAppTheme" parent="Theme.Flyme.AppCompat.Light.Color.LimeGreen.WhiteTitleBar">
+        <item name="actionBarStyle">@style/MyActionBarStyle</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+    </style>
+
+    <style name="MyActionBarStyle" parent="Widget.Flyme.AppCompat.Light.ActionBar.White">
+        <item name="background">@drawable/mz_titlebar_background_bottom_white</item> <!-- tab上面背景，无分割线-->
+        <item name="backgroundStacked">@drawable/mz_titlebar_background_bottom_divide_white</item> <!--tab下面背景，有分割线-->
+    </style>
+
+    <style name="VideoTextViewMedium" parent="Widget.Flyme.Light.TextView.Normal.Medium">
+    </style>
+
 
     <style name="DefineTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/title_background</item>
@@ -58,5 +79,7 @@
         <item name="android:navigationIcon">@android:color/white</item>
         <item name="navigationIcon">?attr/homeAsUpIndicator</item>
     </style>
+
+
 
 </resources>

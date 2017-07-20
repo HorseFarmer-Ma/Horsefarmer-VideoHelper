@@ -3,12 +3,10 @@ package com.meizu.testdevVideo.util.wifi;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import android.content.Context;
-import android.net.ConnectivityManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
@@ -23,25 +21,26 @@ public class WifiFunction {
 	private Context mContext;
 	public static WifiFunction mInstance;
 	// 定义一个WifiManager对象
-	private WifiManager meWifiManager;
+	private WifiManager mWifiManager;
 	// 定义一个WifiInfo对象
-	private WifiInfo meWifiInfo;
+	private WifiInfo mWifiInfo;
 	// 扫描出的网络连接列表
 	private List<ScanResult> meWifiList;
 	// 网络连接列表
 	private List<WifiConfiguration> meWifiConfigurations;
-	WifiLock meWifiLock;
+	WifiLock mWifiLock;
+
 
 	public WifiFunction(Context context) {
 		// 取得WifiManager对象
 		mContext = context;
-		meWifiManager = (WifiManager) context
+		mWifiManager = (WifiManager) context
 				.getSystemService(Context.WIFI_SERVICE);
 		// 取得WifiInfo对象
-		meWifiInfo = meWifiManager.getConnectionInfo();
+		mWifiInfo = mWifiManager.getConnectionInfo();
 	}
 
-	public static WifiFunction getInstance(Context context){
+	public synchronized static WifiFunction getInstance(Context context){
 		if(mInstance == null){
 			mInstance = new WifiFunction(context);
 		}
@@ -52,8 +51,8 @@ public class WifiFunction {
 	 * 打开WIFI
 	 */
 	public void openWifi() {
-		if (!meWifiManager.isWifiEnabled()) {
-			meWifiManager.setWifiEnabled(true);
+		if (!mWifiManager.isWifiEnabled()) {
+			mWifiManager.setWifiEnabled(true);
 		}
 	}
 
@@ -61,8 +60,8 @@ public class WifiFunction {
 	 * 关闭WIFI
 	 */
 	public void closeWifi() {
-		if (meWifiManager.isWifiEnabled()) {
-			meWifiManager.setWifiEnabled(false);
+		if (mWifiManager.isWifiEnabled()) {
+			mWifiManager.setWifiEnabled(false);
 		}
 	}
 
@@ -71,25 +70,25 @@ public class WifiFunction {
 	 * @return
      */
 	public int checkState() {
-		return meWifiManager.getWifiState();
+		return mWifiManager.getWifiState();
 	}
 
 	// 锁定wifiLock
 	public void acquireWifiLock() {
-		meWifiLock.acquire();
+		mWifiLock.acquire();
 	}
 
 	// 解锁wifiLock
 	public void releaseWifiLock() {
 		// 判断是否锁定
-		if (meWifiLock.isHeld()) {
-			meWifiLock.acquire();
+		if (mWifiLock.isHeld()) {
+			mWifiLock.acquire();
 		}
 	}
 
 	// 创建一个wifiLock
 	public void createWifiLock() {
-		meWifiLock = meWifiManager.createWifiLock("test");
+		mWifiLock = mWifiManager.createWifiLock("test");
 	}
 
 	// 得到配置好的网络
@@ -103,16 +102,16 @@ public class WifiFunction {
 			return;
 		}
 		// 连接配置好指定ID的网络
-		meWifiManager.enableNetwork(meWifiConfigurations.get(index).networkId,
+		mWifiManager.enableNetwork(meWifiConfigurations.get(index).networkId,
 				true);
 	}
 
 	public void startScan() {
-		meWifiManager.startScan();
+		mWifiManager.startScan();
 		// 得到扫描结果
-		meWifiList = meWifiManager.getScanResults();
+		meWifiList = mWifiManager.getScanResults();
 		// 得到配置好的网络连接
-		meWifiConfigurations = meWifiManager.getConfiguredNetworks();
+		meWifiConfigurations = mWifiManager.getConfiguredNetworks();
 	}
 
 	// 得到网络列表
@@ -133,37 +132,37 @@ public class WifiFunction {
 	}
 
 	public String getMacAddress() {
-		return (meWifiInfo == null) ? "NULL" : meWifiInfo.getMacAddress();
+		return (mWifiInfo == null) ? "NULL" : mWifiInfo.getMacAddress();
 	}
 
 	public String getBSSID() {
-		return (meWifiInfo == null) ? "NULL" : meWifiInfo.getBSSID();
+		return (mWifiInfo == null) ? "NULL" : mWifiInfo.getBSSID();
 	}
 
 	public int getIpAddress() {
-		return (meWifiInfo == null) ? 0 : meWifiInfo.getIpAddress();
+		return (mWifiInfo == null) ? 0 : mWifiInfo.getIpAddress();
 	}
 
 	// 得到连接的ID
 	public int getNetWordId() {
-		return (meWifiInfo == null) ? 0 : meWifiInfo.getNetworkId();
+		return (mWifiInfo == null) ? 0 : mWifiInfo.getNetworkId();
 	}
 
 	// 得到wifiInfo的所有信息
 	public String getWifiInfo() {
-		return (meWifiInfo == null) ? "NULL" : meWifiInfo.toString();
+		return (mWifiInfo == null) ? "NULL" : mWifiInfo.toString();
 	}
 
 	// 添加一个网络并连接
 	public void addNetWork(WifiConfiguration configuration) {
-		int wcgId = meWifiManager.addNetwork(configuration);
-		meWifiManager.enableNetwork(wcgId, true);
+		int wcgId = mWifiManager.addNetwork(configuration);
+		mWifiManager.enableNetwork(wcgId, true);
 	}
 
 	// 断开指定ID的网络
 	public void disConnectionWifi(int netId) {
-		meWifiManager.disableNetwork(netId);
-		meWifiManager.disconnect();
+		mWifiManager.disableNetwork(netId);
+		mWifiManager.disconnect();
 	}
 
 	// 密码连接方式
@@ -219,7 +218,7 @@ public class WifiFunction {
 	}
 
 	public WifiConfiguration IsExsits(String SSID) {
-		List<WifiConfiguration> existingConfigs = meWifiManager
+		List<WifiConfiguration> existingConfigs = mWifiManager
 				.getConfiguredNetworks();
 		for (WifiConfiguration existingConfig : existingConfigs) {
 			if (existingConfig.SSID.equals("\"" + SSID + "\"")) {
@@ -329,7 +328,7 @@ public class WifiFunction {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			meWifiManager.updateNetwork(tempConfig);
+			mWifiManager.updateNetwork(tempConfig);
 		}
 	}
 }

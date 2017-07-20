@@ -1,0 +1,28 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/grid_background"
+    tools:context="com.meizu.testdevVideo.fragment.OtaHistoryFragment">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_margin_1_2"
+        android:background="@color/transparent">
+
+    </View>
+
+    <ListView
+        android:id="@+id/list_history"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:dividerHeight="@dimen/button_margin_1_4"
+        android:divider="@color/transparent"
+        android:paddingLeft="@dimen/button_margin_1_2"
+        android:paddingRight="@dimen/button_margin_1_2"
+        android:layout_marginBottom="@dimen/button_margin_1_2">
+
+    </ListView>
+
+</LinearLayout>

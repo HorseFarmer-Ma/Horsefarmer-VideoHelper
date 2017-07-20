@@ -10,9 +10,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.app.Fragment;
 
 import android.os.Environment;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -203,7 +203,6 @@ public class UiautomatorFragment extends Fragment {
 
     }
 
-    // 利用返回试Activity接收输入的数据并显示，证明我们的Dialog式的Activity确实可以完成数据的处理
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // 取出字符串
@@ -221,7 +220,7 @@ public class UiautomatorFragment extends Fragment {
     // 初始化数据
     private void init(View view) {
         /**------------------------------ ListView设置 --------------------------------*/
-        mList =new ArrayList<Map<String, Object>>();
+        mList = new ArrayList<Map<String, Object>>();
         loadArray();   // 加载记录的列表数据
         mRecyclerView = (RecyclerView) view.findViewById(R.id.list);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());    // 设置默认添加和删除的动画效果
@@ -231,8 +230,6 @@ public class UiautomatorFragment extends Fragment {
         myadapter = new UiautomatorAdapter(getActivity().getApplicationContext(), mList);
         mRecyclerView.setAdapter(myadapter);
         showPopwindow();    // 初始化底栏
-
-
 
         /**---------------------------- 浮动按钮 ---------------------------*/
         mActionButtonPlus = (FloatingActionButtonPlus) view.findViewById(R.id.FabPlus);
@@ -301,11 +298,11 @@ public class UiautomatorFragment extends Fragment {
 
     // 删除选中的视频
     private void deleteBeChoose(){
-        Log.e("列表大小", String.valueOf(mList.size()));
+        Log.d("列表大小", String.valueOf(mList.size()));
         for (int i = 0; i < mList.size(); ){
-            Log.e("选中状态", String.valueOf(i) + mList.get(i).get("checkBox").toString());
+            Log.d("选中状态", String.valueOf(i) + mList.get(i).get("checkBox").toString());
             if((Boolean)mList.get(i).get("checkBox")){
-                Log.e("选中删除", String.valueOf(i));
+                Log.d("选中删除", String.valueOf(i));
                 mList.remove(i);
                 myadapter.notifyItemRemoved(i);  // 监听列表变化
             }else{

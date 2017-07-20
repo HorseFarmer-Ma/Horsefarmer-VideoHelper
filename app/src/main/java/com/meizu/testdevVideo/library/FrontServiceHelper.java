@@ -3,12 +3,6 @@ package com.meizu.testdevVideo.library;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.os.Build;
-import android.util.Log;
-
-import com.meizu.testdevVideo.R;
-
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**

@@ -2,19 +2,20 @@
 
 buildscript {
     repositories {
-        jcenter()
+        maven { url 'http://artifactory.rnd.meizu.com/artifactory/all' }
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.0.0'
+        classpath 'com.android.tools.build:gradle:2.3.2'
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        // 加载本插件jar包
+        classpath 'com.meizu.tools.build:gradle:2.7'
     }
 }
 
 allprojects {
     repositories {
-        jcenter()
+        maven { url 'http://artifactory.rnd.meizu.com/artifactory/all' }
     }
 }
 

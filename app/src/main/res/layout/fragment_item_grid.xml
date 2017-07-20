@@ -1,13 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:clipChildren="false"
+    android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/image_margin3"
+            android:layout_marginStart="@dimen/button_margin">
+
+                <ImageView
+                    android:src="@drawable/ic_img_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="@string/common_tool"
+                    android:textColor="#000000"
+                    android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
 
         <GridView
-            android:id="@android:id/list" android:layout_width="match_parent"
-            android:layout_height="match_parent" android:numColumns="2"
-            android:horizontalSpacing="10dp" android:verticalSpacing="10dp"
-            android:layout_marginTop="35dp"     android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp" android:gravity="center" />
+            android:id="@+id/list_tool" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:numColumns="3"
+            android:horizontalSpacing="14dp" android:verticalSpacing="12dp"
+            android:layout_marginLeft="20dp" android:layout_marginRight="20dp"
+            android:gravity="center" android:layout_marginTop="10dp"/>
 
 </LinearLayout>

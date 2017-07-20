@@ -10,16 +10,10 @@ import android.util.Log;
 
 import com.meizu.testdevVideo.R;
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
-import com.meizu.testdevVideo.util.sharepreference.BaseData;
-import com.meizu.testdevVideo.util.sharepreference.PrefWidgetOnOff;
 import com.meizu.testdevVideo.util.wifi.WifiUtil;
 
 import java.util.List;
 
-/**
- * Author: jinghao
- * Date: 2015-04-10
- */
 public class WifiLockService extends IntentService {
 
     private WifiManager mWifiManager;
@@ -51,7 +45,7 @@ public class WifiLockService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, true) && (!this.isWifiConnected()
+        if (settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, false) && (!this.isWifiConnected()
                 || !mWifiManager.isWifiEnabled() || !("\"" + getCurrentSsid() + "\"")
                 .equals(mWifiManager.getConnectionInfo().getSSID()))) {
             connectToNet();
@@ -67,31 +61,33 @@ public class WifiLockService extends IntentService {
 
     @Override
     public void onDestroy() {
-        Log.e(TAG, "成功完成连接wifi");
+        Log.d(TAG, "成功完成连接wifi");
         super.onDestroy();
         this.stopSelf = true;
     }
 
     public void connectToNet() {
-        if (settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, true)) {
-            Log.e(TAG, "wifi 锁收到新任务. SSID是" + getCurrentSsid());
-            this.clearWifiConfig();
+        if (settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, false)) {
+            Log.d(TAG, "wifi 锁收到新任务. SSID是" + getCurrentSsid());
+            for(int i = 0; i < 2; i++){
+                this.clearWifiConfig();
+            }
             String ssid;
             String usr = (this.getResources().getString(R.string.usr));
             String pwd = (this.getResources().getStringArray(R.array.pwd))[0];
             int connectTime = 0;
             while ((!("\"" + (ssid = getCurrentSsid()) + "\"").equals(mWifiManager.getConnectionInfo().getSSID())
                     || !this.isWifiConnected()
-                    || !this.mWifiManager.isWifiEnabled()) && settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, true)) {
+                    || !this.mWifiManager.isWifiEnabled()) && settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, false)) {
                 // 大于尝试次数，连接默认WiFi
                 if (connectTime > tryTime) {
-                    Log.e(TAG, "超过尝试次数");
+                    Log.d(TAG, "超过尝试次数");
                 } else {
                     connectTime++;
                 }
                 WifiConfiguration config;
                 if ("".equals(ssid)) {
-                    Log.e(TAG, "ssid is invalid, do nothing");
+                    Log.d(TAG, "ssid is invalid, do nothing");
                     break;
                 }
 
@@ -108,7 +104,7 @@ public class WifiLockService extends IntentService {
                 this.mWifiManager.reconnect();
                 this.mWifiManager.setWifiEnabled(true);
                 try {
-                    Log.e(TAG, "connect to wifi...");
+                    Log.d(TAG, "connect to wifi...");
                     Thread.sleep(7000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -127,10 +123,10 @@ public class WifiLockService extends IntentService {
 
 
     private String getCurrentSsid(){
-        if(settingSharedPreferences.getString(SettingPreferenceKey.LOCK_WIFI_TYPE, "MZ-MEIZU-5G").equals("自定义")){
+        if(settingSharedPreferences.getString(SettingPreferenceKey.LOCK_WIFI_TYPE, "MZ-Inweb-Test").equals("自定义")){
             return settingSharedPreferences.getString(SettingPreferenceKey.DEFINED_WIFI_SSID, "MZ-Inweb-Test");
         }else{
-            return settingSharedPreferences.getString(SettingPreferenceKey.LOCK_WIFI_TYPE, "MZ-MEIZU-5G");
+            return settingSharedPreferences.getString(SettingPreferenceKey.LOCK_WIFI_TYPE, "MZ-Inweb-Test");
         }
     }
 
@@ -143,18 +139,14 @@ public class WifiLockService extends IntentService {
 
     // 返回当前连接的WIFI密码
     private String getPwd(String ssid) {
-        if("MZ-Inweb-Test".equals(ssid)){
-            return getResources().getStringArray(R.array.pwd)[1];
-        }else{
-            return settingSharedPreferences.getString(SettingPreferenceKey.DEFINED_WIFI_PSW, "Inweb@meizu.com");
-        }
-
+        return settingSharedPreferences.getString(SettingPreferenceKey.DEFINED_WIFI_PSW, "Inweb@meizu.com");
     }
 
 
     // 判断是否为加密的WIFI
     private boolean isEapWifi(String ssid) {
-        return "MZ-MEIZU-5G".equals(ssid) || "MZ-MEIZU-2.4G".equals(ssid) || "MZ-Hkline-5G".equals(ssid) || "MZ-mgt".equals(ssid);
+        return "MZ-MEIZU-5G".equals(ssid) || "MZ-MEIZU-2.4G".equals(ssid) || "MZ-Hkline-5G".equals(ssid) || "MZ-mgt".equals(ssid)
+                || "MZ-Inweb-Test".equals(ssid);
     }
 }
 

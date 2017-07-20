@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".activity.CommonToolsActivity">
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,6 +32,7 @@
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
+            android:background="@drawable/edit_text_style"
             android:textSize="20dp"
             android:hint="最多录制180s"
             android:textColor="#000000"
@@ -46,39 +48,19 @@
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:gravity="center"
-        android:textSize="20dp"
+        android:textSize="20sp"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/my_button_purple"
         android:textColor="#FFFFFF"
         android:text="@string/action_screen_record"/>
 
     <Button
-        android:id="@+id/button_zip"
+        android:id="@+id/test"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textSize="20sp"
         android:layout_marginTop="40dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:gravity="center"
-        android:textSize="20dp"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/my_button_purple"
         android:textColor="#FFFFFF"
-        android:text="压缩测试" />
-
-    <Button
-        android:id="@+id/button_unzip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:gravity="center"
-        android:textSize="20dp"
-        android:layout_gravity="center_horizontal"
-        android:background="@drawable/my_button_purple"
-        android:textColor="#FFFFFF"
-        android:text="解压测试" />
-
+        android:text="测试"/>
 
 </LinearLayout>

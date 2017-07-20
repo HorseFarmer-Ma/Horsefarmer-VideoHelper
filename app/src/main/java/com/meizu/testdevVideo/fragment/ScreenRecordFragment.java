@@ -2,7 +2,8 @@ package com.meizu.testdevVideo.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.app.Fragment;
+
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,15 +11,26 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.meizu.testdevVideo.R;
+import com.meizu.testdevVideo.SuperTestApplication;
+import com.meizu.testdevVideo.activity.EmptyActivity;
+import com.meizu.testdevVideo.activity.PostSearchActivity;
+import com.meizu.testdevVideo.constant.FragmentUtils;
+import com.meizu.testdevVideo.interports.iPublicConstants;
+import com.meizu.testdevVideo.library.ToastHelper;
+import com.meizu.testdevVideo.library.apkController.ApkControllerUtils;
 import com.meizu.testdevVideo.service.ScreenRecordService;
 import com.meizu.testdevVideo.constant.CommonVariable;
+import com.meizu.testdevVideo.util.PublicMethod;
+import com.meizu.testdevVideo.util.log.Logger;
+import com.meizu.testdevVideo.util.shell.ShellUtils;
+
 
 public class ScreenRecordFragment extends Fragment {
 
-    private Button screenRecord, btnZip, btnUnZip;
+    private Button screenRecord, test;
     private EditText screen_record_times;
-
-    public ScreenRecordFragment() {}
+    public ScreenRecordFragment() {
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -28,16 +40,10 @@ public class ScreenRecordFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.fragment_screen_record, container, false);
-
-        //点击录制屏幕，开启服务后台
+        View view = inflater.inflate(R.layout.fragment_screen_record, container, false);
         screenRecord = (Button) view.findViewById(R.id.button_screenRecord);
-        btnZip = (Button) view.findViewById(R.id.button_zip);
-        btnUnZip = (Button) view.findViewById(R.id.button_unzip);
-
+        test = (Button) view.findViewById(R.id.test);
         screen_record_times = (EditText) view.findViewById(R.id.screen_record_times);
-
         screenRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,24 +55,26 @@ public class ScreenRecordFragment extends Fragment {
             }
         });
 
-        btnZip.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                btnZip.setText("帧率采集测试");
-            }
-        });
-
-        btnUnZip.setOnClickListener(new View.OnClickListener() {
+        test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+//                ApkControllerUtils.clientInstall(iPublicConstants.LOCAL_MEMORY + "SuperTest.apk");
+
+
             }
         });
-
-
-
-
+//        test.setVisibility(View.GONE);
 
         return view;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(null != data){
+            Bundle bundle = data.getExtras();
+            Logger.d("值为:" + bundle.getString("jsonData"));
+        }
     }
 }

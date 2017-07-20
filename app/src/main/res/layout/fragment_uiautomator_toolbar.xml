@@ -17,7 +17,7 @@
         android:layout_marginLeft="15dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="5dp"
-        android:background="@drawable/my_button_purple"
+        android:background="@drawable/button_radius"
         android:textColor="#FFFFFF"
         android:textSize="15dp"
         android:text="取消" />
@@ -30,7 +30,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="5dp"
-        android:background="@drawable/my_button_purple"
+        android:background="@drawable/button_radius"
         android:textColor="#FFFFFF"
         android:textSize="15dp"
         android:text="删除" />
@@ -43,7 +43,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="15dp"
         android:layout_marginTop="5dp"
-        android:background="@drawable/my_button_purple"
+        android:background="@drawable/button_radius"
         android:textColor="#FFFFFF"
         android:textSize="15dp"
         android:text="全选" />

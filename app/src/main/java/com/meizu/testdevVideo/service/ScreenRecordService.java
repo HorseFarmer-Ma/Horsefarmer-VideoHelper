@@ -9,8 +9,8 @@ import android.os.IBinder;
 import android.support.v7.app.NotificationCompat;
 
 import com.meizu.testdevVideo.R;
+import com.meizu.testdevVideo.activity.SuperTestActivity;
 import com.meizu.testdevVideo.constant.CommonVariable;
-import com.meizu.testdevVideo.activity.MainActivity;
 import com.meizu.testdevVideo.util.shell.ShellUtils;
 import com.meizu.testdevVideo.library.ToastHelper;
 
@@ -24,7 +24,6 @@ public class ScreenRecordService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
@@ -101,7 +100,7 @@ public class ScreenRecordService extends Service {
 
     // 通知栏点击意图
     public PendingIntent getDefalutIntent(int flags){
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, SuperTestActivity.class);
 //        Bundle bundle = new Bundle();
 //        bundle.putString("object", "DNS切换");
 //        intent.putExtras(bundle);

@@ -5,7 +5,7 @@
         android:title="@string/setting_category_performs"
         android:selectable="false">
 
-        <SwitchPreference
+        <com.meizu.common.preference.SwitchPreference
             android:key="preference_wakeup"
             android:defaultValue="false"
             android:title="@string/setting_wakeup"
@@ -13,19 +13,20 @@
     </PreferenceCategory>
 
 
+
     <PreferenceCategory
         android:title="@string/setting_category_wifi"
         android:selectable="false">
 
-        <SwitchPreference
+        <com.meizu.common.preference.SwitchPreference
             android:key="preference_lock_wifi"
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:title="@string/setting_lock_wifi"
             android:summary="选择锁定的WiFi或自定义"/>
 
-        <ListPreference
+        <com.meizu.common.preference.ListPreference
             android:key="preference_lock_wifi_type"
-            android:defaultValue="MZ-MEIZU-5G"
+            android:defaultValue="MZ-Inweb-Test"
             android:title="锁定目标"
             android:entries="@array/ssid"
             android:entryValues="@array/ssid"
@@ -38,6 +39,7 @@
 
         <EditTextPreference
             android:key="preference_defined_wifi_psw"
+            android:inputType="textPassword"
             android:title="password"
             android:defaultValue="Inweb@meizu.com"/>
 
@@ -48,7 +50,7 @@
         android:title="@string/setting_category_voice"
         android:selectable="false">
 
-        <SwitchPreference
+        <com.meizu.common.preference.SwitchPreference
             android:key="preference_mute"
             android:defaultValue="true"
             android:title="@string/setting_no_voice" />
@@ -66,25 +68,17 @@
         android:title="@string/setting_category_monkey"
         android:selectable="false">
 
-        <SwitchPreference
-            android:key="preference_monkey_float_btn"
-            android:title="启用悬浮按钮"
-            android:defaultValue="true"
-            android:summary="跑前短按开始，跑后长按停止">
-        </SwitchPreference>
+        <Preference
+            android:key="preference_app_type"
+            android:title="@string/setting_app_type"
+            android:summary="未选择业务">
+        </Preference>
 
         <CheckBoxPreference
             android:key="preference_clear_log"
             android:title="跑前清除日志"
             android:defaultValue="true"
             android:summary="自动清除本地MTK/LogReport抓取的日志">
-        </CheckBoxPreference>
-
-        <CheckBoxPreference
-            android:key="preference_monkey_mtk_set"
-            android:title="自动开启/停止抓Log工具"
-            android:defaultValue="true"
-            android:summary="跑前开启|跑后停止MTK/LogReport">
         </CheckBoxPreference>
 
         <CheckBoxPreference
@@ -103,6 +97,31 @@
             android:key="preference_all_log_size"
             android:title="总日志容量最大值(MB)"
             android:defaultValue="10000">
+        </EditTextPreference>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/setting_category_base"
+        android:selectable="false">
+
+        <com.meizu.common.preference.SwitchPreference
+            android:key="preference_if_close_notification"
+            android:defaultValue="false"
+            android:title="@string/setting_if_exits_notification"
+            android:summary="取消勾选后存在应用掉线的风险" />
+
+        <com.meizu.common.preference.SwitchPreference
+            android:key="preference_if_clear_app_update"
+            android:defaultValue="false"
+            android:title="@string/setting_if_clear_app_update"
+            android:summary="勾选后则在每次更新APK后自动删除包"/>
+
+        <EditTextPreference
+            android:key="preference_clear_cache"
+            android:title="清除应用缓存周期/天"
+            android:inputType="number"
+            android:defaultValue="@string/clear_cache_orign_times">
         </EditTextPreference>
 
     </PreferenceCategory>

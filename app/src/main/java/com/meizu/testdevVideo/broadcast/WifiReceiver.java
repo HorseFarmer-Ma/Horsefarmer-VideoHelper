@@ -12,13 +12,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
-import com.meizu.testdevVideo.interports.iPerformsKey;
-import com.meizu.testdevVideo.service.RegisterAppService;
-import com.meizu.testdevVideo.service.WifiLockService;
 import com.meizu.testdevVideo.util.PublicMethod;
-import com.meizu.testdevVideo.util.sharepreference.BaseData;
-import com.meizu.testdevVideo.util.sharepreference.PerformsData;
-import com.meizu.testdevVideo.util.sharepreference.PrefWidgetOnOff;
 import com.meizu.testdevVideo.util.wifi.WifiFunction;
 
 
@@ -54,21 +48,16 @@ public class WifiReceiver extends BroadcastReceiver {
             int wifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, 0);
             switch (wifiState) {
                 case WifiManager.WIFI_STATE_DISABLING:     // 正在关闭wifi中
-                    Log.e(WifiReceiver.class.getSimpleName(), "谁谁谁，关我WIFI");
+                    Log.d(WifiReceiver.class.getSimpleName(), "谁谁谁，关我WIFI");
                     break;
                 case WifiManager.WIFI_STATE_DISABLED:     // 已经关闭wifi
                     PublicMethod.lockWifi(settingSharedPreferences, context);
                     break;
                 case WifiManager.WIFI_STATE_ENABLING:     // 正在开启wifi中
-                    Log.e(WifiReceiver.class.getSimpleName(), "我正在开启WIFI");
+                    Log.d(WifiReceiver.class.getSimpleName(), "我正在开启WIFI");
                     break;
                 case WifiManager.WIFI_STATE_ENABLED:     // 已经开启wifi
-                    if(!PerformsData.getInstance(context).readBooleanData(iPerformsKey.isRegister)){
-                        Log.e("WifiReceiver", "启动注册服务");
-                        Intent registerIntent = new Intent(context, RegisterAppService.class);
-                        context.startService(registerIntent);
-                    }
-                    Log.e(WifiReceiver.class.getSimpleName(), "WIFI开启成功");
+                    Log.d(WifiReceiver.class.getSimpleName(), "WIFI开启成功");
                     break;
             }
         }
@@ -102,8 +91,12 @@ public class WifiReceiver extends BroadcastReceiver {
                 boolean isWifiLock = mBundle.getBoolean("isWifiLock");
                 if(isWifiLock){
                     writeBooleanData(SettingPreferenceKey.LOCK_WIFI, true);
-                    writeStringData(SettingPreferenceKey.LOCK_WIFI_TYPE, mBundle.getString("ssid").replace("\"", ""));
-                    PublicMethod.lockWifi(settingSharedPreferences, context);
+                    String ssid = mBundle.getString("ssid");
+                    if(null != ssid){
+                        writeStringData(SettingPreferenceKey.LOCK_WIFI_TYPE, ssid.replace("\"", ""));
+                        PublicMethod.lockWifi(settingSharedPreferences, context);
+                    }
+
                 }else{
                     writeBooleanData(SettingPreferenceKey.LOCK_WIFI, false);
                 }

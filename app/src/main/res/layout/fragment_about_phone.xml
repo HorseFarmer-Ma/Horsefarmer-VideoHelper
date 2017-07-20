@@ -1,113 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:fitsSystemWindows="true"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".activity.MainActivity">
+    android:layout_height="match_parent" >
 
-    <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+    <LinearLayout
+        android:id="@+id/mAboutPhoneProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/mAboutPhoneProgress"
+        <com.meizu.common.widget.LoadingAnimotionView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dp"
+            android:text="正在加载.."/>
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:orientation="vertical">
 
-            <ProgressBar
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center_horizontal" />
-
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:text="Loading.."/>
-
-        </LinearLayout>
-
-        <ScrollView
-            android:background="@drawable/abount_phone_background"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
+                android:id="@+id/textView1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:orientation="vertical">
+                android:background="@drawable/textview1_style"
+                android:layout_marginTop="10dp"
+                android:padding="15dp"
+                android:textSize="15sp"
+                android:visibility="gone"
+                android:textColor="#FFFFFF">
+            </TextView>
 
-                <TextView
-                    android:id="@+id/textView1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/textview1_style"
-                    android:padding="15dp"
-                    android:textSize="15sp"
-                    android:visibility="gone"
-                    android:textColor="#FFFFFF">
-                </TextView>
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/textview2_style"
+                android:layout_marginTop="10dp"
+                android:visibility="gone"
+                android:padding="15dp"
+                android:textSize="15sp"
+                android:textColor="#FFFFFF">
+            </TextView>
 
-                <TextView
-                    android:id="@+id/textView2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/textview2_style"
-                    android:layout_marginTop="10dp"
-                    android:visibility="gone"
-                    android:padding="15dp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF">
-                </TextView>
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/textview3_style"
+                android:layout_marginTop="10dp"
+                android:visibility="gone"
+                android:padding="15dp"
+                android:textSize="15sp"
+                android:textColor="#FFFFFF">
+            </TextView>
 
-                <TextView
-                    android:id="@+id/textView3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/textview3_style"
-                    android:layout_marginTop="10dp"
-                    android:visibility="gone"
-                    android:padding="15dp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF">
-                </TextView>
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/textview4_style"
+                android:padding="15dp"
+                android:visibility="gone"
+                android:layout_marginTop="10dp"
+                android:textSize="15sp"
+                android:textColor="#FFFFFF">
+            </TextView>
 
-                <TextView
-                    android:id="@+id/textView4"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/textview4_style"
-                    android:padding="15dp"
-                    android:visibility="gone"
-                    android:layout_marginTop="10dp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF">
-                </TextView>
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/textview5_style"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:visibility="gone"
+                android:padding="15dp"
+                android:textSize="15sp"
+                android:textColor="#FFFFFF">
+            </TextView>
+        </LinearLayout>
+    </ScrollView>
 
-                <TextView
-                    android:id="@+id/textView5"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/textview5_style"
-                    android:layout_marginTop="10dp"
-                    android:visibility="gone"
-                    android:padding="15dp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF">
-                </TextView>
-            </LinearLayout>
-        </ScrollView>
+    <include layout="@layout/about_phone_btns" />
 
-        <include layout="@layout/about_phone_btns" />
-
-    </RelativeLayout>
-
-</LinearLayout>
+</RelativeLayout>

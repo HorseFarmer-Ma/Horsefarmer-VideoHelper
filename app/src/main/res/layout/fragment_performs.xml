@@ -1,0 +1,52 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:clipChildren="false"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/image_margin3"
+        android:layout_marginStart="@dimen/button_margin"
+        android:layout_marginEnd="@dimen/button_margin">
+
+        <ImageView
+            android:id="@+id/img"
+            android:src="@drawable/ic_img_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/txt_performs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:text="@string/performs_test"
+            android:textColor="#000000"
+            android:layout_toEndOf="@+id/img"
+            android:layout_toRightOf="@+id/img"
+            android:fontFamily="sans-serif-medium"/>
+
+        <com.meizu.common.widget.Switch
+            android:id="@+id/ic_u2_test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
+
+    <GridView
+        android:id="@+id/list" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:numColumns="3"
+        android:horizontalSpacing="14dp" android:verticalSpacing="12dp"
+        android:layout_marginLeft="20dp" android:layout_marginRight="20dp"
+        android:gravity="center" android:layout_marginTop="10dp"/>
+
+</LinearLayout>

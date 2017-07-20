@@ -1,29 +1,42 @@
 package com.meizu.testdevVideo.util;
 
 import android.app.ActivityManager;
+import android.app.AlarmManager;
+import android.app.AppOpsManager;
 import android.app.KeyguardManager;
+import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.AssetManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Binder;
+import android.os.Build;
 import android.os.Environment;
 import android.os.PowerManager;
+import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.text.format.Formatter;
 import android.util.Log;
+import android.view.WindowManager;
+import android.widget.EditText;
 
-import com.meizu.testdevVideo.constant.CommonVariable;
+import com.meizu.testdevVideo.constant.Constants;
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
 import com.meizu.testdevVideo.interports.iPerformsKey;
 import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.service.WifiLockService;
+import com.meizu.testdevVideo.util.log.Logger;
 import com.meizu.testdevVideo.util.sharepreference.MonkeyTableData;
 import com.meizu.testdevVideo.util.sharepreference.PerformsData;
 import com.meizu.testdevVideo.util.shell.ShellUtils;
@@ -38,6 +51,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -225,10 +239,10 @@ public class PublicMethod {
     }
 
     /**
-     　　* 将程序中字符串写入到文本文件
-     　　* @param toSaveString
-     　　* @param filePath
-     　　*/
+ 　　* 将程序中字符串写入到文本文件
+ 　　* @param toSaveString
+ 　　* @param filePath
+ 　　*/
     public static void saveStringToFileWithoutDeleteSrcFile(String toSaveString, String fileName, String filePath) {
         try{
             File FileDir = new File(filePath);
@@ -340,32 +354,39 @@ public class PublicMethod {
      * @return  目录删除成功返回true，否则返回false
      */
     public static boolean deleteDirectory(String filePath) {
-        boolean flag = false;
-        //如果filePath不以文件分隔符结尾，自动添加文件分隔符
-        if (!filePath.endsWith(File.separator)) {
-            filePath = filePath + File.separator;
-        }
-        File dirFile = new File(filePath);
-        if (!dirFile.exists() || !dirFile.isDirectory()) {
+        try {
+            boolean flag = false;
+            //如果filePath不以文件分隔符结尾，自动添加文件分隔符
+            if (!filePath.endsWith(File.separator)) {
+                filePath = filePath + File.separator;
+            }
+            File dirFile = new File(filePath);
+            if (!dirFile.exists() || !dirFile.isDirectory()) {
+                return false;
+            }
+            flag = true;
+            File[] files = dirFile.listFiles();
+            //遍历删除文件夹下的所有文件(包括子目录)
+            if(null == files){return true;}
+            for (int i = 0; i < files.length; i++) {
+                if (files[i].isFile()) {
+                    //删除子文件
+                    flag = deleteFile(files[i].getAbsolutePath());
+                    if (!flag) break;
+                } else {
+                    //删除子目录
+                    flag = deleteDirectory(files[i].getAbsolutePath());
+                    if (!flag) break;
+                }
+            }
+            if (!flag) return false;
+            //删除当前空目录
+            return dirFile.delete();
+        }catch (Exception e){
+            Logger.e("删除文件夹错误：" + e.toString());
             return false;
         }
-        flag = true;
-        File[] files = dirFile.listFiles();
-        //遍历删除文件夹下的所有文件(包括子目录)
-        for (int i = 0; i < files.length; i++) {
-            if (files[i].isFile()) {
-                //删除子文件
-                flag = deleteFile(files[i].getAbsolutePath());
-                if (!flag) break;
-            } else {
-                //删除子目录
-                flag = deleteDirectory(files[i].getAbsolutePath());
-                if (!flag) break;
-            }
-        }
-        if (!flag) return false;
-        //删除当前空目录
-        return dirFile.delete();
+
     }
 
 
@@ -376,6 +397,103 @@ public class PublicMethod {
      * @return boolean
      */
     public static boolean copyFolder(String oldPath, String newPath) {
+        boolean isok = true;
+
+        try {
+            new File(newPath).mkdirs(); //如果文件夹不存在 则建立新文件夹
+            File a = new File(oldPath);
+            String[] file = a.list();
+            File temp = null;
+            for (int i = 0; i < file.length; i++) {
+                if(oldPath.endsWith(File.separator)){
+                    temp = new File(oldPath+file[i]);
+                }else {
+                    temp = new File(oldPath+File.separator+file[i]);
+                }
+
+                if(temp.isFile()){
+                    FileInputStream input = new FileInputStream(temp);
+                    FileOutputStream output = new FileOutputStream(newPath + "/" +
+                            (temp.getName()).toString());
+                    byte[] b = new byte[1024 * 5];
+                    int len;
+                    while ( (len = input.read(b)) != -1) {
+                        output.write(b, 0, len);
+                    }
+                    output.flush();
+                    output.close();
+                    input.close();
+                }
+
+                if(temp.isDirectory()){//如果是子文件夹
+                    copyFolder(oldPath+"/"+file[i], newPath+"/"+file[i]);
+                }
+            }
+
+        } catch (Exception e) {
+            isok = false;
+        }
+        return isok;
+    }
+
+    /**
+     * 剪切整个文件夹内容
+     * @param oldPath String 原文件路径 如：c:/fqf
+     * @param newPath String 复制后路径 如：f:/fqf/ff
+     * @return boolean
+     */
+    public static boolean cutFolder(String oldPath, String newPath) {
+        boolean isok = true;
+
+        try {
+            new File(newPath).mkdirs(); //如果文件夹不存在 则建立新文件夹
+            File a = new File(oldPath);
+            String[] file = a.list();
+            File temp = null;
+            for (int i = 0; i < file.length; i++) {
+                if(oldPath.endsWith(File.separator)){
+                    temp = new File(oldPath+file[i]);
+                }else {
+                    temp = new File(oldPath+File.separator+file[i]);
+                }
+
+                if(temp.isFile()){
+                    FileInputStream input = new FileInputStream(temp);
+                    FileOutputStream output = new FileOutputStream(newPath + "/" +
+                            (temp.getName()).toString());
+                    byte[] b = new byte[1024 * 5];
+                    int len;
+                    while ( (len = input.read(b)) != -1) {
+                        output.write(b, 0, len);
+                    }
+                    output.flush();
+                    output.close();
+                    input.close();
+                    temp.delete();   // 复制后马上删除当前文件
+                }
+                if(temp.isDirectory()){    // 如果是子文件夹
+                    cutFolder(oldPath + "/" + file[i], newPath + "/" + file[i]);
+                }
+            }
+
+            if(a.isDirectory()){
+                a.delete();
+            }
+
+        } catch (Exception e) {
+            isok = false;
+        }
+
+        return isok;
+    }
+
+    /**
+     * 复制整个文件夹内容
+     * @param oldPath String 原文件路径 如：c:/fqf
+     * @param newPath String 复制后路径 如：f:/fqf/ff
+     * @return boolean
+     */
+    public static boolean copyLogReportFolder(String oldPath, String newPath) {
         boolean isok = true;
 
         try {
@@ -392,8 +510,15 @@ public class PublicMethod {
 
                 if(temp.isFile()){
                     FileInputStream input = new FileInputStream(temp);
-                    FileOutputStream output = new FileOutputStream(newPath + "/" +
-                            (temp.getName()).toString());
+                    FileOutputStream output = null;
+                    if (temp.getName().contains("logSnapshot")){
+                        output = new FileOutputStream(newPath + "/" +
+                                "logSnapshot.txt");
+                    }else{
+                        output = new FileOutputStream(newPath + "/" +
+                                (temp.getName()).toString());
+                    }
+
                     byte[] b = new byte[1024 * 5];
                     int len;
                     while ( (len = input.read(b)) != -1) {
@@ -404,7 +529,7 @@ public class PublicMethod {
                     input.close();
                 }
                 if(temp.isDirectory()){//如果是子文件夹
-                    copyFolder(oldPath+"/"+file[i], newPath+"/"+file[i]);
+                    copyLogReportFolder(oldPath+"/"+file[i], newPath+"/"+file[i]);
                 }
             }
         } catch (Exception e) {
@@ -442,6 +567,16 @@ public class PublicMethod {
     }
 
     /**
+     * 格式化时间戳
+     * @return time
+     */
+    public static String dateFormatTimes(long t){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date a = new Date(t);
+        return dateFormat.format(a);
+    }
+
+    /**
      * 可靠性有待验证
      * 检查手机是否具有某个权限
      * @param context：上下文
@@ -459,13 +594,13 @@ public class PublicMethod {
      * 安装APP应用
      */
     public static void installApp(Context context, File file){
-        Intent intent = new Intent( Intent. ACTION_VIEW );
-        intent .addFlags (Intent . FLAG_ACTIVITY_NEW_TASK) ;
-        intent .addFlags (Intent . FLAG_GRANT_READ_URI_PERMISSION);
-        intent .setClassName ("com.android.packageinstaller" ,
+        Intent intent = new Intent(Intent.ACTION_VIEW );
+        intent.addFlags (Intent.FLAG_ACTIVITY_NEW_TASK) ;
+        intent.addFlags (Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setClassName ("com.android.packageinstaller" ,
                 "com.android.packageinstaller.PackageInstallerActivity" );
         String type = "android/vnd.android.package-archive";
-        intent .setDataAndType (Uri. fromFile(file) , type );
+        intent.setDataAndType (Uri.fromFile(file), type );
         context.startActivity (intent );
     }
 
@@ -503,12 +638,46 @@ public class PublicMethod {
         return filePath;
     }
 
+    /**
+     * @param path: 文件路径
+     * @return: 返回日期最新的文件夹
+     */
+    public static String getNewMtkLogPath(String path){
+        String filePath = "";
+        Long iNewFileNumber = 0L;
+        Long iFileNumber = 0L;
+        DateFormat df = new SimpleDateFormat("yy_MMdd_HHmmss");
+        File SDFile = new File(path);
+        File sdPath = new File(SDFile.getAbsolutePath());
+        if(sdPath.listFiles() == null){
+            return null;
+        }
+
+        if(sdPath.listFiles().length > 0) {
+            for(File file : sdPath.listFiles()) {
+                String strFileNumber = file.getName().replace(path, "").replace("APLog_", "");
+                try {
+                    iFileNumber = df.parse(strFileNumber).getTime();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                if(iFileNumber > iNewFileNumber){
+                    iNewFileNumber = iFileNumber;
+                    filePath = path + file.getName();
+                }
+            }
+        }
+
+        return filePath;
+    }
+
     public static void mute(Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         if(sharedPreferences.getBoolean(SettingPreferenceKey.MUTE, true)){
             if(sharedPreferences.getBoolean(SettingPreferenceKey.MUTE_RUN_TASK, true)){
                 if(PerformsData.getInstance(context).readBooleanData(iPerformsKey.isStart)
-                        || MonkeyTableData.getInstance(context).readBooleanData("isStart")){
+                        || MonkeyTableData.getInstance(context).readBooleanData(Constants.Monkey.IS_START)){
                     muteTask(context);
                 }
             }else{
@@ -546,7 +715,7 @@ public class PublicMethod {
             String regex = start + "([^" + end + "]*)";
             Pattern p = Pattern.compile(regex);
             Matcher m = p.matcher(content);
-            if (m.find()) {
+            while (m.find()) {
                 try {
                     Runtime.getRuntime().exec("kill process " + m.group(1));
                 } catch (IOException e) {
@@ -562,7 +731,7 @@ public class PublicMethod {
      * @param context
      */
     public static void lockWifi(SharedPreferences settingSharedPreferences, Context context){
-        if(settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, true)){
+        if(settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, false)){
             Intent wifiIntent = new Intent(context, WifiLockService.class);
             context.startService(wifiIntent);
         }
@@ -633,9 +802,9 @@ public class PublicMethod {
         return paths;
     }
 
-    public static void saveLog(String log, String fileName){
+    public static void saveLog(String log){
         PublicMethod.saveStringToFileWithoutDeleteSrcFile("\n" + PublicMethod.getSystemTime() + log,
-                "Performs_Log", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
+                "PerformTestLog", iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
     }
 
     /**
@@ -643,7 +812,7 @@ public class PublicMethod {
      * @param context
      * @return
      */
-    public static boolean isConnected(Context context) {
+    public static boolean hasNetwork(Context context) {
         ConnectivityManager conn = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = conn.getActiveNetworkInfo();
         return (info != null && info.isConnected());
@@ -667,31 +836,315 @@ public class PublicMethod {
         // disableKeyguard方法的作用是关闭掉了系统锁屏服务，只需要调用一次就行了
         // 调用多次反而出现问题（还会造成关于关闭定制锁屏、恢复系统锁屏服务功能的bug）
         KeyguardManager km= (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-        KeyguardManager.KeyguardLock kl = km.newKeyguardLock("unLock");
+        int width = getScreenWidthHeight(context, true);
+        int height = getScreenWidthHeight(context, false);
         if (km.inKeyguardRestrictedInputMode()) {
-            Log.e("PublicMethod", "键盘锁已锁，需要解锁");
-            // 解锁键盘
-            kl.disableKeyguard();
+            Log.d("PublicMethod", "键盘锁已锁，需要解锁");
+            try {
+                Runtime.getRuntime().exec("input swipe "
+                        + String.valueOf(width/2) + " "
+                        + String.valueOf(height - height/4) + " "
+                        + String.valueOf(width/2) + " "
+                        + String.valueOf(height/4));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    /**
+     * 获取手机宽高
+     * @param context
+     * @param choose true获取宽度； false获取高度
+     */
+    private static int width = 0;
+    private static int height = 0;
+    public static int getScreenWidthHeight(Context context, boolean choose){
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        return choose? (width = (0 == width)? wm.getDefaultDisplay().getWidth() : width)
+                : (height = (0 == height)? wm.getDefaultDisplay().getHeight() : height);
     }
 
     /**
      * 根据应用名返回应用版本号
      */
-    public static String getAppVersion(String apptype){
+    public static String getAppVersion(Context context,String apptype){
+        PackageManager pm = context.getPackageManager();
         if(apptype.contains("视频")){
-            return CommonVariable.about_phone_video_version;
+            return getVersion(pm, iPublicConstants.PACKET_VIDEO);
         }else if(apptype.contains("音乐")){
-            return CommonVariable.about_phone_music_version;
+            return getVersion(pm, iPublicConstants.PACKET_MUSIC);
         }else if(apptype.contains("读书")){
-            return CommonVariable.about_phone_ebook_version;
+            return getVersion(pm, iPublicConstants.PACKET_EBOOK);
         }else if(apptype.contains("图库")){
-            return CommonVariable.about_phone_gallery_version;
+            return getVersion(pm, iPublicConstants.PACKET_GALLERY);
         }else if(apptype.contains("资讯")){
-            return CommonVariable.about_phone_reader_version;
+            return getVersion(pm, iPublicConstants.PACKET_READER);
         }else if(apptype.contains("会员")){
-            return CommonVariable.about_phone_vip_version;
+            return getVersion(pm, iPublicConstants.PACKET_COMPAIGN);
         }
         return "null";
     }
+
+    /**
+     * Returns whether the SDK is KitKat or later
+     */
+    public static boolean isKitKatOrLater() {
+        return Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2;
+    }
+
+    /**
+     * 判断是否包含SIM卡
+     * @return 状态
+     */
+    public static boolean hasSimCard(Context context) {
+        TelephonyManager telMgr = (TelephonyManager)
+                context.getSystemService(Context.TELEPHONY_SERVICE);
+        int simState = telMgr.getSimState();
+        boolean result = true;
+        switch (simState) {
+            case TelephonyManager.SIM_STATE_ABSENT:
+                result = false; // 没有SIM卡
+                break;
+            case TelephonyManager.SIM_STATE_UNKNOWN:
+                result = false;
+                break;
+        }
+        return result;
+    }
+
+    /**
+     * 获取应用版本号
+     * @param packName
+     * @return
+     */
+    public static String getVersion(PackageManager pm, String packName) {
+        try {
+            PackageInfo info = pm.getPackageInfo(packName, 0);
+            String version = info.versionName;
+            return version;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "null";
+        }
+    }
+
+    /**
+     * dp转成px
+     * @param context 上下文对象
+     * @param dp dp数值
+     * @return px数值
+     *
+     */
+    public static int dp2Px(Context context, float dp) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dp * scale + 0.5f);
+    }
+
+    /**px转成dp
+     * @param context 上下文对象
+     * @param px 像素数值
+     * @return dp数值
+     *
+     */
+    public static int px2Dp(Context context, float px) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (px / scale + 0.5f);
+    }
+
+    /**
+     * 保存Log日志
+     * @param log
+     */
+    public static void saveLog(String TAG, String log){
+        PublicMethod.saveStringToFileWithoutDeleteSrcFile(PublicMethod.getSystemTime() + log + "\n",
+                TAG, iPublicConstants.LOCAL_MEMORY + "SuperTest/ApkLog/");
+    }
+
+    /**
+     * EditText竖直方向是否可以滚动
+     * @param editText 需要判断的EditText
+     * @return true：可以滚动  false：不可以滚动
+     */
+    public static boolean canVerticalScroll(EditText editText) {
+        //滚动的距离
+        int scrollY = editText.getScrollY();
+        //控件内容的总高度
+        int scrollRange = editText.getLayout().getHeight();
+        //控件实际显示的高度
+        int scrollExtent = editText.getHeight() - editText.getCompoundPaddingTop() -editText.getCompoundPaddingBottom();
+        //控件内容总高度与实际显示高度的差值
+        int scrollDifference = scrollRange - scrollExtent;
+
+        if(scrollDifference == 0) {
+            return false;
+        }
+
+        return (scrollY > 0) || (scrollY < scrollDifference - 1);
+    }
+
+    /**
+     * 获取绝对路径下的文件名
+     * @param path 绝对路径
+     * @return 文件名
+     */
+    public static String getFileName(String path){
+        int start=path.lastIndexOf("/");
+        int end=path.length();
+        if (start!=-1 && end!=-1) {
+            return path.substring(start+1, end);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * 设置心跳包，用于定时1s启动DaemonService服务，判断SuperTestService是否挂了，挂了重启
+     */
+    public static void setHeartbeat(Context context, Class clazz){
+        // 获取AlarmManager对象，设置心跳包，1秒钟执行1次，用于自启SuperTestService
+        AlarmManager alarmManager = (AlarmManager)context.getSystemService(Service.ALARM_SERVICE);
+        Intent intent = new Intent(context, clazz);
+        PendingIntent pi = PendingIntent.getService(context, 0, intent, 0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            alarmManager.setWindow(AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis() + 10, 10, pi);
+        } else {
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis() + 10, 10, pi);
+        }
+    }
+
+    /**
+     * 根据路径获取内存状态
+     * @param path
+     * @return 返回手机可用空间，举例："5.84 GB"
+     */
+    public static String getMemoryInfo(Context context, File path) {
+        // 获得一个磁盘状态对象
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize = stat.getBlockSize();   // 获得一个扇区的大小
+//        long totalBlocks = stat.getBlockCount();    // 获得扇区的总数
+        long availableBlocks = stat.getAvailableBlocks();   // 获得可用的扇区数量
+//        // 总空间
+//        String totalMemory =  Formatter.formatFileSize(context, totalBlocks * blockSize);
+        // 可用空间
+        return Formatter.formatFileSize(context, availableBlocks * blockSize);
+    }
+
+    /**
+     * @return 返回一天的总豪秒数
+     */
+    public static long getDayMills(){
+        return 86400000L;
+    }
+
+    /**
+     * 判断是否为数字
+     * @param str
+     * @return
+     */
+    public static boolean isNumeric(String str){
+        for (int i = 0; i < str.length(); i++){
+            if (!Character.isDigit(str.charAt(i)) && str.charAt(i) != '.'){
+
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     *  检查是否获得悬浮窗权限
+     * @param context
+     * @param op
+     * @return
+     */
+    //OP_SYSTEM_ALERT_WINDOW=24   op = 24
+    public static boolean checkOp(Context context, int op) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            AppOpsManager manager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            try {
+//                Class<?> spClazz = Class.forName(manager.getClass().getName());
+                Method method = manager.getClass().getDeclaredMethod("checkOp", int.class, int.class, String.class);
+                int property = (Integer) method.invoke(manager, op,
+                        Binder.getCallingUid(), context.getPackageName());
+
+                if (AppOpsManager.MODE_ALLOWED == property) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (Exception ignored) {
+            }
+        } else {
+            Logger.file("悬浮窗权限检测失败，SDK版本小于19", Logger.SUPER_TEST);
+        }
+        return true;
+    }
+
+    /**
+     * @return null may be returned if the specified process not found
+     */
+    public static String getProcessName(Context cxt, int pid) {
+        ActivityManager am = (ActivityManager) cxt.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningApps = am.getRunningAppProcesses();
+        if (runningApps == null) {
+            return null;
+        }
+        for (ActivityManager.RunningAppProcessInfo procInfo : runningApps) {
+            if (procInfo.pid == pid) {
+                return procInfo.processName;
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * 判断schema是否有效并返回对应的intent，无效则返回null
+     */
+    public static Intent getValidSchemaIntent(Context context, String schemaUrl, int flag){
+        if(TextUtils.isEmpty(schemaUrl)){
+            return null;
+        }
+        PackageManager packageManager = context.getPackageManager();
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(schemaUrl));
+        List<ResolveInfo> activities = packageManager.queryIntentActivities(intent, 0);
+        return !activities.isEmpty()? intent : null;
+    }
+
+
+    /**
+     * 判断action是否有效并返回对应的intent，无效则返回null
+     */
+    public static Intent getVaildActionIntent(Context context, String action, int flag){
+        if(TextUtils.isEmpty(action)){
+            return null;
+        }
+        PackageManager packageManager = context.getPackageManager();
+        Intent intent = new Intent();
+        intent.setAction(action);
+        List<ResolveInfo> activities = packageManager.queryIntentActivities(intent, 0);
+        return !activities.isEmpty()? intent : null;
+    }
+
+
+    /**
+     * 判断package是否有效并返回对应的intent，无效则返回null
+     */
+    public static Intent getVaildPackageIntent(Context context, String packageName, int flag){
+        if(TextUtils.isEmpty(packageName)){
+            return null;
+        }
+
+        if(!isInstallApk(context, packageName)){
+            return null;
+        }
+
+        PackageManager packageManager = context.getPackageManager();
+        return packageManager.getLaunchIntentForPackage(packageName);
+    }
+
+
 }

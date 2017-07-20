@@ -20,6 +20,8 @@ public class FileDownloadThread extends Thread {
 
     /** 当前下载是否完成 */
     private boolean isCompleted = false;
+    /** 当前下载是否出错 */
+    private boolean isFail = false;
     /** 当前下载文件长度 */
     private int downloadLength = 0;
     /** 文件保存路径 */
@@ -72,13 +74,14 @@ public class FileDownloadThread extends Thread {
                 raf.write(buffer, 0, len);
                 downloadLength += len;
             }
-            isCompleted = true;
             Log.d(TAG, "current thread task has finished,all size:"
                     + downloadLength);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
+            isFail = true;
             e.printStackTrace();
         } finally {
+            isCompleted = true;
             if (bis != null) {
                 try {
                     bis.close();
@@ -101,6 +104,13 @@ public class FileDownloadThread extends Thread {
      */
     public boolean isCompleted() {
         return isCompleted;
+    }
+
+    /**
+     * 线程文件是否出错
+     */
+    public boolean isFail(){
+        return isFail;
     }
 
     /**
