@@ -1,5 +1,6 @@
 package com.meizu.testdevVideo.library;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -8,12 +9,12 @@ import android.os.Build;
 import android.util.Log;
 
 import com.meizu.testdevVideo.R;
-import com.meizu.testdevVideo.service.PerformsTestService;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
+ * 服务通知栏
  * Created by maxueming on 2017/2/13.
  */
 public class ServiceNotificationHelper {
@@ -71,6 +72,7 @@ public class ServiceNotificationHelper {
     /**
      * 通知栏初始化
      */
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void notification(int id, Service service, String title, String secondTitle){
         Notification.Builder builder = new Notification.Builder(mContext);
         builder.setSmallIcon(R.mipmap.ic_app)
@@ -80,6 +82,28 @@ public class ServiceNotificationHelper {
         Notification notification = builder.build();
         startForegroundCompat(service, id, notification);
     }
+
+
+    /**
+     * 可取消的通知
+     * @param title
+     * @param subTitle
+     * @param id
+     */
+    public void notificationCanCancel(String title, String subTitle, int id){
+
+        Notification notify= new Notification.Builder(mContext)
+                .setSmallIcon(R.mipmap.ic_app) // 设置状态栏中的小图片，尺寸一般建议在24×24， 这里也可以设置大图标
+                .setTicker(subTitle)
+                .setContentTitle(title)// 设置显示的标题
+                .setContentText(subTitle)// 消息的详细内容
+//                .setNumber(1) // 在TextView的右方显示的数字，可以在外部定义一个变量，点击累加setNumber(count),这时显示的和
+                .getNotification(); // 需要注意build()是在API level16及之后增加的，在API11中可以使用getNotificatin()来代替
+        notify.flags |= Notification.FLAG_AUTO_CANCEL;
+        NotificationManager manager =(NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.notify(id, notify);
+    }
+
 
     /**
      * 去除通知栏ID

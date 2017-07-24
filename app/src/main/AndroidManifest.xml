@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.meizu.testdevVideo"
-    android:sharedUserId="android.uid.system" >
+    package="com.meizu.testdevVideo"  >
 
     <!-- android:sharedUserId="android.uid.system" -->
 
@@ -54,13 +53,13 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_app"
         android:label="@string/app_name"
+        android:persistent="true"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:persistent="true">
+        android:theme="@style/FlymeAppTheme">
         <activity
-            android:name=".activity.MainActivity"
+            android:name=".activity.SuperTestActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/FlymeAppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -68,20 +67,62 @@
             </intent-filter>
         </activity>
 
+        <!-- *********************************************** 开源推送start ************************************************* -->
+        <receiver
+            android:name=".push.android.MPushReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="com.mpush.HEALTH_CHECK" />
+                <action android:name="com.mpush.NOTIFY_CANCEL" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".push.android.MPushService"
+            android:enabled="true"
+            android:exported="true" />
+        <service android:name=".push.android.MPushFakeService" />
+
+        <receiver
+            android:name=".push.android.service.PushReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.mpush.MESSAGE_RECEIVED" />
+                <!-- 收到PUSH消息 -->
+                <action android:name="com.mpush.KICK_USER" />
+                <!-- 收到踢人消息 -->
+                <action android:name="com.mpush.CONNECTIVITY_CHANGE" />
+                <!-- 收到链接变化 -->
+                <action android:name="com.mpush.HANDSHAKE_OK" />
+                <!-- 收到握手成功消息 -->
+                <action android:name="com.mpush.BIND_USER" />
+                <!-- 收到绑定用户消息 -->
+                <action android:name="com.mpush.UNBIND_USER" />
+                <!-- 收到解绑用户消息 -->
+
+
+                <!-- 此值要改为自己的应用的applicationId  @see MPushService -->
+                <category android:name="com.meizu.testdevVideo" />
+            </intent-filter>
+        </receiver>
+
+        <!-- ****************************************** 开源推送over ******************************************** -->
+
         <receiver android:name=".broadcast.SuperTestReceiver">
             <intent-filter android:priority="1000">
 
                 <!-- 优先级加最高 -->
                 <!-- 系统启动完成后会调用 -->
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <!-- 解锁完成后会调用 -->
-                <action android:name="android.intent.action.USER_PRESENT" />
-                <!-- 监听情景切换 -->
-                <action android:name="android.media.RINGER_MODE_CHANGED" />
-                <!-- 监听应用状态 -->
-                <action android:name="android.intent.action.PACKAGE_RESTARTED" />
                 <!-- 自建销毁时发送广播启动 -->
                 <action android:name="st.action.monkey.service.destroy" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.PACKAGE_RESTARTED" />
+                <!-- 控制SuperTest中Notification开关 -->
+                <action android:name="st.action.control.notification" />
             </intent-filter>
         </receiver>
         <receiver
@@ -114,16 +155,36 @@
         </receiver>
         <receiver android:name=".broadcast.AlarmManagerReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.ALARM_RECEIVER" />
                 <action android:name="st.action.set.performs.alarm" />
-
+                <!-- 接收性能测试定时任务的广播 -->
+                <action android:name="st.action.kill.monkey.service" />
+                <!-- 杀掉monkey广播 -->
+                <action android:name="st.action.set.monkey.task" />
+                <!-- 定时执行monkey广播 -->
                 <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".broadcast.BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".broadcast.MonkeyReceiver">
+            <intent-filter>
+
+                <!-- 静默安装APK -->
+                <action android:name="st.action.silence.install.apk" />
             </intent-filter>
         </receiver>
 
         <activity
             android:name=".activity.CommonToolsActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/FlymeAppTheme" />
+
+        <activity
+            android:name=".activity.OtaPushActivity"
+            android:theme="@style/FlymeAppTheme" />
 
         <service
             android:name=".service.ScreenRecordService"
@@ -140,14 +201,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
-        <service
-            android:name=".service.PerformsTestService"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter android:priority="1000">
-                <action android:name="com.example.mxm.videohelper.mainActivity.MainService" />
-            </intent-filter>
-        </service>
 
         <activity
             android:name=".activity.CaseDownloadActivity"
@@ -156,7 +209,7 @@
         <activity
             android:name=".activity.SettingActivity"
             android:label="@string/title_activity_help"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/FlymeAppTheme" />
 
         <service
             android:name=".service.UiautomatorService"
@@ -166,7 +219,7 @@
         <activity
             android:name=".activity.PerformsActivity"
             android:label="@string/title_activity_performs"
-            android:theme="@style/DefineTheme.NoActionBar" />
+            android:theme="@style/FlymeAppTheme" />
         <activity android:name=".activity.HistoryAndTimeTaskActivity" />
 
         <!-- Required SDK核心功能 -->
@@ -232,10 +285,6 @@
             android:exported="false" />
 
         <service
-            android:name=".service.RegisterAppService"
-            android:exported="false" />
-
-        <service
             android:name=".service.MonkeyService"
             android:exported="false"
             android:priority="1000" />
@@ -244,14 +293,36 @@
             android:name=".activity.AppChooseActivity"
             android:label="@string/choose_app"
             android:theme="@style/Theme.AppCompat.Dialog">
+
         </activity>
 
         <service
             android:name=".service.TestService"
             android:enabled="true"
+            android:exported="true"></service>
+
+        <activity
+            android:name=".activity.EmptyActivity"
+            android:theme="@style/FlymeAppTheme">
+
+        </activity>
+
+        <service
+            android:name=".service.U2AutoTestService"
+            android:enabled="true"
             android:exported="true">
+            <intent-filter android:priority="1000">
+                <action android:name="com.meizu.testdevVideo.service.U2AutoTestService" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </service>
 
+        <activity
+            android:label="@string/please_choose"
+            android:name=".activity.PostSearchActivity"
+            android:theme="@style/Theme.AppCompat.Light.Dialog">
+        </activity>
     </application>
 
 </manifest>

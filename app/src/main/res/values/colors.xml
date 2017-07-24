@@ -3,7 +3,7 @@
     <color name="colorPrimary">#393939</color>
     <color name="colorPrimaryDark">#393939</color>
     <color name="colorAccent">#999999</color>
-    <color name="colorBackground">#EEEEEE</color>
+    <color name="colorBackground">#FFFAFAFA</color>
     <color name="window_background">#FF777777</color>
     <color name="title_background">#777777</color>
     <color name="water_background">#BBBBBB</color>
@@ -13,4 +13,10 @@
     <color name="dark_red">#cc3333</color>
     <color name="fragment_grid">#BBBBBB</color>
     <color name="gold">#F3E630</color>
+    <color name="ThemeColor">#3ABF67</color>
+    <color name="Light_ThemeColor">#993ABF67</color>
+    <color name="DARK_ThemeColor">#228D23</color>
+    <color name="template_title_color2">#FF000000</color>
+    <color name="divider">#1A000000</color>
+    <color name="divider2">#f2f2f2</color>
 </resources>

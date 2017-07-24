@@ -48,16 +48,6 @@ public class GetPerformsParams {
      */
     public AjaxParams getPerformsParamsBySql(Context context){
         AjaxParams params = new AjaxParams();
-//        暂时不做尝试重发机制，等待方案制定
-//        params.put("\"" + iPerformsKey.deviceType + "\"", PerformsData.getInstance(context).readStringData(iPerformsKey.deviceType));
-//        params.put("\"" + iPerformsKey.imei + "\"", PerformsData.getInstance(context).readStringData(iPerformsKey.imei));
-//        params.put("\"" + iPerformsKey.testTime + "\"", PerformsData.getInstance(context).readStringData(iPerformsKey.testTime));
-//        params.put("\"" + iPerformsKey.testType + "\"", PerformsData.getInstance(context).readStringData(iPerformsKey.testType));
-//        params.put("\"" + iPerformsKey.appType + "\"", PerformsData.getInstance(context).readStringData(iPerformsKey.appType));
-//        params.put("\"" + iPerformsKey.appVersion + "\"", PerformsData.getInstance(context).readStringData(iPerformsKey.appVersion));
-//        params.put("\"" + iPerformsKey.systemVersion + "\"", PerformsData.getInstance(context).readStringData(iPerformsKey.systemVersion));
-//        params.put("\"" + iPerformsKey.baseBand + "\"", PerformsData.getInstance(context).readStringData(iPerformsKey.baseBand));
-//        params.put("\"" + iPerformsKey.kernel + "\"", PerformsData.getInstance(context).readStringData(iPerformsKey.kernel));
         return params;
     }
 }

@@ -30,6 +30,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="appName"
+                android:fontFamily="sans-serif-medium"
                 android:textColor="#FF000000">
             </TextView>
 
@@ -37,9 +38,10 @@
                 android:id="@+id/version"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:layout_toRightOf="@+id/title"
-                android:text="版本号"
+                android:layout_marginStart="20dp"
+                android:fontFamily="sans-serif-medium"
+                android:layout_toEndOf="@+id/title"
+                android:text="版本号: "
                 android:textColor="#FF000000">
             </TextView>
 
@@ -47,8 +49,9 @@
                 android:id="@+id/versionName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_toRightOf="@+id/version"
+                android:layout_marginEnd="5dp"
+                android:fontFamily="sans-serif-medium"
+                android:layout_toEndOf="@+id/version"
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:text="versionName"
@@ -68,6 +71,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="包名: "
+                android:fontFamily="sans-serif-medium"
                 android:textColor="#FF000000">
             </TextView>
 
@@ -77,6 +81,7 @@
                 android:singleLine="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
                 android:textColor="#FF000000" />
         </LinearLayout>
 

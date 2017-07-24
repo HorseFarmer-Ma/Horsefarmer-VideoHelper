@@ -34,13 +34,12 @@
 
             <!-- 进度条 -->
 
-            <ProgressBar
+            <com.meizu.common.widget.LoadingView
                 android:id="@+id/lvHeaderProgressBar"
-                style="?android:attr/progressBarStyleSmall"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:visibility="gone" />
+                android:visibility="gone"/>
         </FrameLayout>
 
         <!-- 提示、最近更新 -->

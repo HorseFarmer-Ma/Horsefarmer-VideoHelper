@@ -14,14 +14,14 @@ public class SqlAlterHelper {
 
     public static SqlAlterHelper mSqlInstance;
     private DatabaseHelper mDatabaseHelper;
-    public  SQLiteDatabase db;
+    public  SQLiteDatabase dataBase;
     private Context mContext;
 
     public SqlAlterHelper(Context context){
         mContext = context;
         if(mDatabaseHelper == null){
             mDatabaseHelper = DatabaseHelper.getInstance(context);
-            db = mDatabaseHelper.getReadableDatabase();
+            dataBase = mDatabaseHelper.getReadableDatabase();
         }
     }
 
@@ -45,10 +45,10 @@ public class SqlAlterHelper {
         String strIsWifiLock = String.valueOf(bIsWifiLock);
         String strIsFloating = String.valueOf(bIsFloating);
 
-        if(!db.isOpen()){
-            db = mDatabaseHelper.getReadableDatabase();
+        if(!dataBase.isOpen()){
+            dataBase = mDatabaseHelper.getReadableDatabase();
         }
-        db.execSQL("insert into MonkeyHistory(monkey_type, monkey_command, startTime, isMute, isWifiLock, isFloating) values(?,?,?,?,?,?)",
+        dataBase.execSQL("insert into MonkeyHistory(monkey_type, monkey_command, startTime, isMute, isWifiLock, isFloating) values(?,?,?,?,?,?)",
                 new Object[]{strMonkeyType, strMonkeyCommand, strStartTime, strIsMute, strIsWifiLock, strIsFloating});
     }
 
@@ -57,10 +57,10 @@ public class SqlAlterHelper {
      * 存储上传失败的性能测试文件相关信息
      */
     public void addPerformsFailUploadData(){
-        if(!db.isOpen()){
-            db = mDatabaseHelper.getReadableDatabase();
+        if(!dataBase.isOpen()){
+            dataBase = mDatabaseHelper.getReadableDatabase();
         }
-        db.execSQL("insert into PerformsUploadFailCase("
+        dataBase.execSQL("insert into PerformsUploadFailCase("
                 + iPerformsKey.deviceType + ", "
                 + iPerformsKey.imei + ", "
                 + iPerformsKey.testTime + ", "
@@ -91,10 +91,10 @@ public class SqlAlterHelper {
      */
     public Cursor query(){
         //查询获得Cursor
-        if(!db.isOpen()){
-            db = mDatabaseHelper.getReadableDatabase();
+        if(!dataBase.isOpen()){
+            dataBase = mDatabaseHelper.getReadableDatabase();
         }
-        return db.query("MonkeyHistory", null, null, null, null, null, null);
+        return dataBase.query("MonkeyHistory", null, null, null, null, null, null);
     }
 
     /**
@@ -103,10 +103,10 @@ public class SqlAlterHelper {
      */
     public Cursor queryPerforms(){
         //查询获得Cursor
-        if(!db.isOpen()){
-            db = mDatabaseHelper.getReadableDatabase();
+        if(!dataBase.isOpen()){
+            dataBase = mDatabaseHelper.getReadableDatabase();
         }
-        return db.query("PerformsUploadFailCase", null, null, null, null, null, null);
+        return dataBase.query("PerformsUploadFailCase", null, null, null, null, null, null);
     }
 
 
@@ -114,7 +114,9 @@ public class SqlAlterHelper {
      * 关闭数据库
      */
     public void close(){
-        mDatabaseHelper.close();
+        if(null != mDatabaseHelper){
+            mDatabaseHelper.close();
+            mSqlInstance = null;
+        }
     }
-
 }

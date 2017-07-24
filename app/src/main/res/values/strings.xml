@@ -1,6 +1,7 @@
 <resources>
     <!--应用名-->
     <string name="app_name">ST</string>
+    <string name="please_choose">请选择您钟意的一项</string>
 
     <!--侧边栏项-->
     <string name="about_phone">关于手机</string>
@@ -8,8 +9,9 @@
     <string name="common_tool">常用工具</string>
     <string name="monkey">Monkey</string>
     <string name="MTK_logcat">一键抓log</string>
-    <string name="print_trace">导出Trace|DrodBox</string>
+    <string name="print_trace">导出Trace&#160;|&#160;DrodBox</string>
     <string name="check_update">检查更新</string>
+    <string name="email_setting">未设置邮箱</string>
     <string name="setting">设置</string>
     <string name="WIFI_SSID">autoBuild</string>
     <string name="WIFI_PSW">BTjY57*g$e</string>
@@ -26,26 +28,35 @@
     <!--Monkey Fragment-->
     <string name="action_input_packet">输入欲执行应用包名</string>
     <string name="action_input_blacklist">请输入自定义黑名单</string>
-    <string name="action_open_mtkLog">MTKLOG</string>
+    <string name="action_open_mtkLog">MTK</string>
     <string name="action_clear_mtkLog">清除MTKLOG</string>
-    <string name="action_history">执行历史</string>
-    <string name="action_timetask">添加定时</string>
-    <string name="action_run_monkey">跑monkey</string>
+    <string name="action_history">历史</string>
+    <string name="action_timetask">执行时长 (h)</string>
+    <string name="action_add_run_monkey_time">添加定时</string>
+    <string name="alarm_run_monkey_detail">定时详情</string>email_adress
+    <string name="alarm_run_monkey_clear">清除定时</string>
+    <string name="no_set_alarm_time">未添加定时任务</string>
+    <string name="action_clear_data">清除数据</string>
+    <string name="action_into_setting">进入设置</string>
+    <string name="action_run_monkey">执行</string>
     <string name="action_choose_app">选择业务</string>
     <string name="action_first_step">第一步</string>
     <string name="action_second_step">选择应用</string>
     <string name="action_my_monkey">自定义执行monkey</string>
-    <string name="action_defined_value">自定义参数</string>
+    <string name="action_defined_value">&#160;&#160;自定义参数</string>
     <string name="action_defined_value_seed">seed</string>
     <string name="action_defined_value_click_time">times</string>
     <string name="action_defined_value_click_number">number</string>
     <string name="action_copy_monkey">复制指令</string>
     <string name="action_blacklist_defined">自定义</string>
     <string name="action_blacklist">默认</string>
-    <string name="action_save_blacklist">保存黑名单</string>
-    <string name="action_email_adress">魅族邮箱地址【必填】</string>
+    <string name="action_run_testcase">执行案例</string>
+    <string name="action_clear_all">清除全部</string>
+    <string name="action_save_blacklist">保存</string>
     <string name="action_send">重新发送</string>
     <string name="action_send_fail">上次发送报告失败</string>
+    <string name="smart_type">遍历类型:</string>
+
 
     <!--ScreenRecord-->
     <string name="action_screen_record">开始录制屏幕</string>
@@ -53,9 +64,11 @@
 
     <!--使用帮助-->
     <string name="title_activity_help">使用帮助</string>
+    <string name="post_search_fail">拉取列表失败</string>
 
     <!--软件更新-->
     <string name="updateXml">http://172.17.53.51/static/upload/user-resources/SuperTest/</string>
+    <string name="schemaXml">http://172.17.53.51/static/upload/user-resources/SuperTest/SchemeTest/</string>
     <string name="serverXml">http://172.17.53.51/static/upload/user-resources/SuperTest/update.xml</string>
     <string name="title_activity_performs">PerformsActivity</string>
 
@@ -65,6 +78,8 @@
     <!--性能测试列表-->
     <string name="performs_description">描述</string>
     <string name="performs_apptype">业务</string>
+    <string name="performs_no_testcase">未选择测试案例</string>
+    <string name="performs_u2_task">任务篮子</string>
 
 
     <string name="usr">autoBuild</string>
@@ -79,6 +94,8 @@
     <string name="setting_category_base">基本设置</string>
     <string name="setting_category_wifi">WiFi设置</string>
     <string name="setting_lock_wifi">锁定WiFi</string>
+    <string name="setting_if_clear_app_update">是否清除业务更新APK</string>
+    <string name="setting_if_exits_notification">是否显示SuperTest通知</string>
     <string name="setting_wakeup">保持屏幕唤醒</string>
     <string name="setting_category_voice">静音设置</string>
     <string name="setting_no_voice">手机静音</string>
@@ -103,20 +120,111 @@
 
     <string name="performs_test_type">测试类型：</string>
     <string name="no_netword">无网络连接</string>
+    <string name="ota_push_apk_fail">获取信息异常，请重新选择上传</string>
     <string name="download">下载</string>
     <string name="install">安装</string>
+    <string name="add">添加</string>
 
     <string name="choose_app">请选择您所属业务</string>
     <string name="loading">正在加载..</string>
+    <string name="loading_fail">加载失败</string>
     <string name="app_search_hint">请输入应用名/包名搜索</string>
+    <string name="key_search_hint">请输入关键词搜索</string>
     <string name="choose_app_type">请选择您所属的业务</string>
     <string name="choose_monkey_app">选择执行应用</string>
 
     <string name="btn_cancel">取消</string>
     <string name="btn_ok">确定</string>
     <string name="choose_item_remind">已选择%d项</string>
+    <string name="choose_finish">确定</string>
 
     <!--默认清除应用缓存周期-->
     <string name="clear_cache_orign_times">10</string>
+
+    <string-array name="tab_fragment">
+        <item>相关</item>
+        <item>常用</item>
+        <item>性能</item>
+        <item>猴子</item>
+        <item>我的</item>
+    </string-array>
+
+    <string-array name="u2task_get_id_status">
+        <item>获取失败，坚持执行</item>
+        <item>无网络，坚持执行</item>
+        <item>获取云端Id中..</item>
+        <item>执行案例</item>
+    </string-array>
+
+    <string name="question_info">温馨提示</string>
+    <string name="question_message_monkey">&#160;&#160;&#160;&#160;注意设置定时后，无需点击执行，定时时间一到，自动执行Monkey！</string>
+
+    <string-array name="smart_type">
+        <item>启发式智能遍历</item>
+        <item>控件随机遍历 </item>
+    </string-array>
+
+    <string name="memory">内存</string>
+    <string name="starttime">启动</string>
+    <string name="framerate">帧率</string>
+    <string name="purebackstage">纯净</string>
+    <string name="all">全部</string>
+
+
+<!--OTA推送-->
+    <string name="ota_sip_check">sip在线检测</string>
+    <string name="ota_sip_db">一键入库</string>
+    <string name="ota_sip_online">检测在线</string>
+    <string name="ota_sip_sub">检测订阅</string>
+
+    <string name="ota_push_list">推送任务列表</string>
+    <string name="ota_push_add">新增任务</string>
+    <string name="ota_push_history">历史任务</string>
+
+    <string name="ota_push_current">当前任务</string>
+    <string name="ota_task_detail">任务详情</string>
+    <string name="ota_task_effect">生效</string>
+    <string name="ota_task_invalid">失效</string>
+    <string name="ota_task_push">推送</string>
+    <string name="ota_task_sub">推送订阅</string>
+
+
+    <!--task-->
+    <string name="task_apppage">应用页面</string>
+    <string name="task_choose_app">选择应用名称</string>
+    <string name="task_appname">应用名称</string>
+    <string name="edit_task_appname">请输入应用名称</string>
+    <string name="task_producttype">产品类型</string>
+    <string name="task_android_version">安卓版本</string>
+    <string name="task_choose_app_package">应用文件</string>
+    <string name="edit_task_producttype">请输入产品类型</string>
+    <string name="task_upload">上传</string>
+
+    <string name="task_version">版本号</string>
+    <string name="edit_task_version">2.3.5</string>
+
+    <string name="task_max">最大支持</string>
+    <string name="task_min">最小支持</string>
+    <string name="edit_task_max">请输入最大支持</string>
+    <string name="edit_task_min">请输入最小支持</string>
+
+    <string name="task_update_version">待升级版本</string>
+    <string name="edit_task_update_version">默认当前版本</string>
+
+    <string name="task_force_update">强制升级</string>
+
+    <string name="task_app_describe">应用描述</string>
+    <string name="edit_task_app_describe">请输入应用描述</string>
+
+    <string name="task_yes">是</string>
+    <string name="task_submit">提交</string>
+
+    <string name="ota_history_status">任务状态：</string>
+    <string name="ota_history_product">推送机型：</string>
+    <string name="ota_history_check_area">推送范围：</string>
+    <string name="ota_history_app_name">推送应用：</string>
+    <string name="ota_history_version">版本号：</string>
+    <string name="ota_history_android">Android版本：</string>
+
 
 </resources>

@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.provider.Settings;
 import android.text.TextUtils;
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Locale;
@@ -123,7 +122,9 @@ public class ShellUtil {
         } catch (IOException var9) {
             var9.printStackTrace();
         } finally {
-            process.destroy();
+            if(null != process){
+                process.destroy();
+            }
         }
 
         System.out.println(version);
@@ -154,7 +155,9 @@ public class ShellUtil {
          } catch (IOException var9) {
              var9.printStackTrace();
          } finally {
-             process.destroy();
+             if(null != process){
+                 process.destroy();
+             }
          }
 
        //  System.out.println(information);
@@ -197,7 +200,9 @@ public class ShellUtil {
         } catch (IOException var8) {
             var8.printStackTrace();
         } finally {
-            process.destroy();
+            if(null != process){
+                process.destroy();
+            }
         }
 
         System.out.println(level);
@@ -270,7 +275,9 @@ public class ShellUtil {
         } catch (IOException var9) {
             var9.printStackTrace();
         } finally {
-            process.destroy();
+            if(null != process){
+                process.destroy();
+            }
         }
 
         System.out.println(name);

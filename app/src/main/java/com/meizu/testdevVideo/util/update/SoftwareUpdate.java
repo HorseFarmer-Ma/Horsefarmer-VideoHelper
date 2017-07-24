@@ -1,6 +1,7 @@
 package com.meizu.testdevVideo.util.update;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -14,12 +15,12 @@ import android.util.Log;
 import android.util.Xml;
 
 import com.meizu.testdevVideo.R;
+import com.meizu.testdevVideo.SuperTestApplication;
+import com.meizu.testdevVideo.constant.Constants;
+import com.meizu.testdevVideo.interports.iPublicConstants;
+import com.meizu.testdevVideo.library.ServiceNotificationHelper;
 import com.meizu.testdevVideo.library.ToastHelper;
-import com.meizu.testdevVideo.util.PublicMethod;
 import com.meizu.testdevVideo.util.download.DownloadHelper;
-import com.meizu.testdevVideo.util.download.DownloadIdCallback;
-import com.meizu.testdevVideo.util.download.DownloadReceiver;
-import com.meizu.testdevVideo.util.download.SoftUpdateCallBack;
 
 import org.xmlpull.v1.XmlPullParser;
 
@@ -34,6 +35,7 @@ import java.net.URL;
  */
 public class SoftwareUpdate {
     private Context mContext;
+    private Activity activity;
     private String downloadId;       // 下载文件id
     private UpdateInfo info;         // 网络端Http文件存储
     private boolean mInfo = false;    // 入口位，判断是点击检查更新按钮（true）还是刚打开界面的更新
@@ -48,18 +50,9 @@ public class SoftwareUpdate {
      * 构造函数，获取上下文
      * @param context
      */
-    public SoftwareUpdate(Context context){
+    public SoftwareUpdate(Context context, Activity activity){
         this.mContext = context;
-        DownloadReceiver.getInstance().setOnSoftUpdateListener(new SoftUpdateCallBack() {
-            @Override
-            public void onDownloadListener(String id, String filePath) {
-                if(downloadId != null){
-                    if(downloadId.equals(id)){
-                        PublicMethod.installApp(mContext, new File(filePath));
-                    }
-                }
-            }
-        });
+        this.activity = activity;
     }
 
     /**
@@ -184,6 +177,7 @@ public class SoftwareUpdate {
      */
     protected void showUpdataDialog() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(mContext) ;
+        builder.setCancelable(false);
         builder.setTitle("版本升级：" + info.getVersion());
         // 服务器下载下来后转义字符\n被转义成了n，转回来
         builder.setMessage(info.getDescription().replace("\\n", "\n"));
@@ -191,20 +185,34 @@ public class SoftwareUpdate {
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
+                ToastHelper.addToast("静默安装中，如有退出，则安装成功", SuperTestApplication.getContext());
+                File file = new File(iPublicConstants.LOCAL_MEMORY + "SuperTest/UpdateApk/" + "SuperTest.apk");
+                if(file.exists()){
+                    file.delete();
+                }
                 downloadId = DownloadHelper.getInstance(mContext).download(info.getUrl(),
                         "/SuperTest/UpdateApk/", "SuperTest.apk");
+                Constants.UpdateAppValue.appUpdateStringlist.add(downloadId);
                 Log.d("DownloadReceiver", "下载" + "id = " + downloadId);
             }
         });
         //当点取消按钮时进行登录
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                // TODO Auto-generated method stub
                 dialog.dismiss();   // 关闭对话框
+                if(!mInfo){
+                    activity.finish();
+                }
             }
         });
         Dialog noticeDialog = builder.create();
         noticeDialog.show();
+    }
+
+    public void clear(){
+        if(null != activity){
+            activity = null;
+        }
     }
 
 }

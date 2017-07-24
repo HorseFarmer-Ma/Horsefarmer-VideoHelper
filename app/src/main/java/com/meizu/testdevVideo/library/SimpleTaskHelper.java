@@ -3,6 +3,7 @@ package com.meizu.testdevVideo.library;
 import android.os.AsyncTask;
 
 /**
+ * 执行线程
  * Created by maxueming on 2017/3/15.
  */
 public abstract class SimpleTaskHelper extends AsyncTask<Void, Void, Void> {

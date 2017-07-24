@@ -9,6 +9,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.meizu.testdevVideo.R;
+import com.meizu.testdevVideo.SuperTestApplication;
+import com.meizu.testdevVideo.constant.FragmentUtils;
 import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.library.ViewHolderHelper;
 
@@ -22,11 +24,13 @@ public class UpdateAppListAdapter extends BaseAdapter {
     private Context context;
     private List<Map<String, Object>> fileList;
     private LayoutInflater inflater;
+    private String type;
     private DownloadClickListener downloadClickListener;
 
-    public UpdateAppListAdapter(Context context, List<Map<String, Object>> fileList){
+    public UpdateAppListAdapter(Context context, List<Map<String, Object>> fileList, String type){
         this.context = context;
         this.fileList = fileList;
+        this.type = type;
         inflater = LayoutInflater.from(context);
     }
 
@@ -62,6 +66,9 @@ public class UpdateAppListAdapter extends BaseAdapter {
         TextView appName = ViewHolderHelper.get(convertView, R.id.update_app_name);
         Button ftpDownload = ViewHolderHelper.get(convertView, R.id.ftp_download);
         appName.setText(fileList.get(position).get(iPublicConstants.FILENAME).toString());
+        if(null != type && type.equals(FragmentUtils.CHOOSE_APP_FRAGMENT)){
+            ftpDownload.setText(SuperTestApplication.getContext().getString(R.string.add));
+        }
         ftpDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

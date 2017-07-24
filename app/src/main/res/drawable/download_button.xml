@@ -10,9 +10,9 @@
                 android:topLeftRadius="50dp"
                 android:bottomRightRadius="50dp" />
             <gradient
-                android:startColor="#FFE94C49"
-                android:centerColor="#FFE25250"
-                android:endColor="#D55A34"
+                android:startColor="@color/ThemeColor"
+                android:centerColor="@color/ThemeColor"
+                android:endColor="@color/ThemeColor"
                 android:angle="0"/>
         </shape>
     </item>
@@ -27,9 +27,9 @@
                 android:topLeftRadius="50dp"
                 android:bottomRightRadius="50dp" />
             <gradient
-                android:startColor="#FFBF955F"
-                android:centerColor="#FFBF955F"
-                android:endColor="#FFBF955F"
+                android:startColor="@color/DARK_ThemeColor"
+                android:centerColor="@color/DARK_ThemeColor"
+                android:endColor="@color/DARK_ThemeColor"
                 android:angle="0" />
         </shape>
     </item>

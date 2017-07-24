@@ -1,6 +1,6 @@
 package com.meizu.testdevVideo.fragment;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -52,7 +52,7 @@ public class HistoryFragment extends Fragment {
             @Override
             public void onDeleteClick(View v, int position) {
                 Log.d(HistoryFragment.class.getSimpleName(), "删除" + String.valueOf(position));
-                SqlAlterHelper.getInstance(getActivity()).db.delete(MonkeyHistoryParam.TABLE_NAME,
+                SqlAlterHelper.getInstance(getActivity()).dataBase.delete(MonkeyHistoryParam.TABLE_NAME,
                         "id=?", new String[]{String.valueOf(mHistoryLvData.get(position).getId())});
                 mHistoryLvData.remove(position);
                 mCornerListViewAdapter.notifyDataSetChanged();

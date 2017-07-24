@@ -13,11 +13,16 @@ import android.util.Log;
 import com.meizu.testdevVideo.constant.Constants;
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
 import com.meizu.testdevVideo.interports.iPerformsKey;
+import com.meizu.testdevVideo.library.AlarmSetting;
+import com.meizu.testdevVideo.task.monkey.MonkeyUtils;
 import com.meizu.testdevVideo.util.PublicMethod;
+import com.meizu.testdevVideo.util.log.Logger;
+import com.meizu.testdevVideo.util.sharepreference.MonkeyTableData;
 import com.meizu.testdevVideo.util.sharepreference.PerformsData;
 import com.meizu.testdevVideo.util.wifi.WifiUtil;
 
 import java.io.IOException;
+import java.util.Calendar;
 
 /**
  * 纯净后台需要做特殊处理
@@ -32,7 +37,15 @@ public class AlarmManagerReceiver extends BroadcastReceiver{
     private SharedPreferences.Editor editor = null;
     private Context mContext = null;
     private Handler mHandler = null;
+    private static AlarmListener alarmListener;
 
+    public interface AlarmListener{
+        void onAlarmListener();
+    }
+
+    public static void setAlarmToKillMonkey(AlarmListener listener){
+        alarmListener = listener;
+    }
 
 
     @Override
@@ -136,6 +149,44 @@ public class AlarmManagerReceiver extends BroadcastReceiver{
                     }
                 }
             }).start();
+        }
+
+        // 定时停止monkey任务
+        if(action.equals(Constants.Monkey.ACTION_KILL_MONKEY)){
+            if(PublicMethod.isServiceWorked(context, "com.meizu.testdevVideo.service.MonkeyService")){
+                if(null != alarmListener){
+                    alarmListener.onAlarmListener();
+                }
+            }
+        }
+
+        // 定时执行monkey任务
+        if(action.equals(Constants.Monkey.ACTION_SET_MONKEY_RUN_REPEAT_TASK)){
+            Logger.e("收到定时任务啦");
+            Calendar c = Calendar.getInstance();
+            long currentHourMinuteToMills = (c.get(Calendar.HOUR_OF_DAY)  * Constants.TIME.MINUTES_OF_HOUR + c.get(Calendar.MINUTE))
+                    * Constants.TIME.SECONDS_OF_MINUTE * Constants.TIME.MILLS_OF_SECOND;
+            long alarmStartTime = MonkeyTableData.getAlarmStartTime(context);
+            long leaveTime = alarmStartTime - currentHourMinuteToMills;
+
+            long setAlarmStartTime = leaveTime > 0 ? (System.currentTimeMillis() + leaveTime)
+                    : (System.currentTimeMillis() + leaveTime + PublicMethod.getDayMills());
+
+            AlarmSetting.getInstance().setRepeatAlarm(context,
+                    Constants.Monkey.ACTION_SET_MONKEY_RUN_REPEAT_TASK, setAlarmStartTime);
+
+            // 无Monkey执行，启动定时执行monkey任务
+            if(!MonkeyTableData.isMonkeyStart(context)){
+                MonkeyUtils.setStartMonkeyParams(MonkeyTableData.getAlarmMonkeyType(context),
+                        MonkeyTableData.getAlarmMonkeyCommand(context),
+                        System.currentTimeMillis() + MonkeyTableData.getAlarmRunTime(context),
+                        Constants.Monkey.LABEL_OF_ACTION_MONKEY_REPORT);
+                MonkeyUtils.getMonkeyId(MonkeyTableData.getAlarmMonkeyType(context));
+                MonkeyUtils.runMonkeyInit(context);
+                MonkeyUtils.startMonkeyService(context);
+                AlarmSetting.getInstance().setOnceAlarm(context, Constants.Monkey.ACTION_KILL_MONKEY,
+                        System.currentTimeMillis() + MonkeyTableData.getAlarmRunTime(context));
+            }
         }
     }
 

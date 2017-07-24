@@ -45,7 +45,7 @@ public class WifiLockService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, true) && (!this.isWifiConnected()
+        if (settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, false) && (!this.isWifiConnected()
                 || !mWifiManager.isWifiEnabled() || !("\"" + getCurrentSsid() + "\"")
                 .equals(mWifiManager.getConnectionInfo().getSSID()))) {
             connectToNet();
@@ -67,7 +67,7 @@ public class WifiLockService extends IntentService {
     }
 
     public void connectToNet() {
-        if (settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, true)) {
+        if (settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, false)) {
             Log.d(TAG, "wifi 锁收到新任务. SSID是" + getCurrentSsid());
             for(int i = 0; i < 2; i++){
                 this.clearWifiConfig();
@@ -78,7 +78,7 @@ public class WifiLockService extends IntentService {
             int connectTime = 0;
             while ((!("\"" + (ssid = getCurrentSsid()) + "\"").equals(mWifiManager.getConnectionInfo().getSSID())
                     || !this.isWifiConnected()
-                    || !this.mWifiManager.isWifiEnabled()) && settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, true)) {
+                    || !this.mWifiManager.isWifiEnabled()) && settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, false)) {
                 // 大于尝试次数，连接默认WiFi
                 if (connectTime > tryTime) {
                     Log.d(TAG, "超过尝试次数");

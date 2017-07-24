@@ -7,12 +7,13 @@ import android.content.Intent;
 import com.meizu.testdevVideo.interports.InstallCallBack;
 
 /**
+ * 手机内置广播
  * Created by maxueming on 2017/3/14.
  */
 public class BootReceiver extends BroadcastReceiver{
-    private InstallCallBack installCallBack;
+    private static InstallCallBack installCallBack;
 
-    public void setOnInstallListener(InstallCallBack callBack){
+    public static void setOnInstallListener(InstallCallBack callBack){
         installCallBack = callBack;
     }
 

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.meizu.widget.floatingbutton.FloatingActionButtonPlus xmlns:android="http://schemas.android.com/apk/res/android"
+<com.meizu.widget.floatingbutton.FloatingActionButtonPlus
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/FabPlus"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="com.meizu.floatingactionbuttonplus.FabBehavior"
-    app:switchFabColor="#DB4537"
+    app:switchFabColor="@color/ThemeColor"
     app:mBackgroundColor="#87000000"
     app:switchFabIcon="@mipmap/ic_add_white_48dp">
 

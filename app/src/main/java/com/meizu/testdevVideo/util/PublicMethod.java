@@ -2,6 +2,7 @@ package com.meizu.testdevVideo.util;
 
 import android.app.ActivityManager;
 import android.app.AlarmManager;
+import android.app.AppOpsManager;
 import android.app.KeyguardManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -10,11 +11,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.AssetManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Environment;
 import android.os.PowerManager;
@@ -28,10 +31,12 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.widget.EditText;
 
+import com.meizu.testdevVideo.constant.Constants;
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
 import com.meizu.testdevVideo.interports.iPerformsKey;
 import com.meizu.testdevVideo.interports.iPublicConstants;
 import com.meizu.testdevVideo.service.WifiLockService;
+import com.meizu.testdevVideo.util.log.Logger;
 import com.meizu.testdevVideo.util.sharepreference.MonkeyTableData;
 import com.meizu.testdevVideo.util.sharepreference.PerformsData;
 import com.meizu.testdevVideo.util.shell.ShellUtils;
@@ -46,6 +51,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -233,10 +239,10 @@ public class PublicMethod {
     }
 
     /**
-     　　* 将程序中字符串写入到文本文件
-     　　* @param toSaveString
-     　　* @param filePath
-     　　*/
+ 　　* 将程序中字符串写入到文本文件
+ 　　* @param toSaveString
+ 　　* @param filePath
+ 　　*/
     public static void saveStringToFileWithoutDeleteSrcFile(String toSaveString, String fileName, String filePath) {
         try{
             File FileDir = new File(filePath);
@@ -348,32 +354,39 @@ public class PublicMethod {
      * @return  目录删除成功返回true，否则返回false
      */
     public static boolean deleteDirectory(String filePath) {
-        boolean flag = false;
-        //如果filePath不以文件分隔符结尾，自动添加文件分隔符
-        if (!filePath.endsWith(File.separator)) {
-            filePath = filePath + File.separator;
-        }
-        File dirFile = new File(filePath);
-        if (!dirFile.exists() || !dirFile.isDirectory()) {
+        try {
+            boolean flag = false;
+            //如果filePath不以文件分隔符结尾，自动添加文件分隔符
+            if (!filePath.endsWith(File.separator)) {
+                filePath = filePath + File.separator;
+            }
+            File dirFile = new File(filePath);
+            if (!dirFile.exists() || !dirFile.isDirectory()) {
+                return false;
+            }
+            flag = true;
+            File[] files = dirFile.listFiles();
+            //遍历删除文件夹下的所有文件(包括子目录)
+            if(null == files){return true;}
+            for (int i = 0; i < files.length; i++) {
+                if (files[i].isFile()) {
+                    //删除子文件
+                    flag = deleteFile(files[i].getAbsolutePath());
+                    if (!flag) break;
+                } else {
+                    //删除子目录
+                    flag = deleteDirectory(files[i].getAbsolutePath());
+                    if (!flag) break;
+                }
+            }
+            if (!flag) return false;
+            //删除当前空目录
+            return dirFile.delete();
+        }catch (Exception e){
+            Logger.e("删除文件夹错误：" + e.toString());
             return false;
         }
-        flag = true;
-        File[] files = dirFile.listFiles();
-        //遍历删除文件夹下的所有文件(包括子目录)
-        for (int i = 0; i < files.length; i++) {
-            if (files[i].isFile()) {
-                //删除子文件
-                flag = deleteFile(files[i].getAbsolutePath());
-                if (!flag) break;
-            } else {
-                //删除子目录
-                flag = deleteDirectory(files[i].getAbsolutePath());
-                if (!flag) break;
-            }
-        }
-        if (!flag) return false;
-        //删除当前空目录
-        return dirFile.delete();
+
     }
 
 
@@ -581,13 +594,13 @@ public class PublicMethod {
      * 安装APP应用
      */
     public static void installApp(Context context, File file){
-        Intent intent = new Intent( Intent. ACTION_VIEW );
-        intent .addFlags (Intent . FLAG_ACTIVITY_NEW_TASK) ;
-        intent .addFlags (Intent . FLAG_GRANT_READ_URI_PERMISSION);
-        intent .setClassName ("com.android.packageinstaller" ,
+        Intent intent = new Intent(Intent.ACTION_VIEW );
+        intent.addFlags (Intent.FLAG_ACTIVITY_NEW_TASK) ;
+        intent.addFlags (Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setClassName ("com.android.packageinstaller" ,
                 "com.android.packageinstaller.PackageInstallerActivity" );
         String type = "android/vnd.android.package-archive";
-        intent .setDataAndType (Uri. fromFile(file) , type );
+        intent.setDataAndType (Uri.fromFile(file), type );
         context.startActivity (intent );
     }
 
@@ -624,7 +637,6 @@ public class PublicMethod {
 
         return filePath;
     }
-
 
     /**
      * @param path: 文件路径
@@ -665,7 +677,7 @@ public class PublicMethod {
         if(sharedPreferences.getBoolean(SettingPreferenceKey.MUTE, true)){
             if(sharedPreferences.getBoolean(SettingPreferenceKey.MUTE_RUN_TASK, true)){
                 if(PerformsData.getInstance(context).readBooleanData(iPerformsKey.isStart)
-                        || MonkeyTableData.getInstance(context).readBooleanData("isStart")){
+                        || MonkeyTableData.getInstance(context).readBooleanData(Constants.Monkey.IS_START)){
                     muteTask(context);
                 }
             }else{
@@ -719,7 +731,7 @@ public class PublicMethod {
      * @param context
      */
     public static void lockWifi(SharedPreferences settingSharedPreferences, Context context){
-        if(settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, true)){
+        if(settingSharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, false)){
             Intent wifiIntent = new Intent(context, WifiLockService.class);
             context.startService(wifiIntent);
         }
@@ -800,7 +812,7 @@ public class PublicMethod {
      * @param context
      * @return
      */
-    public static boolean isConnected(Context context) {
+    public static boolean hasNetwork(Context context) {
         ConnectivityManager conn = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = conn.getActiveNetworkInfo();
         return (info != null && info.isConnected());
@@ -824,13 +836,10 @@ public class PublicMethod {
         // disableKeyguard方法的作用是关闭掉了系统锁屏服务，只需要调用一次就行了
         // 调用多次反而出现问题（还会造成关于关闭定制锁屏、恢复系统锁屏服务功能的bug）
         KeyguardManager km= (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-//        KeyguardManager.KeyguardLock kl = km.newKeyguardLock("unLock");
         int width = getScreenWidthHeight(context, true);
         int height = getScreenWidthHeight(context, false);
         if (km.inKeyguardRestrictedInputMode()) {
             Log.d("PublicMethod", "键盘锁已锁，需要解锁");
-//            kl.disableKeyguard();
-            // 滑动屏幕，解锁键盘
             try {
                 Runtime.getRuntime().exec("input swipe "
                         + String.valueOf(width/2) + " "
@@ -848,9 +857,12 @@ public class PublicMethod {
      * @param context
      * @param choose true获取宽度； false获取高度
      */
+    private static int width = 0;
+    private static int height = 0;
     public static int getScreenWidthHeight(Context context, boolean choose){
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        return choose? wm.getDefaultDisplay().getWidth() : wm.getDefaultDisplay().getHeight();
+        return choose? (width = (0 == width)? wm.getDefaultDisplay().getWidth() : width)
+                : (height = (0 == height)? wm.getDefaultDisplay().getHeight() : height);
     }
 
     /**
@@ -1019,5 +1031,120 @@ public class PublicMethod {
         // 可用空间
         return Formatter.formatFileSize(context, availableBlocks * blockSize);
     }
+
+    /**
+     * @return 返回一天的总豪秒数
+     */
+    public static long getDayMills(){
+        return 86400000L;
+    }
+
+    /**
+     * 判断是否为数字
+     * @param str
+     * @return
+     */
+    public static boolean isNumeric(String str){
+        for (int i = 0; i < str.length(); i++){
+            if (!Character.isDigit(str.charAt(i)) && str.charAt(i) != '.'){
+
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     *  检查是否获得悬浮窗权限
+     * @param context
+     * @param op
+     * @return
+     */
+    //OP_SYSTEM_ALERT_WINDOW=24   op = 24
+    public static boolean checkOp(Context context, int op) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            AppOpsManager manager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            try {
+//                Class<?> spClazz = Class.forName(manager.getClass().getName());
+                Method method = manager.getClass().getDeclaredMethod("checkOp", int.class, int.class, String.class);
+                int property = (Integer) method.invoke(manager, op,
+                        Binder.getCallingUid(), context.getPackageName());
+
+                if (AppOpsManager.MODE_ALLOWED == property) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (Exception ignored) {
+            }
+        } else {
+            Logger.file("悬浮窗权限检测失败，SDK版本小于19", Logger.SUPER_TEST);
+        }
+        return true;
+    }
+
+    /**
+     * @return null may be returned if the specified process not found
+     */
+    public static String getProcessName(Context cxt, int pid) {
+        ActivityManager am = (ActivityManager) cxt.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningApps = am.getRunningAppProcesses();
+        if (runningApps == null) {
+            return null;
+        }
+        for (ActivityManager.RunningAppProcessInfo procInfo : runningApps) {
+            if (procInfo.pid == pid) {
+                return procInfo.processName;
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * 判断schema是否有效并返回对应的intent，无效则返回null
+     */
+    public static Intent getValidSchemaIntent(Context context, String schemaUrl, int flag){
+        if(TextUtils.isEmpty(schemaUrl)){
+            return null;
+        }
+        PackageManager packageManager = context.getPackageManager();
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(schemaUrl));
+        List<ResolveInfo> activities = packageManager.queryIntentActivities(intent, 0);
+        return !activities.isEmpty()? intent : null;
+    }
+
+
+    /**
+     * 判断action是否有效并返回对应的intent，无效则返回null
+     */
+    public static Intent getVaildActionIntent(Context context, String action, int flag){
+        if(TextUtils.isEmpty(action)){
+            return null;
+        }
+        PackageManager packageManager = context.getPackageManager();
+        Intent intent = new Intent();
+        intent.setAction(action);
+        List<ResolveInfo> activities = packageManager.queryIntentActivities(intent, 0);
+        return !activities.isEmpty()? intent : null;
+    }
+
+
+    /**
+     * 判断package是否有效并返回对应的intent，无效则返回null
+     */
+    public static Intent getVaildPackageIntent(Context context, String packageName, int flag){
+        if(TextUtils.isEmpty(packageName)){
+            return null;
+        }
+
+        if(!isInstallApk(context, packageName)){
+            return null;
+        }
+
+        PackageManager packageManager = context.getPackageManager();
+        return packageManager.getLaunchIntentForPackage(packageName);
+    }
+
 
 }

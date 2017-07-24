@@ -6,7 +6,7 @@
                 android:radius="4dip" />
             <stroke
                 android:width="2dp"
-                android:color="@color/red" />
+                android:color="@color/mz_theme_color_limegreen" />
 
             <padding
                 android:left="3dp"
@@ -24,7 +24,7 @@
                 android:radius="4dip" />
             <stroke
                 android:width="2dp"
-                android:color="@color/red" />
+                android:color="@color/mz_theme_color_limegreen" />
             <padding
                 android:left="3dp"
                 android:top="2dp"

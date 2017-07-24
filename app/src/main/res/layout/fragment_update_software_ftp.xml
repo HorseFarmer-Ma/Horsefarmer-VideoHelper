@@ -4,8 +4,7 @@
     android:layout_height="match_parent"
     tools:context="com.meizu.testdevVideo.fragment.UpdateSoftwareFtpFragment"
     android:orientation="vertical"
-    android:clipChildren="false"
-    android:background="@color/colorPrimaryDark">
+    android:clipChildren="false">
 
     <!--在RelativeLayout中添加会造成严重卡顿-->
     <!--android:layerType="software"-->
@@ -18,7 +17,7 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true">
 
-        <ProgressBar
+        <com.meizu.common.widget.LoadingView
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_gravity="center"/>
@@ -27,8 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:text="正在加载.."
-            android:textColor="#FFFFFFFF"/>
+            android:text="正在加载.."/>
 
     </LinearLayout>
 
@@ -41,7 +39,7 @@
         android:orientation="vertical">
 
         <ImageView
-            android:src="@drawable/ic_empty_view_refresh"
+            android:src="@drawable/ic_no_net"
             android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -52,7 +50,6 @@
             android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
             android:textSize="15sp"
             android:text="@string/no_netword"/>
 
@@ -63,6 +60,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="20dp"
+        android:layout_marginTop="20dp"
         android:clipChildren="false">
 
         <com.meizu.widget.viewpage.EdgeViewPage

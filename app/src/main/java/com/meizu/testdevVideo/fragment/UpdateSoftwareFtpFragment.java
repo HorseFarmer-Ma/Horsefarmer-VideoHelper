@@ -8,18 +8,29 @@ import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.meizu.common.widget.GuidePopupWindow;
 import com.meizu.testdevVideo.R;
+import com.meizu.testdevVideo.SuperTestApplication;
 import com.meizu.testdevVideo.adapter.UpdateAppFragmentAdapter;
+import com.meizu.testdevVideo.constant.FragmentUtils;
+import com.meizu.testdevVideo.constant.SettingPreferenceKey;
 import com.meizu.testdevVideo.interports.iPublicConstants;
+import com.meizu.testdevVideo.util.PublicMethod;
 import com.meizu.testdevVideo.util.ftp.FtpHelper;
+import com.meizu.testdevVideo.util.log.Logger;
 import com.meizu.testdevVideo.util.sharepreference.BaseData;
+import com.meizu.testdevVideo.util.sharepreference.SettingPreference;
 import com.meizu.widget.viewpage.EdgeViewPage;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,27 +47,41 @@ import it.sauronsoftware.ftp4j.FTPListParseException;
 public class UpdateSoftwareFtpFragment extends Fragment{
 
     private View view;
+    private Menu mMenu;
     private EdgeViewPage viewPager;
     private LinearLayout progressBar, no_netword, viewpager_touch;
+    private GuidePopupWindow guideChooseTab;
+    private GuidePopupWindow guideInfoDir;
     private static final int UPDATE_VIEW_PAGER = 100;
+    private static final int UPDATE_VIEW_MENU = 200;
     private static final int NO_NET = 400;
     private List<Fragment> listFragment;
     private UpdateAppFragmentAdapter updateAppFragmentAdapter;
     private FTPClient client;
     private static final String TAG = "UpdateSoftwareFtp";
     private static final String SOFTWARE_PATH = "/MediaAppUpdate";
+    private static final String UPDATE_APP_GUIDE = "UpdateAppGuide";
+    private static final String INFO_DIR_GUIDE = "InfoDirGuide";
     private static final int TOTAL_COUNT = 3;
     private int pageCount;
-
+    private List<Map<String, Object>> listName;
     public UpdateSoftwareFtpFragment() {
         listFragment = new ArrayList<Fragment>();
     }
+    private String type;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         if(null == view){
+            Bundle bundle = getArguments();
+            if(null != bundle){
+                type = bundle.getString(FragmentUtils.FRAGMENT_TYPE);
+                if(null != type){
+                    Logger.d("从公共Activity跳转过来的" + type);
+                }
+            }
             view = inflater.inflate(R.layout.fragment_update_software_ftp, container, false);
             initView(view);
         }
@@ -68,6 +93,7 @@ public class UpdateSoftwareFtpFragment extends Fragment{
      * @param view
      */
     private void initView(View view){
+        setHasOptionsMenu(true);
         no_netword = (LinearLayout) view.findViewById(R.id.no_netword);
         viewpager_touch = (LinearLayout) view.findViewById(R.id.viewpager_touch);
         no_netword.setVisibility(View.GONE);
@@ -92,10 +118,43 @@ public class UpdateSoftwareFtpFragment extends Fragment{
     }
 
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+//        menu.add(0, 0, 0, "item1")
+//                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        mMenu = menu;
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        viewPager.setCurrentItem(id);
+        if(guideChooseTab != null){
+            guideChooseTab.dismiss();
+            guideChooseTab = null;
+        }
+        if(guideInfoDir != null){
+            guideInfoDir.dismiss();
+            guideInfoDir = null;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private Thread getFtpData = new Thread(new Runnable() {
         @Override
         public void run() {
             try {
+
+                if(SettingPreference.getInstance(SuperTestApplication.getContext())
+                        .getSettingSharedPreferences().getBoolean(SettingPreferenceKey.IF_CLEAR_APP_UPDATE, false)){
+                    // 删除更新包
+                    File mApk = new File(iPublicConstants.LOCAL_MEMORY + "/SuperTest/UpdateApk/");
+                    if(mApk.exists()){
+                        PublicMethod.deleteDirectory(iPublicConstants.LOCAL_MEMORY + "/SuperTest/UpdateApk");
+                    }
+                }
+
                 if(!client.isConnected()) {
                     FtpHelper.connect(client, iPublicConstants.HOST, iPublicConstants.PORT,
                             iPublicConstants.USERNAME, iPublicConstants.PASSWORD);
@@ -105,22 +164,23 @@ public class UpdateSoftwareFtpFragment extends Fragment{
                 if(client.isConnected()){
                     String dir = client.currentDirectory();
                     client.changeDirectory(dir + SOFTWARE_PATH);
-                    List<Map<String, Object>> listName = FtpHelper.getFolderName(client, iPublicConstants.FILENAME);
+                    if(null != listName){
+                        listName.clear();
+                    }
+
+                    listName = FtpHelper.getFolderName(client, iPublicConstants.FILENAME);
+                    handler.sendEmptyMessage(UPDATE_VIEW_MENU);
                     pageCount = listName.size();
                     for(int i = 0; i < pageCount; i++){
                         String fileName = listName.get(i).get(iPublicConstants.FILENAME).toString();
                         Log.d(TAG, "文件名为：" + fileName);
-                        listFragment.add(NewAppUpdateFragment.newInstance(fileName, dir));
+                        listFragment.add(NewAppUpdateFragment.newInstance(fileName, dir, type));
+
                     }
                     updateAppFragmentAdapter = new UpdateAppFragmentAdapter(getActivity().getSupportFragmentManager(), listFragment);
-                    if(null != handler){
-                        handler.sendEmptyMessage(UPDATE_VIEW_PAGER);
-                    }
-
+                    handler.sendEmptyMessage(UPDATE_VIEW_PAGER);
                 }else {
-                    if(null != handler){
-                        handler.sendEmptyMessage(NO_NET);
-                    }
+                    handler.sendEmptyMessage(NO_NET);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -143,7 +203,6 @@ public class UpdateSoftwareFtpFragment extends Fragment{
 
 
 
-
     @SuppressLint("HandlerLeak")
     private Handler handler=new Handler() {
         public void handleMessage(Message msg) {
@@ -163,6 +222,15 @@ public class UpdateSoftwareFtpFragment extends Fragment{
                         System.out.print(e.toString());
                     }
 
+                    if(!BaseData.getInstance(SuperTestApplication.getContext()).readBooleanData(INFO_DIR_GUIDE)){
+                        guideInfoDir = new GuidePopupWindow(SuperTestApplication.getContext());
+                        guideInfoDir.setMessage("点这里，进入已下载APK路径");
+                        guideInfoDir.setOutsideTouchable(false);
+                        guideInfoDir.setLayoutMode(GuidePopupWindow.GUIDE_LAYOUT_MODE_DOWN);
+                        guideInfoDir.show(viewPager, 0, -40);
+                        BaseData.getInstance(SuperTestApplication.getContext()).writeBooleanData(INFO_DIR_GUIDE, true);
+                    }
+
                 break;
                 case NO_NET:
                     try {
@@ -173,6 +241,21 @@ public class UpdateSoftwareFtpFragment extends Fragment{
                     }
 
                 break;
+                case UPDATE_VIEW_MENU:
+                    for(int i = 0; i < listName.size(); i++){
+                        mMenu.add(0, i, 0, listName.get(i).get(iPublicConstants.FILENAME).toString());
+                    }
+                    if(!BaseData.getInstance(SuperTestApplication.getContext()).readBooleanData(UPDATE_APP_GUIDE)){
+                        guideChooseTab = new GuidePopupWindow(SuperTestApplication.getContext());
+                        guideChooseTab.setMessage("点这里，快速定位业务");
+                        guideChooseTab.setOutsideTouchable(false);
+                        guideChooseTab.setLayoutMode(GuidePopupWindow.GUIDE_LAYOUT_MODE_DOWN);
+                        guideChooseTab.setArrowPosition(viewPager.getRootView().getWidth()/2);
+                        guideChooseTab.show(viewPager, viewPager.getRootView().getWidth()/5, -viewPager.getHeight());
+                        BaseData.getInstance(SuperTestApplication.getContext()).writeBooleanData(UPDATE_APP_GUIDE, true);
+                    }
+
+                    break;
             }
         }
     };
@@ -180,6 +263,14 @@ public class UpdateSoftwareFtpFragment extends Fragment{
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if(guideChooseTab != null){
+            guideChooseTab.dismiss();
+            guideChooseTab = null;
+        }
+        if(guideInfoDir != null){
+            guideInfoDir.dismiss();
+            guideInfoDir = null;
+        }
         if (view != null) {
             ((ViewGroup) view.getParent()).removeView(view);
         }
@@ -188,10 +279,7 @@ public class UpdateSoftwareFtpFragment extends Fragment{
     @Override
     public void onDestroy() {
         super.onDestroy();
-        handler.removeCallbacksAndMessages(null);
-        if(null != handler){
-            handler = null;
-        }
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -199,6 +287,9 @@ public class UpdateSoftwareFtpFragment extends Fragment{
             }
         }).start();
 
-        BaseData.getInstance(getActivity().getApplicationContext()).writeIntData("viewpager_position", viewPager.getCurrentItem());
+        BaseData.getInstance(SuperTestApplication.getContext()).writeIntData("viewpager_position", viewPager.getCurrentItem());
+        if(null != handler){
+            handler.removeCallbacksAndMessages(null);
+        }
     }
 }

@@ -20,19 +20,24 @@
             android:paddingBottom="15dp"
             android:textSize="15sp"
             android:layout_weight="1"
-            android:textColor="@android:color/white" />
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@android:color/white"
+            android:paddingLeft="15dp"
+            android:paddingRight="5dp" />
 
         <Button
             android:id="@+id/ftp_download"
             android:layout_width="55dp"
             android:layout_height="25dp"
             android:layout_gravity="center"
-            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"
+            android:fontFamily="sans-serif-medium"
             android:gravity="center"
             android:background="@drawable/download_button"
             android:text="@string/install"
             android:textSize="15sp"
-            android:textColor="#FFFFFFFF"/>
+            android:textColor="#FFFFFFFF"
+            android:layout_marginRight="8dp" />
 
     </LinearLayout>
 
@@ -41,7 +46,9 @@
         android:layout_height="0.5dp"
         android:background="#FFFFFFFF"
         android:layout_marginEnd="75dp"
-        android:layout_marginStart="10dp">
+        android:layout_marginStart="10dp"
+        android:layout_marginRight="75dp"
+        android:layout_marginLeft="10dp">
     </View>
 
 </LinearLayout>

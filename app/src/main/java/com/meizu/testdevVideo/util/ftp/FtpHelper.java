@@ -60,15 +60,17 @@ public class FtpHelper {
      * 断开FTP服务器
      */
     public static void disConnect(FTPClient client){
-        if(client.isConnected()){
-            try {
-                client.disconnect(true);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (FTPIllegalReplyException e) {
-                e.printStackTrace();
-            } catch (FTPException e) {
-                e.printStackTrace();
+        if(null != client){
+            if(client.isConnected()){
+                try {
+                    client.disconnect(true);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (FTPIllegalReplyException e) {
+                    e.printStackTrace();
+                } catch (FTPException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

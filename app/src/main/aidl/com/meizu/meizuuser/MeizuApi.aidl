@@ -41,5 +41,4 @@ interface MeizuApi {
 	boolean endFpsMem();
 	boolean performAction(int model);
 	boolean  setState(String packageName,int opNum,int StateNum);
-
 }

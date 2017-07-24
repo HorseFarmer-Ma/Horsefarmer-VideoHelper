@@ -4,6 +4,7 @@ import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 
 /**
+ * 动画相关
  * Created by maxueming on 2016/12/19.
  */
 public class AnimationHelper {

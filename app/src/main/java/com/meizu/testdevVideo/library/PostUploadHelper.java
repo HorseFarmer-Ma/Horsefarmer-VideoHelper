@@ -4,23 +4,17 @@ import android.util.Log;
 
 import com.meizu.testdevVideo.util.PublicMethod;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -160,6 +154,7 @@ public class PostUploadHelper {
         DataOutputStream outStream = new DataOutputStream(conn
                 .getOutputStream());
         outStream.write(sb.toString().getBytes());
+        outStream.flush();
 
         // 发送文件数据
         if (files != null)
@@ -179,10 +174,12 @@ public class PostUploadHelper {
                 int len = 0;
                 while ((len = is.read(buffer)) != -1) {
                     outStream.write(buffer, 0, len);
+                    outStream.flush();
                 }
 
                 is.close();
                 outStream.write(LINEND.getBytes());
+                outStream.flush();
             }
 
         // 请求结束标志

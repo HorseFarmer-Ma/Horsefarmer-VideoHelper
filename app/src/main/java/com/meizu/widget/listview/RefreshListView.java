@@ -17,9 +17,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.meizu.common.widget.LoadingView;
 import com.meizu.testdevVideo.R;
 
 
@@ -44,7 +44,7 @@ public class RefreshListView extends ListView implements OnScrollListener {
     private TextView lvHeaderTipsTv;
     private TextView lvHeaderLastUpdatedTv;
     private ImageView lvHeaderArrowIv;
-    private ProgressBar lvHeaderProgressBar;
+    private LoadingView lvHeaderProgressBar;
 
     // 定义头部下拉刷新的布局的高度
     private int headerContentHeight;
@@ -84,7 +84,7 @@ public class RefreshListView extends ListView implements OnScrollListener {
         // 设置下拉刷新图标的最小高度和宽度
         lvHeaderArrowIv.setMinimumWidth(70);
         lvHeaderArrowIv.setMinimumHeight(50);
-        lvHeaderProgressBar = (ProgressBar) headerView.findViewById(R.id.lvHeaderProgressBar);
+        lvHeaderProgressBar = (LoadingView) headerView.findViewById(R.id.lvHeaderProgressBar);
         measureView(headerView);
         headerContentHeight = headerView.getMeasuredHeight();
         // 设置内边距，正好距离顶部为一个负的整个布局的高度，正好把头部隐藏

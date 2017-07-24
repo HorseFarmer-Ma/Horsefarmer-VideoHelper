@@ -1,0 +1,23 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.meizu.testdevVideo.fragment.OtaHistoryFragment">
+
+
+    <com.meizu.widget.listview.PullUpLoadMoreListView
+        android:id="@+id/list_history"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbarFadeDuration="0"
+        android:fadeScrollbars="false"
+        android:dividerHeight="@dimen/button_margin_1_4"
+        android:divider="@color/transparent"
+        android:paddingLeft="@dimen/button_margin_1_2"
+        android:paddingRight="@dimen/button_margin_1_2"
+        android:layout_marginBottom="@dimen/button_margin_1_2">
+
+    </com.meizu.widget.listview.PullUpLoadMoreListView>
+
+</LinearLayout>

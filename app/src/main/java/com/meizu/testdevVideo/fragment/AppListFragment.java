@@ -1,9 +1,6 @@
 package com.meizu.testdevVideo.fragment;
 
 import android.annotation.SuppressLint;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -22,9 +19,6 @@ import com.meizu.testdevVideo.adapter.AppListAdapter;
 import com.meizu.testdevVideo.util.PublicMethod;
 import com.meizu.testdevVideo.util.query.QueryApp;
 
-
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**

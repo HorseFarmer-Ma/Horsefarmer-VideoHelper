@@ -5,6 +5,14 @@
     android:focusable="true"
     android:focusableInTouchMode="true">
 
+    <com.meizu.common.widget.LoadingAnimotionView
+        android:id="@+id/loadingView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"/>
+
     <LinearLayout
         android:id="@+id/mProgress"
         android:layout_width="wrap_content"
@@ -13,16 +21,9 @@
         android:layout_centerHorizontal="true"
         android:orientation="vertical">
 
-        <ProgressBar
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_gravity="center_horizontal" />
-
-        <TextView
+        <com.meizu.common.widget.LoadingAnimotionView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:text="@string/loading"/>
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 
@@ -43,7 +44,6 @@
             android:paddingStart="15dp"
             android:paddingEnd="10dp"
             android:inputType="textEmailAddress"
-            android:hint="@string/action_email_adress"
             android:visibility="gone"/>
 
         <LinearLayout
@@ -52,7 +52,8 @@
             android:layout_height="40dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="vertical">
 
             <SearchView
                 android:id="@+id/editTextApp"

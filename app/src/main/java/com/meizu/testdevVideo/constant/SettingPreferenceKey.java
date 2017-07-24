@@ -10,6 +10,7 @@ public class SettingPreferenceKey {
     public static String MUTE_RUN_TASK = "preference_mute_run_task";
     public static String MONKEY_FLOAT_BTN = "preference_monkey_float_btn";
     public static String LOCK_WIFI_TYPE = "preference_lock_wifi_type";
+    public static String NOTIFITION_SWITCH = "preference_if_close_notification";
     public static String DEFINED_WIFI_SSID = "preference_defined_wifi_ssid";
     public static String DEFINED_WIFI_PSW = "preference_defined_wifi_psw";
     public static String SINGLE_LOG_SIZE = "preference_single_log_size";
@@ -18,6 +19,7 @@ public class SettingPreferenceKey {
     public static String MONKEY_MTK_SET = "preference_monkey_mtk_set";
     public static String CLEAR_LOG = "preference_clear_log";
     public static String CATCH_LOG_TYPE = "preference_catch_log_type";
+    public static String IF_CLEAR_APP_UPDATE = "preference_if_clear_app_update";
 
     public static String APP_TYPE = "preference_app_type";
     public static String MONKEY_CHOOSE_APP = "monkey_choose_app";

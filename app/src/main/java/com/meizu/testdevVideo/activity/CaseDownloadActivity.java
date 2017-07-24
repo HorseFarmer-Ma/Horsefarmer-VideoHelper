@@ -61,7 +61,7 @@ public class CaseDownloadActivity extends Activity {
 
         download.setVisibility(View.GONE);   // 隐藏下载栏
 
-        if(!extra_message.equals("")){
+        if(null != extra_message && !extra_message.equals("")){
             edit_case.setText(extra_message);
         }
 

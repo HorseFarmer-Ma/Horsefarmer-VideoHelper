@@ -6,41 +6,41 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
-import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.view.MenuItem;
 
+import com.meizu.common.preference.ListPreference;
 import com.meizu.testdevVideo.R;
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
 import com.meizu.testdevVideo.util.PublicMethod;
 import com.meizu.testdevVideo.util.sharepreference.BaseData;
 
+import flyme.support.v7.app.ActionBar;
+import flyme.support.v7.app.AppCompatPreferenceActivity;
 
 
-public class SettingActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener,
+public class SettingActivity extends AppCompatPreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener,
         Preference.OnPreferenceClickListener{
 
-    private Toolbar mActionBar;
     private ListPreference preference_lock_wifi_type;
     private EditTextPreference preference_defined_wifi_ssid, preference_defined_wifi_psw,
             preference_single_log_size, preference_all_log_size, preference_clear_cache;
     private SharedPreferences sharedPreferences;
-    private CheckBoxPreference preference_monkey_mtk_set, preference_catch_log_type, preference_mute_run_task;
+    private CheckBoxPreference preference_catch_log_type, preference_mute_run_task;
     private Preference preference_app_type_choose;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.setting);
-        mActionBar.setTitle("设置");
-        mActionBar.setNavigationIcon(R.drawable.ic_back);
+        ActionBar mActionBar = getSupportActionBar();
+        if (mActionBar != null) {
+            mActionBar.setDisplayHomeAsUpEnabled(true);
+            mActionBar.setTitle(getResources().getString(R.string.setting));
+        }
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);   // 设置竖屏
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
@@ -51,11 +51,28 @@ public class SettingActivity extends PreferenceActivity implements SharedPrefere
         pswInit();
         singleLogSizeSetInit();
         allLogSizeSetInit();
-        monkeyMtkSetInit();
         muteSettingInit();
         appTypeInit();
         clearCacheInit();
     }
+
+
+    /**
+     * 处理actionbar中menu的点击事件
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id){
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     private void findView(){
         preference_lock_wifi_type = (ListPreference) findPreference(SettingPreferenceKey.LOCK_WIFI_TYPE);
@@ -64,7 +81,6 @@ public class SettingActivity extends PreferenceActivity implements SharedPrefere
         preference_single_log_size = (EditTextPreference) findPreference(SettingPreferenceKey.SINGLE_LOG_SIZE);
         preference_all_log_size = (EditTextPreference) findPreference(SettingPreferenceKey.ALL_LOG_SIZE);
         preference_clear_cache = (EditTextPreference) findPreference(SettingPreferenceKey.CLEAR_CACHE);
-        preference_monkey_mtk_set = (CheckBoxPreference) findPreference(SettingPreferenceKey.MONKEY_MTK_SET);
         preference_catch_log_type = (CheckBoxPreference) findPreference(SettingPreferenceKey.CATCH_LOG_TYPE);
         preference_mute_run_task = (CheckBoxPreference) findPreference(SettingPreferenceKey.MUTE_RUN_TASK);
         preference_app_type_choose = findPreference(SettingPreferenceKey.APP_TYPE);
@@ -75,6 +91,7 @@ public class SettingActivity extends PreferenceActivity implements SharedPrefere
         @Override
     public void finish() {
         super.finish();
+//        overridePendingTransition(R.anim.mz_activity_extra_to_next_open_enter, R.anim.mz_activity_extra_to_next_close_exit);
     }
 
     @Override
@@ -103,16 +120,23 @@ public class SettingActivity extends PreferenceActivity implements SharedPrefere
             singleLogSizeSetInit();
         }else if(key.equals(SettingPreferenceKey.ALL_LOG_SIZE)){
             allLogSizeSetInit();
-        }else if(key.equals(SettingPreferenceKey.MONKEY_MTK_SET)){
-            monkeyMtkSetInit();
         }else if(key.equals(SettingPreferenceKey.CLEAR_CACHE)){
             clearCacheInit();
         }else if(key.equals(SettingPreferenceKey.MUTE)){
             muteSettingInit();
-        }else{
+        }else if(key.equals(SettingPreferenceKey.NOTIFITION_SWITCH)){
+            Intent intent = new Intent();
+            intent.setAction("st.action.control.notification");
+            if(sharedPreferences.getBoolean(SettingPreferenceKey.NOTIFITION_SWITCH, true)){
+                intent.putExtra("isOpen", true);
+            }else{
+                intent.putExtra("isOpen", false);
+            }
+            sendBroadcast(intent);
+        }
+        else{
             Log.d(SettingActivity.class.getSimpleName(), "未知点击项");
         }
-
     }
 
     @Override
@@ -148,7 +172,8 @@ public class SettingActivity extends PreferenceActivity implements SharedPrefere
     private void wifiLockSetInit(){
         if(sharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, false)){
             preference_lock_wifi_type.setEnabled(true);
-            if(sharedPreferences.getString(SettingPreferenceKey.LOCK_WIFI_TYPE, null).equals("自定义")){
+            String lockWifiType = sharedPreferences.getString(SettingPreferenceKey.LOCK_WIFI_TYPE, null);
+            if(null != lockWifiType && lockWifiType.equals("自定义")){
                 preference_defined_wifi_ssid.setEnabled(true);
                 preference_defined_wifi_psw.setEnabled(true);
             }else{
@@ -163,8 +188,9 @@ public class SettingActivity extends PreferenceActivity implements SharedPrefere
     }
 
     private void wifiLockTypeSetInit(){
-        if(sharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, true)
-                && sharedPreferences.getString(SettingPreferenceKey.LOCK_WIFI_TYPE, null).equals("自定义")){
+        String lockWifiType = sharedPreferences.getString(SettingPreferenceKey.LOCK_WIFI_TYPE, null);
+        if(sharedPreferences.getBoolean(SettingPreferenceKey.LOCK_WIFI, false)
+                && null != lockWifiType && lockWifiType.equals("自定义")){
             preference_defined_wifi_ssid.setEnabled(true);
             preference_defined_wifi_psw.setEnabled(true);
         }else{
@@ -174,12 +200,6 @@ public class SettingActivity extends PreferenceActivity implements SharedPrefere
         preference_lock_wifi_type.setSummary(sharedPreferences.getString(SettingPreferenceKey.LOCK_WIFI_TYPE, null));
     }
 
-    private void monkeyMtkSetInit(){
-        boolean isEnable = sharedPreferences.getBoolean(SettingPreferenceKey.MONKEY_MTK_SET, true);
-        preference_single_log_size.setEnabled(isEnable);
-        preference_all_log_size.setEnabled(isEnable);
-        preference_catch_log_type.setEnabled(isEnable);
-    }
 
     private void ssidInit(){
         preference_defined_wifi_ssid.setSummary(sharedPreferences.getString(SettingPreferenceKey.DEFINED_WIFI_SSID, null));
@@ -222,25 +242,6 @@ public class SettingActivity extends PreferenceActivity implements SharedPrefere
         if(null != appType){
             preference_app_type_choose.setSummary(appType + " ~ " + email);
         }
-    }
-
-
-    @Override
-    public void setContentView(int layoutResID) {
-        ViewGroup contentView = (ViewGroup) LayoutInflater.from(this).inflate(
-                R.layout.activity_settings, new LinearLayout(this), false);
-
-        mActionBar = (Toolbar) contentView.findViewById(R.id.action_bar);
-        mActionBar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
-        ViewGroup contentWrapper = (ViewGroup) contentView.findViewById(R.id.content_wrapper);
-        LayoutInflater.from(this).inflate(layoutResID, contentWrapper, true);
-        getWindow().setContentView(contentView);
     }
 
 }

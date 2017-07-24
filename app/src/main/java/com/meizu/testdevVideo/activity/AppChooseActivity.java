@@ -19,14 +19,25 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSON;
+import com.meizu.common.widget.LoadingAnimotionView;
 import com.meizu.testdevVideo.R;
+import com.meizu.testdevVideo.SuperTestApplication;
 import com.meizu.testdevVideo.adapter.AppListAdapter;
 import com.meizu.testdevVideo.adapter.data.listview.AppInfo;
 import com.meizu.testdevVideo.constant.SettingPreferenceKey;
+import com.meizu.testdevVideo.interports.iPerformsKey;
+import com.meizu.testdevVideo.library.AppInfoHelper;
 import com.meizu.testdevVideo.library.ToastHelper;
+import com.meizu.testdevVideo.push.android.MPush;
+import com.meizu.testdevVideo.push.android.bean.MPushBindData;
+import com.meizu.testdevVideo.push.android.bean.MPushBindUserBean;
 import com.meizu.testdevVideo.util.PublicMethod;
+import com.meizu.testdevVideo.util.log.Logger;
 import com.meizu.testdevVideo.util.query.QueryApp;
 import com.meizu.testdevVideo.util.sharepreference.BaseData;
+import com.meizu.testdevVideo.util.sharepreference.PerformsData;
+import com.mpush.api.Constants;
 
 import java.util.List;
 
@@ -34,9 +45,16 @@ public class AppChooseActivity extends AppCompatActivity implements AdapterView.
                                             AppListAdapter.OnCheckListener, View.OnClickListener{
 
     public static final String TITLE = "title";
+    public static final int UPDATE_APP_LIST = 100;
+    public static final int UPDATE_LOGIN_MESSAGE = 200;
+    public static final int UPDATE_LOGIN_FAIL_TOAST = 300;
+    public static final int UPDATE_LOGIN_TIME_OUT = 400;
+    public static final int TIME_OUT = 3000;
+
 
     private SearchView searchView;
     private ListView appListView;
+    private LoadingAnimotionView loadingView;
     private LinearLayout mProgress;
     private LinearLayout view_height;
     private LinearLayout button_tab;
@@ -49,6 +67,11 @@ public class AppChooseActivity extends AppCompatActivity implements AdapterView.
     private AppListAdapter mAppAdapter = null;
     private String title = null;
     private AppListAdapter.Choose task = null;
+    private Thread loginThread = null;
+    private String appType;
+    private String packageName;
+    private String imei;
+    private String email;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +95,7 @@ public class AppChooseActivity extends AppCompatActivity implements AdapterView.
         mProgress = (LinearLayout) findViewById(R.id.mProgress);
         button_tab = (LinearLayout) findViewById(R.id.button_tab);
         email_adress = (EditText) findViewById(R.id.email_adress);
+        loadingView = (LoadingAnimotionView) findViewById(R.id.loadingView);
 
         if(title.equals(getResources().getString(R.string.choose_app_type))){
             task = AppListAdapter.Choose.APP_CHOOSE;
@@ -79,6 +103,8 @@ public class AppChooseActivity extends AppCompatActivity implements AdapterView.
             email_adress.setVisibility(View.VISIBLE);
             if(!TextUtils.isEmpty(email)){
                 email_adress.setText(email);
+            }else{
+                email_adress.setText("@meizu.com");
             }
         }else if(title.equals(getResources().getString(R.string.choose_monkey_app))){
             button_tab.setVisibility(View.VISIBLE);
@@ -103,7 +129,7 @@ public class AppChooseActivity extends AppCompatActivity implements AdapterView.
             queryApp = new QueryApp(getApplicationContext());
             mlistAppInfo = queryApp.getListAppInfo(QueryApp.Query.FILTER_ALL_APP);
             if(null != handler){
-                handler.sendEmptyMessage(100);
+                handler.sendEmptyMessage(UPDATE_APP_LIST);
             }
         }
     };
@@ -113,7 +139,7 @@ public class AppChooseActivity extends AppCompatActivity implements AdapterView.
         public void handleMessage(Message msg){
             super.handleMessage(msg);
             switch (msg.what){
-                case 100:
+                case UPDATE_APP_LIST:
                     try {
                         mProgress.setVisibility(View.GONE);
                         // 调用AppListAdapter，生成列表信息
@@ -141,26 +167,101 @@ public class AppChooseActivity extends AppCompatActivity implements AdapterView.
                     searchView.setSubmitButtonEnabled(false);
 
                     break;
+
+                case UPDATE_LOGIN_MESSAGE:
+                    MPushBindData.setBindStatus(getApplicationContext(),
+                            com.meizu.testdevVideo.constant.Constants.MpushBindUser.NO_STATUS);
+                    loadingView.setVisibility(View.GONE);
+                    appListView.setEnabled(true);
+                    Intent intent = new Intent(AppChooseActivity.this, SuperTestActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString(SettingPreferenceKey.APP_TYPE, appType);
+                    bundle.putString(SettingPreferenceKey.MONKEY_PACKAGE, packageName);
+                    bundle.putString(SettingPreferenceKey.EMAIL_ADDRESS, email);
+                    intent.putExtras(bundle);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                    break;
+
+                case UPDATE_LOGIN_FAIL_TOAST:
+                    MPushBindData.setBindStatus(getApplicationContext(),
+                            com.meizu.testdevVideo.constant.Constants.MpushBindUser.NO_STATUS);
+                    loadingView.setVisibility(View.GONE);
+                    appListView.setEnabled(true);
+                    ToastHelper.addToast("邮箱信息有误\n请根据钉钉邮箱信息进行填写！", getApplicationContext());
+                    break;
+
+                case UPDATE_LOGIN_TIME_OUT:
+                    MPushBindData.setBindStatus(getApplicationContext(),
+                            com.meizu.testdevVideo.constant.Constants.MpushBindUser.NO_STATUS);
+                    loadingView.setVisibility(View.GONE);
+                    appListView.setEnabled(true);
+                    ToastHelper.addToast("请求超时，请检查是否为公司网络！", getApplicationContext());
+                    break;
             }
         }
     };
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if(TextUtils.isEmpty(email_adress.getText().toString())){
-            ToastHelper.addToast("请先填写个人接收通知邮箱", getApplicationContext());
-        }else if(!email_adress.getText().toString().contains("@")){
-            ToastHelper.addToast("请填写正确格式邮箱，需带@后缀", getApplicationContext());
+    public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+        if(PublicMethod.hasNetwork(getApplicationContext())){
+            if(TextUtils.isEmpty(email_adress.getText().toString())){
+                ToastHelper.addToast("请先填写个人接收通知邮箱", getApplicationContext());
+            }else if(!email_adress.getText().toString().contains("@")){
+                ToastHelper.addToast("请填写正确格式邮箱，需带@后缀", getApplicationContext());
+            }else{
+                loadingView.setVisibility(View.VISIBLE);
+                appListView.setEnabled(false);
+                appType = mlistAppInfo.get(position).getAppLabel();
+                imei = PerformsData.getInstance(getApplicationContext()).readStringData(iPerformsKey.imei);
+                email = email_adress.getText().toString();
+                packageName = mlistAppInfo.get(position).getPkgName();
+                MPushBindUserBean mPushBindUserBean = new MPushBindUserBean();
+                mPushBindUserBean.setImei(imei);
+                mPushBindUserBean.setEmail(email);
+                mPushBindUserBean.setPackageName(packageName);
+                mPushBindUserBean.setVersion(AppInfoHelper.getInstance().getAppVersion(getPackageName()));
+                mPushBindUserBean.setModule(PerformsData.getInstance(getApplicationContext()).readStringData(iPerformsKey.deviceType));
+                mPushBindUserBean.setTask(com.meizu.testdevVideo.constant.Constants.MpushTaskLabel.CHECK_PHONE_IMEI);
+                Logger.d(JSON.toJSONString(mPushBindUserBean));
+                MPush.I.sendPush(JSON.toJSONString(mPushBindUserBean).getBytes(Constants.UTF_8));
+
+                loginThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        long startTime = System.currentTimeMillis();
+                        long checkTime;
+                        while ((checkTime = System.currentTimeMillis() - startTime) < TIME_OUT){
+                            if(MPushBindData.getBindStatus(SuperTestApplication.getContext())
+                                    == com.meizu.testdevVideo.constant.Constants.MpushBindUser.PASS){
+                                handler.sendEmptyMessage(UPDATE_LOGIN_MESSAGE);
+                                break;
+
+                            }else if(MPushBindData.getBindStatus(SuperTestApplication.getContext())
+                                    == com.meizu.testdevVideo.constant.Constants.MpushBindUser.FAIL){
+                                handler.sendEmptyMessage(UPDATE_LOGIN_FAIL_TOAST);
+                                break;
+                            }
+
+                            // 每隔100ms检测一次
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        if(checkTime >= TIME_OUT){
+                            handler.sendEmptyMessage(UPDATE_LOGIN_TIME_OUT);
+                        }
+                    }
+                });
+                loginThread.start();
+            }
         }else{
-            Intent intent = new Intent(AppChooseActivity.this, MainActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putString(SettingPreferenceKey.APP_TYPE, mlistAppInfo.get(position).getAppLabel());
-            bundle.putString(SettingPreferenceKey.MONKEY_PACKAGE, mlistAppInfo.get(position).getPkgName());
-            bundle.putString(SettingPreferenceKey.EMAIL_ADDRESS, email_adress.getText().toString());
-            intent.putExtras(bundle);
-            setResult(RESULT_OK, intent);
-            finish();
+            ToastHelper.addToast("无网络连接，点击mBack返回\n请连接网络后进行登录绑定", getApplicationContext());
         }
+
     }
 
 
@@ -188,7 +289,7 @@ public class AppChooseActivity extends AppCompatActivity implements AdapterView.
                 finish();
                 break;
             case R.id.btn_ok:
-                Intent intent = new Intent(AppChooseActivity.this, MainActivity.class);
+                Intent intent = new Intent(AppChooseActivity.this, SuperTestActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putString(SettingPreferenceKey.MONKEY_CHOOSE_APP,
                         mAppAdapter.getCheckBoxMap().values().toString().replace(",", " -p").replace("[", "").replace("]", ""));
@@ -202,6 +303,14 @@ public class AppChooseActivity extends AppCompatActivity implements AdapterView.
 
     @Override
     public void onDestroy() {
+        // 移除多余信息
+        if(null != loginThread){
+            loginThread.interrupt();
+        }
+        if(null != handler){
+            handler.removeCallbacksAndMessages(null);
+        }
+
         super.onDestroy();
     }
 }
