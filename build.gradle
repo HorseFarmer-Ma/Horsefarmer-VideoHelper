@@ -1,0 +1,24 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        maven { url 'http://artifactory.rnd.meizu.com/artifactory/all' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.2'
+
+        // 加载本插件jar包
+        classpath 'com.meizu.tools.build:gradle:2.7'
+    }
+}
+
+allprojects {
+    repositories {
+        maven { url 'http://artifactory.rnd.meizu.com/artifactory/all' }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
